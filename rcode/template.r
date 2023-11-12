@@ -1,35 +1,27 @@
 # install.packages(c('stringr', 'dplyr', 'lubridate', 'ggplot2'))
 
-
 library(stringr)
 library(dplyr)
 library(lubridate)
 library(ggplot2)
 
-
-# number of minutes to plot prior to window start
-window_pre_mins = {window_pre_mins}
-# number of minutes to plot after window ends
-window_post_mins = {window_post_mins}
-
-
-plot_root <- "{lion_plot_root}/"
-# dir where motion csvs are stored
-# data_root = "C:/accel_data/cougars/F222_32664_/trailcam_test/MotionData_32664/"
-
-# M201
-data_root = "C:/accel_data/cougars/M201_20170_020116_120116/MotionData_0/"
-# F209
-# data_root = "C:/accel_data/cougars/F209_22262_030717_032819/MotionData_22262/"
-# F202
-# data_root = "C:/accel_data/cougars/F202_27905_010518_072219/MP_motion/MotionData_27905/"
-
-
 #################################################################
 # CHOOSE LION DATA
-
 # Edit the fields below to choose the individual lion, date,
 # and exact time span of accelerometery data you want to view
+# R Script inputs (filled in by python script)
+csv_path = "{csv_path}"
+lion.name = "{lion_name}"
+year = {year}
+month = {month}
+day = {day}
+hour = {hour}
+hour_high = hour
+
+window_pre_mins = {window_pre_mins}         # number of minutes to plot prior to window start
+window_post_mins = {window_post_mins}       # number of minutes to plot after window ends
+
+plot_name <- "{lion_plot_path}_{plot_type}_{Kill_ID}.png"             # path to save output plot image
 
 
 # vertical line to show time(s) of interest
@@ -39,12 +31,7 @@ window_high_min = {window_high_min}
 window_high_sec = 0
 time_window = 10      # number of minutes to plot on either side of surge
 
-lion.name = "{lion_name}"
-year = {year}
-month = {month}
-day = {day}
-hour = {hour}  # + MST_offset
-hour_high = hour
+
 # min_low = 42; second_low = 00
 # min_high = 59; second_high = 00
 
@@ -76,17 +63,7 @@ if (min_high >= 60){{
 file_desc = "_{plot_type}_{Kill_ID}"
 
 
-#################################################################
-##Choose your directory where hourly accel files are stored
-
-month_abbr = month.abb[month]
-month = sprintf("%02d", strtoi(month)) # zero pad the month and day
-day = sprintf("%02d", strtoi(day))
-
-folders = sprintf("%s/%s %s/%s/", year, month, month_abbr, day)
-csv_name = sprintf("%s-%s-%s.csv", year, month, day)
-csv_path = paste(data_root, folders, csv_name, sep="")
-accel <- read.csv(csv_path, skip = 1)
+accel <- read.csv(csv_path, skip=1) # directory where daily accel files are stored
 
 
 
@@ -141,7 +118,7 @@ df <- data.frame(UTC, Xg, Yg, Zg) %>%
 time.text <- paste(lion.name, as.character(format(time_low, format = "%Y-%m-%d"), sep = " "))
 fname_time <- paste(lion.name, as.character(format(time_low, format = "%Y-%m-%d__%H_%M_%S"), sep = " "))
 
-plot_name <- paste(plot_root, fname_time, file_desc, ".png", sep="")
+
 
 p <- ggplot(data = df, aes(x = UTC)) +
   geom_line(aes(y = Yg, color = "Y axis")) +
@@ -160,8 +137,6 @@ p <- ggplot(data = df, aes(x = UTC)) +
         plot.background = element_rect(fill = "transparent", color = NA)
   ) +
   guides(color = guide_legend(title = "Axis"))
-  #geom_vline(xintercept=window_low, color="yellow", linewidth=1) +
-  #geom_vline(xintercept=window_high, color="yellow", linewidth=1)
 
 
 interval <- as.difftime(10, units = "secs")
@@ -170,10 +145,5 @@ p +
   scale_x_datetime(
     breaks = seq(min(df$UTC), max(df$UTC), by = interval),
     labels = scales::date_format("%H:%M:%S"))
-
-
-# add vertical line at point of interest (WIP)
-#p + geom_vline(xintercept=window_low, color="yellow", linewidth=1) +
-#  geom_vline(xintercept=window_high, color="yellow", linewidth=1)
 
 ggsave(plot_name, plot=p)

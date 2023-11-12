@@ -1,13 +1,19 @@
+from collections import defaultdict
+from datetime import datetime
+import glob
 import math
 import os
-import subprocess
 import pandas as pd
+import shutil
+import subprocess
+import time
 
 from data_config import data_paths, spreadsheets, validate_config, view_configs
 
-launch = False
+# TODO: make command line args
+launch = True
 verbose = False
-
+clear_plot_dir = True
 
 def identify_kills():
     """
@@ -16,8 +22,11 @@ def identify_kills():
     :return:
     """
     configs = []
+    expected_plots = set()
     spreadsheet_root = os.path.abspath(data_paths["spreadsheet_root"])
     plot_root = data_paths["plot_root"]
+    missing_csvs = set()
+    plot_counts = defaultdict(int)
 
     for spreadsheet in spreadsheets:
         path = os.path.join(spreadsheet_root, spreadsheet)
@@ -33,7 +42,7 @@ def identify_kills():
                     print(f"\tSheets in cfg:  {sorted(cfg_sheets)}")
             else:
                 cfg_sheets = f.sheet_names
-                
+
             tab_skipped = False
             for sheet in cfg_sheets:
                 df = f.parse(sheet)
@@ -44,6 +53,7 @@ def identify_kills():
                     continue
                 df = df[cols]
                 df = df[df['Period'] == 'Kill']
+                df["data_root"] = spreadsheets[spreadsheet]["tabs"][sheet]
                 df_all = pd.concat([df_all, df], ignore_index=True)
 
         if tab_skipped:
@@ -61,6 +71,8 @@ def identify_kills():
         window_high_min = row['End Time'].minute
         window_high_min = max(window_low_min + 1, window_high_min)      # ensure the window is at least 1 minute
 
+        plot_date = datetime(year=year, month=month, day=day, hour=hour, minute=window_low_min)
+
         kill_id = row['Kill_ID']
         if math.isnan(kill_id):
             kill_id = no_id_kill_index
@@ -68,10 +80,23 @@ def identify_kills():
         else:
             kill_id = int(kill_id)
 
-        lion_id = f"{row['Sex']}{row['AnimalID']}"
+        lion_id = f"{row['Sex']}{int(row['AnimalID'])}"
         lion_plot_root = os.path.join(plot_root, lion_id)
         if not os.path.isdir(lion_plot_root):
             os.makedirs(lion_plot_root)
+        plot_name = plot_date.strftime(f"{lion_id}_%Y-%m-%d__%H_%M")  # the R script will append config type/kill id and .png
+        expected_plots.add(plot_name)
+        lion_plot_path = os.path.join(lion_plot_root, plot_name)
+
+        csv_folder = plot_date.strftime("%Y/%m %b/%d/")
+        csv_name = plot_date.strftime("%Y-%m-%d.csv")
+        csv_path = os.path.join(row["data_root"], csv_folder, csv_name)
+        csv_path = csv_path.replace("\\", "/")      # R does not like backward slashes, convert to forward
+        if not os.path.isfile(csv_path):
+            missing_csvs.add(csv_path)
+            continue
+
+        plot_counts[lion_id] += 1
         data = {
             "lion_name": f"{lion_id}",
             "window_low_min": window_low_min,
@@ -81,14 +106,24 @@ def identify_kills():
             "day": day,
             "hour": hour,
             "Kill_ID": kill_id,
-            "lion_plot_root": lion_plot_root
+            "lion_plot_path": lion_plot_path,
+            "csv_path": csv_path
         }
         configs.append(data)
+        # expected_plots.add(data["lion_plot_path"])
 
-    return configs
+    if missing_csvs:
+        print(f"WARNING: The following {len(missing_csvs)} CSVs were missing, will not be processed:")
+        for csv in missing_csvs:
+            print(f"\t{csv}")
+
+    print("\nWe plan on generating this many plots per cat:")
+    for key, value in plot_counts.items():
+        print(f"\t{key}: {value * len(view_configs)}")
+    return configs, expected_plots
 
 
-def generate_scripts(configs):
+def generate_scripts(configs, expected_plots):
     """
     For each config generated from the spreadhsheet data, generate
     an R script to extract the data.
@@ -100,6 +135,7 @@ def generate_scripts(configs):
     output_path = os.path.abspath(data_paths["output_path"])
     r_path = os.path.abspath(data_paths["r_path"])
     batch_fname = os.path.join(output_path, "run_batch.bat")
+    all_expected_plots = set()
 
     with open(template_path, "r") as template_file:
         template_content = template_file.read()
@@ -111,6 +147,7 @@ def generate_scripts(configs):
             config["window_pre_mins"] = value["window_pre_mins"]
             config["window_post_mins"] = value["window_post_mins"]
             filled_template = template_content.format(**config)
+            filled_template = filled_template.replace("\\", "/")
 
             out_fname = os.path.join(output_path, f"script_{config['lion_name']}_{config['plot_type']}_{config['Kill_ID']}.r")
             with open(out_fname, "w") as output_file:
@@ -127,14 +164,47 @@ def generate_scripts(configs):
 
     print(f"\nGenerated {len(generated_files)} files in {batch_path}")
 
-    return batch_path
+    for expected_plot in expected_plots:
+        for config in configs:
+            for key in view_configs.keys():
+                all_expected_plots.add(f"{expected_plot}_{key}")
+
+    return batch_path, all_expected_plots
 
 
 if __name__ == '__main__':
     validate_config()
-    configs = identify_kills()
-    batch_file = generate_scripts(configs)
+    configs, expected_plots = identify_kills()
+    batch_file, expected_plots = generate_scripts(configs, expected_plots)
     if launch:
+        if clear_plot_dir:
+            plot_root = data_paths["plot_root"]
+            print(f"Clearing PNG files from plot dir: {plot_root}")
+            file_pattern = os.path.join(plot_root, '*/*.png')  # Example: Remove all txt files
+            files_to_remove = glob.glob(file_pattern)
+            for file_path in files_to_remove:
+                try:
+                    os.remove(file_path)
+                    print(f"Removed file: {file_path}")
+                except OSError as e:
+                    print(f"Error removing file {file_path}: {e}")
         print(f"Launching {batch_file} (this may take awhile)")
         print("Results from each script will be written to <script>.log")
+        start = time.time()
         subprocess.run([batch_file])
+        runtime = time.time() - start
+        print(f"Runtime: {runtime:3.0f} seconds")
+        print(f"Average time per run: {runtime/len(configs):2.2f} seconds")
+
+        # check expected plots
+        generated_plots = glob.glob(os.path.join(data_paths["plot_root"], "*/*.png"))
+        for plot in list(expected_plots):
+            for generated_plot in generated_plots:
+                if plot in generated_plot:
+                    expected_plots.remove(plot)
+                    break
+
+        if expected_plots:
+            print(f"The following {len(expected_plots)} plots were expected but not found:")
+            for plot in expected_plots:
+                print(f"\t{plot}")

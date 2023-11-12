@@ -19,6 +19,12 @@ Each root key represents a spreadsheet file (relative to spreadsheet_root)
 """
 spreadsheets = {
     "Cougars_ODBA_KIlls_Setup.xlsx": {
+        "tabs": {
+            "M201": "C:/accel_data/cougars/M201_20170_020116_120116/MotionData_0/",
+            "F202": "C:/accel_data/cougars/F202_27905_010518_072219/MotionData_27905",
+            "F207": "C:/accel_data/cougars/F207_22263_030117_012919/MotionData_0",
+            "F209": "C:/accel_data/cougars/F209_22262_030717_032819/MotionData_22262/",
+        },
         # "tabs": ["M201", "F202", "F209", "F207"],
         # "tabs": ["M201"],
         "data_cols": ["AnimalID", "Sex", "Period", "Kill_ID", "Start Date", "Start time", "End Time"]
@@ -57,6 +63,8 @@ def validate_config():
     os.makedirs(data_paths["output_path"], exist_ok=True)
     assert(os.access(data_paths["output_path"], os.W_OK)), f"Unable to write to output dir: {data_paths['output_path']}"
     assert(os.access(data_paths["r_path"], os.X_OK)), "Unable to find/execute R"
+
+    os.makedirs(data_paths["plot_root"], exist_ok=True) # "Unable to make plot root dir"
     assert(os.access(data_paths["plot_root"], os.W_OK)), "Unable to write to plot dir"
 
     for spreadsheet in spreadsheets:
