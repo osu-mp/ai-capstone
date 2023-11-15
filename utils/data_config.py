@@ -21,12 +21,10 @@ spreadsheets = {
     "Cougars_ODBA_KIlls_Setup.xlsx": {
         "tabs": {
             "M201": "C:/accel_data/cougars/M201_20170_020116_120116/MotionData_0/",
-            "F202": "C:/accel_data/cougars/F202_27905_010518_072219/MotionData_27905",
-            "F207": "C:/accel_data/cougars/F207_22263_030117_012919/MotionData_0",
-            "F209": "C:/accel_data/cougars/F209_22262_030717_032819/MotionData_22262/",
+            # "F202": "C:/accel_data/cougars/F202_27905_010518_072219/MotionData_27905",
+            # "F207": "C:/accel_data/cougars/F207_22263_030117_012919/MotionData_0",
+            # "F209": "C:/accel_data/cougars/F209_22262_030717_032819/MotionData_22262/",
         },
-        # "tabs": ["M201", "F202", "F209", "F207"],
-        # "tabs": ["M201"],
         "data_cols": ["AnimalID", "Sex", "Period", "Kill_ID", "Start Date", "Start time", "End Time"]
     }
 }

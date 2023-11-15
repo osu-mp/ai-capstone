@@ -4,16 +4,17 @@ import glob
 import math
 import os
 import pandas as pd
-import shutil
 import subprocess
 import time
 
 from data_config import data_paths, spreadsheets, validate_config, view_configs
 
+# TODO: use logger
+
 # TODO: make command line args
 launch = True
 verbose = False
-clear_plot_dir = True
+clear_plot_dir = False
 
 def identify_kills():
     """
@@ -84,8 +85,7 @@ def identify_kills():
         lion_plot_root = os.path.join(plot_root, lion_id)
         if not os.path.isdir(lion_plot_root):
             os.makedirs(lion_plot_root)
-        plot_name = plot_date.strftime(f"{lion_id}_%Y-%m-%d__%H_%M")  # the R script will append config type/kill id and .png
-        expected_plots.add(plot_name)
+        plot_name = plot_date.strftime(f"{lion_id}_%Y-%m-%d__%H_%M__{kill_id}")  # the R script will append config type/kill id and .png
         lion_plot_path = os.path.join(lion_plot_root, plot_name)
 
         csv_folder = plot_date.strftime("%Y/%m %b/%d/")
@@ -95,6 +95,8 @@ def identify_kills():
         if not os.path.isfile(csv_path):
             missing_csvs.add(csv_path)
             continue
+
+        expected_plots.add(plot_name)
 
         plot_counts[lion_id] += 1
         data = {
@@ -165,9 +167,8 @@ def generate_scripts(configs, expected_plots):
     print(f"\nGenerated {len(generated_files)} files in {batch_path}")
 
     for expected_plot in expected_plots:
-        for config in configs:
-            for key in view_configs.keys():
-                all_expected_plots.add(f"{expected_plot}_{key}")
+        for key in view_configs.keys():
+            all_expected_plots.add(f"{expected_plot}_{key}")
 
     return batch_path, all_expected_plots
 
@@ -194,7 +195,7 @@ if __name__ == '__main__':
         subprocess.run([batch_file])
         runtime = time.time() - start
         print(f"Runtime: {runtime:3.0f} seconds")
-        print(f"Average time per run: {runtime/len(configs):2.2f} seconds")
+        print(f"Average time per run: {runtime/len(expected_plots):2.2f} seconds")
 
         # check expected plots
         generated_plots = glob.glob(os.path.join(data_paths["plot_root"], "*/*.png"))
@@ -208,3 +209,6 @@ if __name__ == '__main__':
             print(f"The following {len(expected_plots)} plots were expected but not found:")
             for plot in expected_plots:
                 print(f"\t{plot}")
+        else:
+            print("SUCCESS: All expected plots appear to be generated!")
+
