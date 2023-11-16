@@ -21,9 +21,9 @@ spreadsheets = {
     "Cougars_ODBA_KIlls_Setup.xlsx": {
         "tabs": {
             "M201": "C:/accel_data/cougars/M201_20170_020116_120116/MotionData_0/",
-            # "F202": "C:/accel_data/cougars/F202_27905_010518_072219/MotionData_27905",
-            # "F207": "C:/accel_data/cougars/F207_22263_030117_012919/MotionData_0",
-            # "F209": "C:/accel_data/cougars/F209_22262_030717_032819/MotionData_22262/",
+            "F202": "C:/accel_data/cougars/F202_27905_010518_072219/MotionData_27905",
+            "F207": "C:/accel_data/cougars/F207_22263_030117_012919/MotionData_0",
+            "F209": "C:/accel_data/cougars/F209_22262_030717_032819/MotionData_22262/",
         },
         "data_cols": ["AnimalID", "Sex", "Period", "Kill_ID", "Start Date", "Start time", "End Time"]
     }
@@ -36,13 +36,25 @@ Must specify the number of minutes before and after the event
 of interest we want.
 """
 view_configs = {
+    # stalking: short before, short after
     "stalking": {
         "window_pre_mins": 5,
         "window_post_mins": 2,
     },
+    # feeding: short before, long after
     "feeding": {
         "window_pre_mins": 2,
         "window_post_mins": 30,
+    },
+    # day: several hours before and after (will not cross days yet)
+    "day": {
+        "window_pre_mins": 24*60,
+        "window_post_mins": 24*60,
+    },
+    # sixhour: shorter than day window, still wide window
+    "sixhour": {
+        "window_pre_mins": 3 * 60,
+        "window_post_mins": 3 * 60,
     }
 }
 
