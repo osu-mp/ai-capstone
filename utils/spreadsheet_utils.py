@@ -7,7 +7,7 @@ import pandas as pd
 import subprocess
 import time
 
-from data_config import data_paths, spreadsheets, validate_config, view_configs
+from utils.data_config import data_paths, spreadsheets, validate_config, view_configs
 
 # TODO: use logger
 
@@ -171,6 +171,10 @@ def generate_scripts(configs, expected_plots):
             all_expected_plots.add(f"{expected_plot}_{key}")
 
     return batch_path, all_expected_plots
+
+def get_all_view_options():
+     # return a list of all valid views, used by command line parser
+    return list(view_configs.keys())
 
 
 if __name__ == '__main__':
