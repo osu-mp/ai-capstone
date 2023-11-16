@@ -15,6 +15,8 @@ lion.name = "{lion_name}"
 year = {year}
 month = {month}
 day = {day}
+day_low = day
+day_high = day
 hour = {hour}
 hour_high = hour
 
@@ -29,7 +31,6 @@ window_low_min = {window_low_min}
 window_low_sec = 0
 window_high_min = {window_high_min}
 window_high_sec = 0
-time_window = 10      # number of minutes to plot on either side of surge
 
 
 # min_low = 42; second_low = 00
@@ -48,17 +49,30 @@ second_low = 00
 second_high = 00
 
 min_low = window_low_min - window_pre_mins
-if (min_low < 0){{
+while (min_low < 0){{
   min_low = 60 + min_low
   hour = hour - 1
 }}
 
 min_high = window_high_min + window_post_mins
-if (min_high >= 60){{
+while (min_high >= 60){{
   min_high = min_high - 60;
   hour_high = hour_high + 1;
 }}
 
+if (hour < 0){{
+    hour = 0
+    min_low = 0
+    #hour = hour + 24
+    #day_low = day_low - 1
+}}
+
+if (hour_high >= 24){{
+    hour_high = 23
+    min_high = 59
+    #hour_high -= 24
+    #day_high = day_high + 1
+}}
 # added to file name
 file_desc = "_{plot_type}_{Kill_ID}"
 
