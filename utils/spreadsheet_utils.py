@@ -4,14 +4,19 @@ import glob
 import math
 import os
 import pandas as pd
+from PIL import Image
 import subprocess
 import time
 
-from utils.data_config import data_paths, spreadsheets, validate_config, view_configs
+from utils.data_config import data_paths, spreadsheets, validate_config, view_configs, is_unix
 
 # TODO: use logger
 
+# TODO: combine multiple plots into one image
+
 # TODO: make command line args
+
+# TODO: make yellow transpare
 launch = True
 verbose = False
 clear_plot_dir = False
@@ -137,6 +142,8 @@ def generate_scripts(configs, expected_plots):
     output_path = os.path.abspath(data_paths["output_path"])
     r_path = os.path.abspath(data_paths["r_path"])
     batch_fname = os.path.join(output_path, "run_batch.bat")
+    if is_unix:
+        batch_fname = os.path.join(output_path, "run.csh")
     all_expected_plots = set()
 
     with open(template_path, "r") as template_file:
@@ -148,6 +155,7 @@ def generate_scripts(configs, expected_plots):
             config["plot_type"] = key
             config["window_pre_mins"] = value["window_pre_mins"]
             config["window_post_mins"] = value["window_post_mins"]
+            config["minor_tick_interval"] = value["minor_tick_interval"]
             filled_template = template_content.format(**config)
             filled_template = filled_template.replace("\\", "/")
 
@@ -160,9 +168,16 @@ def generate_scripts(configs, expected_plots):
 
     batch_path = os.path.abspath(batch_fname)
     with open(batch_path, "w") as output_file:
-        output_file.write("@echo off\n\n")
+        if is_unix:
+            output_file.write("#!/usr/bin/bash\n\n")
+        else:
+            output_file.write("@echo off\n\n")
+
         for fname in generated_files:
-            output_file.write(f"\"{r_path}\" \"{fname}\" > \"{fname}.log\" 2>&1\n")
+            if is_unix:
+                output_file.write(f"{r_path} {fname} > {fname}.log 2>&1\n")
+            else:
+                output_file.write(f"\"{r_path}\" \"{fname}\" > \"{fname}.log\" 2>&1\n")
 
     print(f"\nGenerated {len(generated_files)} files in {batch_path}")
 
@@ -170,17 +185,69 @@ def generate_scripts(configs, expected_plots):
         for key in view_configs.keys():
             all_expected_plots.add(f"{expected_plot}_{key}")
 
+    # make the file executable
+    os.chmod(batch_path, 0o755)
+
     return batch_path, all_expected_plots
 
 def get_all_view_options():
      # return a list of all valid views, used by command line parser
     return list(view_configs.keys())
 
+def combine_images(path1, path2, path3, new_name):
+    for path in [path1, path2, path3]:
+        if not os.path.isfile(path):
+            print(f"Unable to combine images due to missing {path}")
+            return
+
+    # Load your three PNG images
+    image1 = Image.open(path1)
+    image2 = Image.open(path2)
+    image3 = Image.open(path3)
+
+    # Assuming all images have the same height, adjust if not
+    total_height = image1.height
+
+    # Calculate the width for the combined image
+    total_width = sum([img.width for img in [image1, image2, image3]])
+
+    # Create a new blank image with the calculated dimensions
+    combined_image = Image.new("RGB", (total_width, total_height))
+
+    # Paste the individual images into the combined image, arranging them in columns
+    x_offset = 0
+    for img in [image1, image2, image3]:
+        combined_image.paste(img, (x_offset, 0))
+        x_offset += img.width
+
+    # Save the combined image
+    combined_image.save(new_name)
+    print(f"Generated {new_name=}")
+
+def make_mega_plots(root, expected_plots):
+    """
+    If we have a labeling plot, attempt to make a larger image of the sequence:
+        stalking, labeling, feeding
+    This allows for a quick view at different levels
+    :param root:
+    :param expected_plots:
+    :return:
+    """
+    # hardcoded BS here
+    generated_plots = glob.glob(os.path.join(data_paths["plot_root"], "*/*.png"))
+    for plot in generated_plots:
+        if 'labeling' in plot:
+            path1 = plot.replace('labeling', 'stalking')
+            path2 = plot
+            path3 = plot.replace('labeling', 'feeding')
+            new_name = plot.replace('labeling', 'mega')
+            combine_images(path1, path2, path3, new_name)
 
 if __name__ == '__main__':
     validate_config()
     configs, expected_plots = identify_kills()
     batch_file, expected_plots = generate_scripts(configs, expected_plots)
+
     if launch:
         if clear_plot_dir:
             plot_root = data_paths["plot_root"]
@@ -201,6 +268,8 @@ if __name__ == '__main__':
         print(f"Runtime: {runtime:3.0f} seconds")
         print(f"Average time per run: {runtime/len(expected_plots):2.2f} seconds")
 
+        make_mega_plots(data_paths["plot_root"], expected_plots)
+
         # check expected plots
         generated_plots = glob.glob(os.path.join(data_paths["plot_root"], "*/*.png"))
         for plot in list(expected_plots):
@@ -215,4 +284,5 @@ if __name__ == '__main__':
                 print(f"\t{plot}")
         else:
             print("SUCCESS: All expected plots appear to be generated!")
+
 

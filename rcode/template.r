@@ -1,9 +1,10 @@
-# install.packages(c('stringr', 'dplyr', 'lubridate', 'ggplot2'))
+# install.packages(c('stringr', 'dplyr', 'lubridate', 'ggplot2', "tidyr"))
 
 library(stringr)
 library(dplyr)
 library(lubridate)
 library(ggplot2)
+library(tools)
 
 #################################################################
 # CHOOSE LION DATA
@@ -19,6 +20,8 @@ day_low = day
 day_high = day
 hour = {hour}
 hour_high = hour
+plot_title = toTitleCase("{plot_type}")
+minor_tick_interval = {minor_tick_interval}
 
 window_pre_mins = {window_pre_mins}         # number of minutes to plot prior to window start
 window_post_mins = {window_post_mins}       # number of minutes to plot after window ends
@@ -155,9 +158,129 @@ p <- ggplot(data = df, aes(x = UTC)) +
 
 interval <- as.difftime(10, units = "secs")
 
-p +
-  scale_x_datetime(
-    breaks = seq(min(df$UTC), max(df$UTC), by = interval),
-    labels = scales::date_format("%H:%M:%S"))
+# START subplots
 
+df_long <- tidyr::gather(df, variable, value, -UTC)
+
+# Create a data frame specifically for legend entries of the vertical lines
+legend_data <- data.frame(
+  xpos = c(window_high, window_low),
+  label = c("High", "Low")
+)
+
+
+p <- ggplot(data = df, aes(x = UTC)) +
+  geom_line(aes(y = Yg, color = "Y axis")) +
+  labs(x = "Time", y = "Acceleration (g's)") +
+  ylim(-0.3, 0.3) +
+  scale_color_manual(values = c("Y axis" = "black")) +
+  theme(axis.title.y = element_text(size = 18, color = "black"),
+        axis.title.x = element_text(size = 18, color = "black"),
+        axis.text.x = element_text(size = 12),
+        panel.grid.major = element_line(color = "darkgray", size = 0.2),
+        panel.grid.minor = element_line(color = "lightgray", size = 0.1),
+        plot.background = element_rect(fill = "white")#, color = NA)
+  ) +
+  guides(color = guide_legend(title = "Axis")) +
+
+  facet_wrap(~ variable, scales = "free_y", ncol = 1)
+
+df_long <- tidyr::gather(df, variable, value, -UTC)
+
+ggplot(df_long, aes(x = UTC, y = value, color = variable)) +
+  geom_line() +
+  labs(x = "Time", y = "Acceleration (g's)") +
+  ylim(-0.3, 0.3) +
+  scale_color_manual(values = c("Yg" = "black", "Xg" = "red", "Zg" = "blue")) +
+  theme(axis.title.y = element_text(size = 18, color = "black"),
+        axis.title.x = element_text(size = 18, color = "black"),
+        axis.text.x = element_text(size = 12),
+        panel.grid.major = element_line(color = "darkgray", size = 0.2),
+        panel.grid.minor = element_line(color = "lightgray", size = 0.1),
+        plot.background = element_rect(fill = "white")#, color = NA)
+  ) +
+  guides(color = guide_legend(title = "Axis"))+
+  facet_wrap(~variable, scales = "free_y", ncol = 1)
+
+
+p <- ggplot(data = df_long, aes(x = UTC, y = value, color = variable)) +
+  geom_line() +
+  labs(x = "Time", y = "Acceleration (g's)") +
+  ylim(-0.3, 0.3) +
+  scale_color_manual(values = c("Yg" = "black", "Xg" = "red", "Zg" = "blue")) +
+  theme(axis.title.y = element_text(size = 18, color = "black"),
+        axis.title.x = element_text(size = 18, color = "black"),
+        axis.text.x = element_text(size = 12),
+        panel.grid.major = element_line(color = "darkgray", size = 0.2),
+        panel.grid.minor = element_line(color = "lightgray", size = 0.1),
+        plot.background = element_rect(fill = "white")# color = NA)
+  ) +
+  guides(color = guide_legend(title = "Axis")) +
+  facet_wrap(~ variable, scales = "free_y", ncol = 1)
+
+#p <- p +
+#  geom_vline(data = data.frame(xpos = c(window_high, window_low)),
+#             aes(xintercept = as.numeric(xpos)), color = "yellow", linetype = "dashed")
+
+# Plotting
+p <- ggplot(data = df_long, aes(x = UTC, y = value, color = variable)) +
+  geom_line() +
+  labs(x = "Time", y = "Acceleration (g's)") +
+  ylim(-0.3, 0.3) +
+  scale_color_manual(values = c("Yg" = "black", "Xg" = "red", "Zg" = "blue")) +
+  theme(
+    axis.title.y = element_text(size = 18, color = "black"),
+    axis.title.x = element_text(size = 18, color = "black"),
+    axis.text.x = element_text(size = 12),
+    panel.grid.major = element_line(color = "darkgray", size = 0.2),
+    panel.grid.minor = element_line(color = "lightgray", size = 0.1),
+    plot.background = element_rect(fill = "white")#, color = NA)
+  ) +
+  guides(color = guide_legend(title = "Axis")) +
+  facet_wrap(~variable, scales = "free_y", ncol = 1)
+
+
+# Adding vertical lines and mapping them to linetype with a manual scale for legend
+p <- p +
+  geom_vline(
+    data = data.frame(xpos = c(window_high, window_low), label = c("Original1", "Low")),  # Define labels for legend
+    aes(xintercept = as.numeric(xpos), linetype = "Vertical Lines"),  # Mapping for linetype
+    color = "orange", linetype = "solid"
+  ) +
+  scale_linetype_manual(
+    name = "Surge Windows",
+    values = "solid",
+    labels = c("Original", "Low")
+  )
+
+
+p
+
+# Calculate the minimum and maximum timestamps
+min_time <- min(df$UTC)
+max_time <- max(df$UTC)
+
+# Define the interval for minor breaks in seconds
+minor_interval <- 10  # For example, every 5 seconds
+
+# Generate minor breaks at the specified interval
+minor_breaks <- seq.POSIXt(from = min_time, to = max_time, by = minor_interval)
+
+# add title
+p <- p +
+  ggtitle(plot_title) +
+  theme(
+    plot.title = element_text(hjust = 0.5)  # Center title horizontally
+  )
+
+
+# END subplots
+p = p +
+  scale_x_datetime(
+    #breaks = seq(min(df$UTC), max(df$UTC), by = interval),
+    #labels = scales::date_format("%H:%M:%S"),
+    minor_breaks = minor_breaks
+    )
+p
 ggsave(plot_name, plot=p)
+
