@@ -245,7 +245,7 @@ p <- p +
   geom_vline(
     data = data.frame(xpos = c(window_high, window_low), label = c("Original1", "Low")),  # Define labels for legend
     aes(xintercept = as.numeric(xpos), linetype = "Vertical Lines"),  # Mapping for linetype
-    color = "orange", linetype = "solid"
+    color = "orange", alpha=0.3
   ) +
   scale_linetype_manual(
     name = "Surge Windows",

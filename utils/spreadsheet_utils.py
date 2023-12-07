@@ -194,29 +194,27 @@ def get_all_view_options():
      # return a list of all valid views, used by command line parser
     return list(view_configs.keys())
 
-def combine_images(path1, path2, path3, new_name):
-    for path in [path1, path2, path3]:
+def combine_images(paths, new_name):
+    images = []
+    for path in paths:
         if not os.path.isfile(path):
             print(f"Unable to combine images due to missing {path}")
             return
+        images.append(Image.open(path))
 
-    # Load your three PNG images
-    image1 = Image.open(path1)
-    image2 = Image.open(path2)
-    image3 = Image.open(path3)
 
     # Assuming all images have the same height, adjust if not
-    total_height = image1.height
+    total_height = images[0].height
 
     # Calculate the width for the combined image
-    total_width = sum([img.width for img in [image1, image2, image3]])
+    total_width = sum([img.width for img in images])
 
     # Create a new blank image with the calculated dimensions
     combined_image = Image.new("RGB", (total_width, total_height))
 
     # Paste the individual images into the combined image, arranging them in columns
     x_offset = 0
-    for img in [image1, image2, image3]:
+    for img in images:
         combined_image.paste(img, (x_offset, 0))
         x_offset += img.width
 
@@ -227,7 +225,7 @@ def combine_images(path1, path2, path3, new_name):
 def make_mega_plots(root, expected_plots):
     """
     If we have a labeling plot, attempt to make a larger image of the sequence:
-        stalking, labeling, feeding
+        day, stalking, labeling, feeding
     This allows for a quick view at different levels
     :param root:
     :param expected_plots:
@@ -237,11 +235,13 @@ def make_mega_plots(root, expected_plots):
     generated_plots = glob.glob(os.path.join(data_paths["plot_root"], "*/*.png"))
     for plot in generated_plots:
         if 'labeling' in plot:
+            path0 = plot.replace('labeling', 'day')
             path1 = plot.replace('labeling', 'stalking')
             path2 = plot
             path3 = plot.replace('labeling', 'feeding')
             new_name = plot.replace('labeling', 'mega')
-            combine_images(path1, path2, path3, new_name)
+            image_paths = [path0, path1, path2, path3]
+            combine_images(image_paths, new_name)
 
 if __name__ == '__main__':
     validate_config()

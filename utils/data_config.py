@@ -61,8 +61,8 @@ view_configs = {
     },
     # labeling: narrow window around original timestamp to refine window
     "labeling": {
-        "window_pre_mins": 1,#0.5,
-        "window_post_mins": 1,#0.5,
+        "window_pre_mins": 1,
+        "window_post_mins": 1,
         "minor_tick_interval": 10,
     },
     # day: several hours before and after (will not cross days yet)
