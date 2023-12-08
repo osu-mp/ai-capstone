@@ -4,22 +4,40 @@ import glob
 import math
 import os
 import pandas as pd
+from pathlib import Path
 from PIL import Image
 import subprocess
+import sys
 import time
 
+# get the project root as the parent of the parent directory of this file
+ROOT_DIR = str(Path(__file__).parent.parent.absolute())
+sys.path.append(ROOT_DIR)
 from utils.data_config import data_paths, spreadsheets, validate_config, view_configs, is_unix
 
 # TODO: use logger
 
-# TODO: combine multiple plots into one image
+# TODO: combine multiple plots into utone image
 
 # TODO: make command line args
 
 # TODO: make yellow transpare
-launch = True
+launch = False
 verbose = False
 clear_plot_dir = False
+
+import openpyxl
+import csv
+
+def dump_tabs(xls_path):
+    # Load the Excel file into a pandas DataFrame
+    xls = pd.ExcelFile(xls_path)
+
+    # Iterate through each sheet and dump its contents into separate CSV files
+    for sheet_name in xls.sheet_names:
+        df = pd.read_excel(xls_path, sheet_name=sheet_name)
+        df.to_csv(f'{sheet_name}.csv', index=False)
+
 
 def identify_kills():
     """
@@ -37,6 +55,7 @@ def identify_kills():
     for spreadsheet in spreadsheets:
         path = os.path.join(spreadsheet_root, spreadsheet)
         print(f"Processing spreadsheet {path}")
+        dump_tabs(path)
         df_all = pd.DataFrame()
         with pd.ExcelFile(path) as f:
             sheets = f.sheet_names
@@ -77,9 +96,25 @@ def identify_kills():
         window_high_min = row['End Time'].minute
         window_high_min = max(window_low_min + 1, window_high_min)      # ensure the window is at least 1 minute
 
+        cons_window_low_hour = row['StartCons'].hour
+        cons_window_low_min = row['StartCons'].minute
+        cons_window_low_sec = row['StartCons'].second
+        cons_window_high_hour = row['EndCons'].hour
+        cons_window_high_min = row['EndCons'].minute
+        cons_window_high_sec = row['EndCons'].second
+
+        lib_window_low_hour = row['StartLib'].hour
+        lib_window_low_min = row['StartLib'].minute
+        lib_window_low_sec = row['StartLib'].second
+        lib_window_high_hour = row['EndLib'].hour
+        lib_window_high_min = row['EndLib'].minute
+        lib_window_high_sec = row['EndLib'].second
+
         plot_date = datetime(year=year, month=month, day=day, hour=hour, minute=window_low_min)
 
         kill_id = row['Kill_ID']
+        if kill_id != 312:          # TODO Debug get rid of
+            continue
         if math.isnan(kill_id):
             kill_id = no_id_kill_index
             no_id_kill_index += 1
@@ -108,6 +143,20 @@ def identify_kills():
             "lion_name": f"{lion_id}",
             "window_low_min": window_low_min,
             "window_high_min": window_high_min,
+            # TODO : can this be simplified?
+            "cons_window_low_hour": cons_window_low_hour,
+            "cons_window_low_min": cons_window_low_min,
+            "cons_window_low_sec": cons_window_low_sec,
+            "cons_window_high_hour": cons_window_high_hour,
+            "cons_window_high_min": cons_window_high_min,
+            "cons_window_high_sec": cons_window_high_sec,
+            # TODO
+            "lib_window_low_hour": lib_window_low_hour,
+            "lib_window_low_min": lib_window_low_min,
+            "lib_window_low_sec": lib_window_low_sec,
+            "lib_window_high_hour": lib_window_high_hour,
+            "lib_window_high_min": lib_window_high_min,
+            "lib_window_high_sec": lib_window_high_sec,
             "year": year,
             "month": month,
             "day": day,
@@ -220,7 +269,6 @@ def combine_images(paths, new_name):
 
     # Save the combined image
     combined_image.save(new_name)
-    print(f"Generated {new_name=}")
 
 def make_mega_plots(root, expected_plots):
     """

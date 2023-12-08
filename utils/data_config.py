@@ -1,5 +1,9 @@
 import os.path
+from pathlib import Path
 import platform
+
+# get the project root as the parent of the parent directory of this file
+ROOT_DIR = Path(__file__).parent.parent.absolute()
 
 is_unix = 'Linux' in platform.system()
 
@@ -11,16 +15,16 @@ if is_unix:
 Various disk paths for where to read and write data
 """
 data_paths = {
-    "spreadsheet_root": "../../data",
-    "template_path": "../rcode/template.r",
-    "output_path": "../rcode/jobs/",
+    "spreadsheet_root": f"{ROOT_DIR}/data",
+    "template_path": f"{ROOT_DIR}/rcode/template.r",
+    "output_path": f"{ROOT_DIR}/rcode/jobs/",
     "r_path": "C:\\Program Files\\R\\R-4.3.1\\bin\\Rscript.exe",
-    "plot_root": "C:/accel_data/cougars/plots/"
+    "plot_root": f"{ROOT_DIR}/plots/"
 }
 
 if is_unix:
     data_paths['r_path'] = "/usr/bin/Rscript"
-    data_paths['plot_root'] = "/home/matthew/AI_Capstone/plots"
+    # data_paths['plot_root'] = "/home/matthew/AI_Capstone/plots"
 
 """
 Spreadsheets to pull target times from
@@ -32,11 +36,11 @@ spreadsheets = {
     "Cougars_ODBA_KIlls_Setup.xlsx": {
         "tabs": {
             "M201": f"{csv_root}/M201_20170_020116_120116/MotionData_0/",
-            "F202": f"{csv_root}/F202_27905_010518_072219/MotionData_27905",
-            "F207": f"{csv_root}/F207_22263_030117_012919/MotionData_0",
-            "F209": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
+            # "F202": f"{csv_root}/F202_27905_010518_072219/MotionData_27905",
+            # "F207": f"{csv_root}/F207_22263_030117_012919/MotionData_0",
+            # "F209": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
         },
-        "data_cols": ["AnimalID", "Sex", "Period", "Kill_ID", "Start Date", "Start time", "End Time"]
+        "data_cols": ["AnimalID", "Sex", "Period", "Kill_ID", "Start Date", "Start time", "End Time", "StartCons", "EndCons", "StartLib", "EndLib"]
     }
 }
 
@@ -47,36 +51,38 @@ Must specify the number of minutes before and after the event
 of interest we want.
 """
 view_configs = {
-    # stalking: short before, short after
-    "stalking": {
-        "window_pre_mins": 5,
-        "window_post_mins": 2,
-        "minor_tick_interval": 10,
-    },
-    # feeding: short before, long after
-    "feeding": {
-        "window_pre_mins": 2,
-        "window_post_mins": 30,
-        "minor_tick_interval": 60,
-    },
     # labeling: narrow window around original timestamp to refine window
     "labeling": {
         "window_pre_mins": 1,
         "window_post_mins": 1,
-        "minor_tick_interval": 10,
+        "minor_tick_interval": 5,
     },
-    # day: several hours before and after (will not cross days yet)
-    "day": {
-        "window_pre_mins": 24*60,
-        "window_post_mins": 24*60,
-        "minor_tick_interval": 60 * 60,     # every hour
-    },
-    # sixhour: shorter than day window, still wide window
-    "sixhour": {
-        "window_pre_mins": 3 * 60,
-        "window_post_mins": 3 * 60,
-        "minor_tick_interval": 60 * 60,     # every hour
-    }
+    #
+    # # stalking: short before, short after
+    # "stalking": {
+    #     "window_pre_mins": 5,
+    #     "window_post_mins": 2,
+    #     "minor_tick_interval": 10,
+    # },
+    # # feeding: short before, long after
+    # "feeding": {
+    #     "window_pre_mins": 2,
+    #     "window_post_mins": 30,
+    #     "minor_tick_interval": 60,
+    # },
+    #
+    # # day: several hours before and after (will not cross days yet)
+    # "day": {
+    #     "window_pre_mins": 24*60,
+    #     "window_post_mins": 24*60,
+    #     "minor_tick_interval": 60 * 60,     # every hour
+    # },
+    # # sixhour: shorter than day window, still wide window
+    # "sixhour": {
+    #     "window_pre_mins": 3 * 60,
+    #     "window_post_mins": 3 * 60,
+    #     "minor_tick_interval": 60 * 60,     # every hour
+    # }
 }
 
 
@@ -105,8 +111,11 @@ def validate_config():
     for key, value in view_configs.items():
         assert("window_pre_mins" in value), f"Missing window_pre_mins for view_configs[{key}]"
         assert ("window_post_mins" in value), f"Missing window_post_mins for view_configs[{key}]"
+        assert ("minor_tick_interval" in value), f"Missing minor_tick_interval for view_configs[{key}]"
 
     print("Data config checks passed\n")
+
+    return view_configs
 
 if __name__ == '__main__':
     validate_config()
