@@ -22,9 +22,22 @@ from utils.data_config import data_paths, spreadsheets, validate_config, view_co
 # TODO: make command line args
 
 # TODO: make yellow transpare
-launch = True
+launch = False
 verbose = False
 clear_plot_dir = False
+
+import openpyxl
+import csv
+
+def dump_tabs(xls_path):
+    # Load the Excel file into a pandas DataFrame
+    xls = pd.ExcelFile(xls_path)
+
+    # Iterate through each sheet and dump its contents into separate CSV files
+    for sheet_name in xls.sheet_names:
+        df = pd.read_excel(xls_path, sheet_name=sheet_name)
+        df.to_csv(f'{sheet_name}.csv', index=False)
+
 
 def identify_kills():
     """
@@ -42,6 +55,7 @@ def identify_kills():
     for spreadsheet in spreadsheets:
         path = os.path.join(spreadsheet_root, spreadsheet)
         print(f"Processing spreadsheet {path}")
+        dump_tabs(path)
         df_all = pd.DataFrame()
         with pd.ExcelFile(path) as f:
             sheets = f.sheet_names
@@ -99,8 +113,8 @@ def identify_kills():
         plot_date = datetime(year=year, month=month, day=day, hour=hour, minute=window_low_min)
 
         kill_id = row['Kill_ID']
-        # if kill_id != 312:          # TODO Debug get rid of
-        #     continue
+        if kill_id != 312:          # TODO Debug get rid of
+            continue
         if math.isnan(kill_id):
             kill_id = no_id_kill_index
             no_id_kill_index += 1

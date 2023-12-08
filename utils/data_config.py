@@ -55,34 +55,34 @@ view_configs = {
     "labeling": {
         "window_pre_mins": 1,
         "window_post_mins": 1,
-        "minor_tick_interval": 10,
+        "minor_tick_interval": 5,
     },
-
-    # stalking: short before, short after
-    "stalking": {
-        "window_pre_mins": 5,
-        "window_post_mins": 2,
-        "minor_tick_interval": 10,
-    },
-    # feeding: short before, long after
-    "feeding": {
-        "window_pre_mins": 2,
-        "window_post_mins": 30,
-        "minor_tick_interval": 60,
-    },
-
-    # day: several hours before and after (will not cross days yet)
-    "day": {
-        "window_pre_mins": 24*60,
-        "window_post_mins": 24*60,
-        "minor_tick_interval": 60 * 60,     # every hour
-    },
-    # sixhour: shorter than day window, still wide window
-    "sixhour": {
-        "window_pre_mins": 3 * 60,
-        "window_post_mins": 3 * 60,
-        "minor_tick_interval": 60 * 60,     # every hour
-    }
+    #
+    # # stalking: short before, short after
+    # "stalking": {
+    #     "window_pre_mins": 5,
+    #     "window_post_mins": 2,
+    #     "minor_tick_interval": 10,
+    # },
+    # # feeding: short before, long after
+    # "feeding": {
+    #     "window_pre_mins": 2,
+    #     "window_post_mins": 30,
+    #     "minor_tick_interval": 60,
+    # },
+    #
+    # # day: several hours before and after (will not cross days yet)
+    # "day": {
+    #     "window_pre_mins": 24*60,
+    #     "window_post_mins": 24*60,
+    #     "minor_tick_interval": 60 * 60,     # every hour
+    # },
+    # # sixhour: shorter than day window, still wide window
+    # "sixhour": {
+    #     "window_pre_mins": 3 * 60,
+    #     "window_post_mins": 3 * 60,
+    #     "minor_tick_interval": 60 * 60,     # every hour
+    # }
 }
 
 

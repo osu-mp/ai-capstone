@@ -213,8 +213,8 @@ p <- ggplot(data = df, aes(x = UTC)) +
   theme(axis.title.y = element_text(size = 18, color = "black"),
         axis.title.x = element_text(size = 18, color = "black"),
         axis.text.x = element_text(size = 12),
-        panel.grid.major = element_line(color = "darkgray", size = 0.2),
-        panel.grid.minor = element_line(color = "lightgray", size = 0.1),
+        panel.grid.major = element_line(color = "darkgray", linewidth = 0.2),
+        panel.grid.minor = element_line(color = "lightgray", linewidth = 0.1),
         plot.background = element_rect(fill = "white")#, color = NA)
   ) +
   guides(color = guide_legend(title = "Axis")) +
@@ -232,8 +232,8 @@ ggplot(df_long, aes(x = UTC, y = value, color = variable)) +
   theme(axis.title.y = element_text(size = 18, color = "black"),
         axis.title.x = element_text(size = 18, color = "black"),
         axis.text.x = element_text(size = 12),
-        panel.grid.major = element_line(color = "darkgray", size = 0.2),
-        panel.grid.minor = element_line(color = "lightgray", size = 0.1),
+        panel.grid.major = element_line(color = "darkgray", linewidth = 0.2),
+        panel.grid.minor = element_line(color = "lightgray", linewidth = 0.1),
         plot.background = element_rect(fill = "white")#, color = NA)
   ) +
   guides(color = guide_legend(title = "Axis"))+
@@ -248,8 +248,8 @@ p <- ggplot(data = df_long, aes(x = UTC, y = value, color = variable)) +
   theme(axis.title.y = element_text(size = 18, color = "black"),
         axis.title.x = element_text(size = 18, color = "black"),
         axis.text.x = element_text(size = 12),
-        panel.grid.major = element_line(color = "darkgray", size = 0.2),
-        panel.grid.minor = element_line(color = "lightgray", size = 0.1),
+        panel.grid.major = element_line(color = "darkgray", linewidth = 0.2),
+        panel.grid.minor = element_line(color = "lightgray", linewidth = 0.1),
         plot.background = element_rect(fill = "white")# color = NA)
   ) +
   guides(color = guide_legend(title = "Axis")) +
@@ -269,8 +269,8 @@ p <- ggplot(data = df_long, aes(x = UTC, y = value, color = variable)) +
     axis.title.y = element_text(size = 18, color = "black"),
     axis.title.x = element_text(size = 18, color = "black"),
     axis.text.x = element_text(size = 12),
-    panel.grid.major = element_line(color = "darkgray", size = 0.2),
-    panel.grid.minor = element_line(color = "lightgray", size = 0.1),
+    panel.grid.major = element_line(color = "darkgray", linewidth = 0.2),
+    panel.grid.minor = element_line(color = "lightgray", linewidth = 0.1),
     plot.background = element_rect(fill = "white")#, color = NA)
   ) +
   guides(color = guide_legend(title = "Axis")) +
@@ -311,7 +311,7 @@ min_time <- min(df$UTC)
 max_time <- max(df$UTC)
 
 # Define the interval for minor breaks in seconds
-minor_interval <- 10  # For example, every 5 seconds
+minor_interval <- minor_tick_interval  # For example, every 5 seconds
 
 # Generate minor breaks at the specified interval
 minor_breaks <- seq.POSIXt(from = min_time, to = max_time, by = minor_interval)
