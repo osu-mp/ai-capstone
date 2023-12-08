@@ -99,8 +99,8 @@ def identify_kills():
         plot_date = datetime(year=year, month=month, day=day, hour=hour, minute=window_low_min)
 
         kill_id = row['Kill_ID']
-        if kill_id != 312:          # TODO Debug get rid of
-            continue
+        # if kill_id != 312:          # TODO Debug get rid of
+        #     continue
         if math.isnan(kill_id):
             kill_id = no_id_kill_index
             no_id_kill_index += 1
