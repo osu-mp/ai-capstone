@@ -52,6 +52,14 @@ cons_window_high_hour = {cons_window_high_hour}
 cons_window_high_min = {cons_window_high_min}
 cons_window_high_sec = {cons_window_high_sec}
 
+# liberal estimate: 10:24:30 PM - 10:25:15 PM
+lib_window_low_hour = {lib_window_low_hour}
+lib_window_low_min = {lib_window_low_min}
+lib_window_low_sec = {lib_window_low_sec}
+lib_window_high_hour = {lib_window_high_hour}
+lib_window_high_min = {lib_window_high_min}
+lib_window_high_sec = {lib_window_high_sec}
+
 
 # TODO liberal estimate
 
@@ -145,10 +153,16 @@ cons_window_low <- strptime(as.character(paste(cons_window_low, "001", sep = "."
 cons_window_high <- paste(paste(year, month, day, sep = "-"), paste(cons_window_high_hour, cons_window_high_min, cons_window_high_sec, sep = ":"))
 cons_window_high <- strptime(as.character(paste(cons_window_high, "001", sep = ".")), format = "%Y-%m-%d %H:%M:%OS", tz = "UTC")
 
+lib_window_low <- paste(paste(year, month, day, sep = "-"), paste(lib_window_low_hour, lib_window_low_min, lib_window_low_sec, sep = ":"))
+lib_window_low <- strptime(as.character(paste(lib_window_low, "001", sep = ".")), format = "%Y-%m-%d %H:%M:%OS", tz = "UTC")
+
+lib_window_high <- paste(paste(year, month, day, sep = "-"), paste(lib_window_high_hour, lib_window_high_min, lib_window_high_sec, sep = ":"))
+lib_window_high <- strptime(as.character(paste(lib_window_high, "001", sep = ".")), format = "%Y-%m-%d %H:%M:%OS", tz = "UTC")
+
 ###
 #plot
-# df <- data.frame(UTC, Xg, Yg, Zg) %>%
-#   filter(UTC >= time_low & UTC <= time_high)
+df <- data.frame(UTC, Xg, Yg, Zg) %>%
+  filter(UTC >= time_low & UTC <= time_high)
 
 
 # time.text <- paste(lion.name, as.character(format(time_low, format = "%Y-%m-%d"), sep = " "))
@@ -179,9 +193,9 @@ cons_window_high <- strptime(as.character(paste(cons_window_high, "001", sep = "
 
 # START subplots
 
-# df_long <- tidyr::gather(df, variable, value, -UTC)
+df_long <- tidyr::gather(df, variable, value, -UTC)
 # df_long <- gather(df, key = "variable", value = "value", -UTC)
-df_long <- tidyr::pivot_longer(df, cols = -UTC, names_to = "variable", values_to = "value")
+# df_long <- tidyr::pivot_longer(df, cols = -UTC, names_to = "variable", values_to = "value")
 
 
 # Create a data frame specifically for legend entries of the vertical lines
@@ -275,14 +289,19 @@ p <- p +
     aes(xintercept = as.numeric(xpos), linetype = "Conservative"),
     color = "green", alpha = 0.9
   ) +
+  geom_vline(
+    data = data.frame(xpos = c(lib_window_high, lib_window_low), label = c("Liberal")),
+    aes(xintercept = as.numeric(xpos), linetype = "Liberal"),
+    color = "darkblue", alpha = 0.9
+  ) +
   scale_linetype_manual(
     name = "Surge Windows",
-    values = c("Original" = "solid", "Conservative" = "dashed"),
-    labels = c("Original", "Conservative"),
+    values = c("Original" = "solid", "Conservative" = "dashed", "Liberal" = "dashed"),
+    labels = c("Original", "Conservative", "Liberal"),
     guide = guide_legend(
       override.aes = list(
-        linetype = c("solid", "dashed"),  # Assigning linetypes to Colby and Conservative
-        color = c("orange", "green")  # Assigning colors to Colby and Conservative in the legend
+        linetype = c("solid", "dashed", "dashed"),  # Assigning linetypes to Colby and Conservative
+        color = c("orange", "green", "darkblue")  # Assigning colors to Colby and Conservative in the legend
       )
     )
   )

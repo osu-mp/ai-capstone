@@ -89,6 +89,13 @@ def identify_kills():
         cons_window_high_min = row['EndCons'].minute
         cons_window_high_sec = row['EndCons'].second
 
+        lib_window_low_hour = row['StartLib'].hour
+        lib_window_low_min = row['StartLib'].minute
+        lib_window_low_sec = row['StartLib'].second
+        lib_window_high_hour = row['EndLib'].hour
+        lib_window_high_min = row['EndLib'].minute
+        lib_window_high_sec = row['EndLib'].second
+
         plot_date = datetime(year=year, month=month, day=day, hour=hour, minute=window_low_min)
 
         kill_id = row['Kill_ID']
@@ -122,12 +129,20 @@ def identify_kills():
             "lion_name": f"{lion_id}",
             "window_low_min": window_low_min,
             "window_high_min": window_high_min,
+            # TODO : can this be simplified?
             "cons_window_low_hour": cons_window_low_hour,
             "cons_window_low_min": cons_window_low_min,
             "cons_window_low_sec": cons_window_low_sec,
             "cons_window_high_hour": cons_window_high_hour,
             "cons_window_high_min": cons_window_high_min,
             "cons_window_high_sec": cons_window_high_sec,
+            # TODO
+            "lib_window_low_hour": lib_window_low_hour,
+            "lib_window_low_min": lib_window_low_min,
+            "lib_window_low_sec": lib_window_low_sec,
+            "lib_window_high_hour": lib_window_high_hour,
+            "lib_window_high_min": lib_window_high_min,
+            "lib_window_high_sec": lib_window_high_sec,
             "year": year,
             "month": month,
             "day": day,
