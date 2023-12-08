@@ -4,15 +4,20 @@ import glob
 import math
 import os
 import pandas as pd
+from pathlib import Path
 from PIL import Image
 import subprocess
+import sys
 import time
 
+# get the project root as the parent of the parent directory of this file
+ROOT_DIR = str(Path(__file__).parent.parent.absolute())
+sys.path.append(ROOT_DIR)
 from utils.data_config import data_paths, spreadsheets, validate_config, view_configs, is_unix
 
 # TODO: use logger
 
-# TODO: combine multiple plots into one image
+# TODO: combine multiple plots into utone image
 
 # TODO: make command line args
 
@@ -77,9 +82,18 @@ def identify_kills():
         window_high_min = row['End Time'].minute
         window_high_min = max(window_low_min + 1, window_high_min)      # ensure the window is at least 1 minute
 
+        cons_window_low_hour = row['StartCons'].hour
+        cons_window_low_min = row['StartCons'].minute
+        cons_window_low_sec = row['StartCons'].second
+        cons_window_high_hour = row['EndCons'].hour
+        cons_window_high_min = row['EndCons'].minute
+        cons_window_high_sec = row['EndCons'].second
+
         plot_date = datetime(year=year, month=month, day=day, hour=hour, minute=window_low_min)
 
         kill_id = row['Kill_ID']
+        if kill_id != 312:          # TODO Debug get rid of
+            continue
         if math.isnan(kill_id):
             kill_id = no_id_kill_index
             no_id_kill_index += 1
@@ -108,6 +122,12 @@ def identify_kills():
             "lion_name": f"{lion_id}",
             "window_low_min": window_low_min,
             "window_high_min": window_high_min,
+            "cons_window_low_hour": cons_window_low_hour,
+            "cons_window_low_min": cons_window_low_min,
+            "cons_window_low_sec": cons_window_low_sec,
+            "cons_window_high_hour": cons_window_high_hour,
+            "cons_window_high_min": cons_window_high_min,
+            "cons_window_high_sec": cons_window_high_sec,
             "year": year,
             "month": month,
             "day": day,
@@ -220,7 +240,6 @@ def combine_images(paths, new_name):
 
     # Save the combined image
     combined_image.save(new_name)
-    print(f"Generated {new_name=}")
 
 def make_mega_plots(root, expected_plots):
     """

@@ -1,10 +1,12 @@
 # install.packages(c('stringr', 'dplyr', 'lubridate', 'ggplot2', "tidyr"))
+# install.packages("devtools")
 
 library(stringr)
 library(dplyr)
 library(lubridate)
 library(ggplot2)
 library(tools)
+library(tidyr)
 
 #################################################################
 # CHOOSE LION DATA
@@ -41,6 +43,17 @@ window_high_sec = 0
 
 second_low = 00
 second_high = 00
+
+# conservative estimate: 10:24:40 PM - 10:25:15 PM
+cons_window_low_hour = {cons_window_low_hour}
+cons_window_low_min = {cons_window_low_min}
+cons_window_low_sec = {cons_window_low_sec}
+cons_window_high_hour = {cons_window_high_hour}
+cons_window_high_min = {cons_window_high_min}
+cons_window_high_sec = {cons_window_high_sec}
+
+
+# TODO liberal estimate
 
 # vertical line to show time(s) of interest
 window_low_hour = {hour}
@@ -126,41 +139,50 @@ window_low <- strptime(as.character(paste(window_low, "001", sep = ".")), format
 window_high <- paste(paste(year, month, day, sep = "-"), paste(window_high_hour, window_high_min, window_high_sec, sep = ":"))
 window_high <- strptime(as.character(paste(window_high, "001", sep = ".")), format = "%Y-%m-%d %H:%M:%OS", tz = "UTC")
 
+cons_window_low <- paste(paste(year, month, day, sep = "-"), paste(cons_window_low_hour, cons_window_low_min, cons_window_low_sec, sep = ":"))
+cons_window_low <- strptime(as.character(paste(cons_window_low, "001", sep = ".")), format = "%Y-%m-%d %H:%M:%OS", tz = "UTC")
+
+cons_window_high <- paste(paste(year, month, day, sep = "-"), paste(cons_window_high_hour, cons_window_high_min, cons_window_high_sec, sep = ":"))
+cons_window_high <- strptime(as.character(paste(cons_window_high, "001", sep = ".")), format = "%Y-%m-%d %H:%M:%OS", tz = "UTC")
+
 ###
 #plot
-df <- data.frame(UTC, Xg, Yg, Zg) %>%
-  filter(UTC >= time_low & UTC <= time_high)
+# df <- data.frame(UTC, Xg, Yg, Zg) %>%
+#   filter(UTC >= time_low & UTC <= time_high)
 
 
-time.text <- paste(lion.name, as.character(format(time_low, format = "%Y-%m-%d"), sep = " "))
-fname_time <- paste(lion.name, as.character(format(time_low, format = "%Y-%m-%d__%H_%M_%S"), sep = " "))
+# time.text <- paste(lion.name, as.character(format(time_low, format = "%Y-%m-%d"), sep = " "))
+# fname_time <- paste(lion.name, as.character(format(time_low, format = "%Y-%m-%d__%H_%M_%S"), sep = " "))
 
 
 
-p <- ggplot(data = df, aes(x = UTC)) +
-  geom_line(aes(y = Yg, color = "Y axis")) +
-  geom_line(aes(y = Xg, color = "X axis")) +
-  geom_line(aes(y = Zg, color = "Z axis")) +
-  geom_vline(xintercept=window_low, color="yellow", linewidth=1) +
-  geom_vline(xintercept=window_high, color="yellow", linewidth=1) +
-  labs(x = time.text, y = "Acceleration (g's)") +
-  ylim(-0.3, 0.3) +
-  scale_color_manual(values = c("Y axis" = "black", "X axis" = "red", "Z axis" = "blue")) +
-  theme(axis.title.y = element_text(size = 18, color="black"),
-        axis.title.x = element_text(size = 18, color="black"),
-        axis.text.x = element_text(size = 12),  # Adjust x-axis text size
-        panel.grid.major = element_line(color = "darkgray", size = 0.2),
-        panel.grid.minor = element_line(color = "lightgray", size = 0.1),  # minor grid lines
-        plot.background = element_rect(fill = "transparent", color = NA)
-  ) +
-  guides(color = guide_legend(title = "Axis"))
+# p <- ggplot(data = df, aes(x = UTC)) +
+#   geom_line(aes(y = Yg, color = "Y axis")) +
+#   geom_line(aes(y = Xg, color = "X axis")) +
+#   geom_line(aes(y = Zg, color = "Z axis")) +
+#   geom_vline(xintercept=window_low, color="yellow", linewidth=1) +
+#   geom_vline(xintercept=window_high, color="yellow", linewidth=1) +
+#   labs(x = time.text, y = "Acceleration (g's)") +
+#   ylim(-0.3, 0.3) +
+#   scale_color_manual(values = c("Y axis" = "black", "X axis" = "red", "Z axis" = "blue")) +
+#   theme(axis.title.y = element_text(size = 18, color="black"),
+#         axis.title.x = element_text(size = 18, color="black"),
+#         axis.text.x = element_text(size = 12),  # Adjust x-axis text size
+#         panel.grid.major = element_line(color = "darkgray", size = 0.2),
+#         panel.grid.minor = element_line(color = "lightgray", size = 0.1),  # minor grid lines
+#         plot.background = element_rect(fill = "transparent", color = NA)
+#   ) +
+#   guides(color = guide_legend(title = "Axis"))
 
 
-interval <- as.difftime(10, units = "secs")
+# interval <- as.difftime(10, units = "secs")
 
 # START subplots
 
-df_long <- tidyr::gather(df, variable, value, -UTC)
+# df_long <- tidyr::gather(df, variable, value, -UTC)
+# df_long <- gather(df, key = "variable", value = "value", -UTC)
+df_long <- tidyr::pivot_longer(df, cols = -UTC, names_to = "variable", values_to = "value")
+
 
 # Create a data frame specifically for legend entries of the vertical lines
 legend_data <- data.frame(
@@ -185,7 +207,8 @@ p <- ggplot(data = df, aes(x = UTC)) +
 
   facet_wrap(~ variable, scales = "free_y", ncol = 1)
 
-df_long <- tidyr::gather(df, variable, value, -UTC)
+# df_long <- tidyr::gather(df, variable, value, -UTC)
+df_long <- tidyr::pivot_longer(df, cols = -UTC, names_to = "variable", values_to = "value")
 
 ggplot(df_long, aes(x = UTC, y = value, color = variable)) +
   geom_line() +
@@ -243,18 +266,26 @@ p <- ggplot(data = df_long, aes(x = UTC, y = value, color = variable)) +
 # Adding vertical lines and mapping them to linetype with a manual scale for legend
 p <- p +
   geom_vline(
-    data = data.frame(xpos = c(window_high, window_low), label = c("Original1", "Low")),  # Define labels for legend
-    aes(xintercept = as.numeric(xpos), linetype = "Vertical Lines"),  # Mapping for linetype
-    color = "orange", alpha=0.3
+    data = data.frame(xpos = c(window_high, window_low), label = c("Original", "Low")),
+    aes(xintercept = as.numeric(xpos), linetype = "Original"),
+    color = "orange", alpha = 0.3
+  ) +
+  geom_vline(
+    data = data.frame(xpos = c(cons_window_high, cons_window_low), label = c("Conservative")),
+    aes(xintercept = as.numeric(xpos), linetype = "Conservative"),
+    color = "green", alpha = 0.9
   ) +
   scale_linetype_manual(
     name = "Surge Windows",
-    values = "solid",
-    labels = c("Original", "Low")
+    values = c("Original" = "solid", "Conservative" = "dashed"),
+    labels = c("Original", "Conservative"),
+    guide = guide_legend(
+      override.aes = list(
+        linetype = c("solid", "dashed"),  # Assigning linetypes to Colby and Conservative
+        color = c("orange", "green")  # Assigning colors to Colby and Conservative in the legend
+      )
+    )
   )
-
-
-p
 
 # Calculate the minimum and maximum timestamps
 min_time <- min(df$UTC)
