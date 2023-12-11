@@ -53,13 +53,13 @@ of interest we want.
 """
 view_configs = {
     # labeling: narrow window around original timestamp to refine window
-    "labeling": {
+    "killing": {
         "window_pre_mins": 1,
         "window_post_mins": 1,
         "minor_tick_interval": 5,
     },
     #
-    # # stalking: short before, short after
+    # stalking: short before, short after
     # "stalking": {
     #     "window_pre_mins": 5,
     #     "window_post_mins": 2,
@@ -71,7 +71,7 @@ view_configs = {
     #     "window_post_mins": 30,
     #     "minor_tick_interval": 60,
     # },
-    #
+    
     # # day: several hours before and after (will not cross days yet)
     # "day": {
     #     "window_pre_mins": 24*60,
@@ -80,8 +80,8 @@ view_configs = {
     # },
     # # sixhour: shorter than day window, still wide window
     # "sixhour": {
-    #     "window_pre_mins": 3 * 60,
-    #     "window_post_mins": 3 * 60,
+    #     "window_pre_mins": 6 * 60,
+    #     "window_post_mins": 6 * 60,
     #     "minor_tick_interval": 60 * 60,     # every hour
     # }
 }

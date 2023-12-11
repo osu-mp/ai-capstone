@@ -22,7 +22,7 @@ from utils.data_config import data_paths, spreadsheets, validate_config, view_co
 # TODO: make command line args
 
 # TODO: make yellow transpare
-launch = False
+launch = True
 verbose = False
 clear_plot_dir = False
 
@@ -299,12 +299,12 @@ def make_mega_plots(root, expected_plots):
     # hardcoded BS here
     generated_plots = glob.glob(os.path.join(data_paths["plot_root"], "*/*.png"))
     for plot in generated_plots:
-        if 'labeling' in plot:
-            path0 = plot.replace('labeling', 'day')
-            path1 = plot.replace('labeling', 'stalking')
+        if 'killing' in plot:
+            path0 = plot.replace('killing', 'sixhour')
+            path1 = plot.replace('killing', 'stalking')
             path2 = plot
-            path3 = plot.replace('labeling', 'feeding')
-            new_name = plot.replace('labeling', 'mega')
+            path3 = plot.replace('killing', 'feeding')
+            new_name = plot.replace('killing', 'mega')
             image_paths = [path0, path1, path2, path3]
             combine_images(image_paths, new_name)
 

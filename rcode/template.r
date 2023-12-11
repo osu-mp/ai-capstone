@@ -1,5 +1,4 @@
 # install.packages(c('stringr', 'dplyr', 'lubridate', 'ggplot2', "tidyr"))
-# install.packages("devtools")
 
 library(stringr)
 library(dplyr)
@@ -317,7 +316,7 @@ p <- p +
     values = c("Original" = "solid",
                 "KillStart" = "solid",
                 "Conservative" = "dashed", "Liberal" = "dashed", "StalkStart" = "solid"),
-    labels = c("KillOrig", "KillStart", "KillEndCons", "KillEndLib", "StalkStart"),
+    labels = c("KillOrig", "KillStart", "KillEndPhase1", "KillEndPhase2", "StalkStart"),
     guide = guide_legend(
       override.aes = list(
         linetype = c("solid", "solid", "dashed", "dashed", "solid"),  # Assigning linetypes to Colby and Conservative
