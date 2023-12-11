@@ -53,12 +53,16 @@ cons_window_high_min = {cons_window_high_min}
 cons_window_high_sec = {cons_window_high_sec}
 
 # liberal estimate: 10:24:30 PM - 10:25:15 PM
-lib_window_low_hour = {lib_window_low_hour}
-lib_window_low_min = {lib_window_low_min}
-lib_window_low_sec = {lib_window_low_sec}
+# lib_window_low_hour = {lib_window_low_hour}
+# lib_window_low_min = {lib_window_low_min}
+# lib_window_low_sec = {lib_window_low_sec}
 lib_window_high_hour = {lib_window_high_hour}
 lib_window_high_min = {lib_window_high_min}
 lib_window_high_sec = {lib_window_high_sec}
+
+stalk_start_hour = {stalk_start_hour}
+stalk_start_min = {stalk_start_min}
+stalk_start_sec = {stalk_start_sec}
 
 
 # TODO liberal estimate
@@ -153,11 +157,15 @@ cons_window_low <- strptime(as.character(paste(cons_window_low, "001", sep = "."
 cons_window_high <- paste(paste(year, month, day, sep = "-"), paste(cons_window_high_hour, cons_window_high_min, cons_window_high_sec, sep = ":"))
 cons_window_high <- strptime(as.character(paste(cons_window_high, "001", sep = ".")), format = "%Y-%m-%d %H:%M:%OS", tz = "UTC")
 
-lib_window_low <- paste(paste(year, month, day, sep = "-"), paste(lib_window_low_hour, lib_window_low_min, lib_window_low_sec, sep = ":"))
-lib_window_low <- strptime(as.character(paste(lib_window_low, "001", sep = ".")), format = "%Y-%m-%d %H:%M:%OS", tz = "UTC")
+# lib_window_low <- paste(paste(year, month, day, sep = "-"), paste(lib_window_low_hour, lib_window_low_min, lib_window_low_sec, sep = ":"))
+# lib_window_low <- strptime(as.character(paste(lib_window_low, "001", sep = ".")), format = "%Y-%m-%d %H:%M:%OS", tz = "UTC")
 
 lib_window_high <- paste(paste(year, month, day, sep = "-"), paste(lib_window_high_hour, lib_window_high_min, lib_window_high_sec, sep = ":"))
 lib_window_high <- strptime(as.character(paste(lib_window_high, "001", sep = ".")), format = "%Y-%m-%d %H:%M:%OS", tz = "UTC")
+
+stalk_window_start <- paste(paste(year, month, day, sep = "-"), paste(stalk_start_hour, stalk_start_min, stalk_start_sec, sep = ":"))
+stalk_window_start <- strptime(as.character(paste(stalk_window_start, "001", sep = ".")), format = "%Y-%m-%d %H:%M:%OS", tz = "UTC")
+
 
 ###
 #plot
@@ -285,23 +293,35 @@ p <- p +
     color = "orange", alpha = 0.3
   ) +
   geom_vline(
-    data = data.frame(xpos = c(cons_window_high, cons_window_low), label = c("Conservative")),
+    data = data.frame(xpos = c(cons_window_low), label = c("KillStart")),
+    aes(xintercept = as.numeric(xpos), linetype = "KillStart"),
+    color = "darkred", alpha = 0.8
+  ) +
+  geom_vline(
+    data = data.frame(xpos = c(cons_window_high), label = c("Conservative")),
     aes(xintercept = as.numeric(xpos), linetype = "Conservative"),
     color = "green", alpha = 0.9
   ) +
   geom_vline(
-    data = data.frame(xpos = c(lib_window_high, lib_window_low), label = c("Liberal")),
+    data = data.frame(xpos = c(lib_window_high), label = c("Liberal")),
     aes(xintercept = as.numeric(xpos), linetype = "Liberal"),
     color = "darkblue", alpha = 0.9
   ) +
+  geom_vline(
+    data = data.frame(xpos = c(stalk_window_start), label = c("StalkStart")),
+    aes(xintercept = as.numeric(xpos), linetype = "StalkStart"),
+    color = "yellow", alpha = 0.75
+  ) +
   scale_linetype_manual(
     name = "Surge Windows",
-    values = c("Original" = "solid", "Conservative" = "dashed", "Liberal" = "dashed"),
-    labels = c("Original", "Conservative", "Liberal"),
+    values = c("Original" = "solid",
+                "KillStart" = "solid",
+                "Conservative" = "dashed", "Liberal" = "dashed", "StalkStart" = "solid"),
+    labels = c("KillOrig", "KillStart", "KillEndCons", "KillEndLib", "StalkStart"),
     guide = guide_legend(
       override.aes = list(
-        linetype = c("solid", "dashed", "dashed"),  # Assigning linetypes to Colby and Conservative
-        color = c("orange", "green", "darkblue")  # Assigning colors to Colby and Conservative in the legend
+        linetype = c("solid", "solid", "dashed", "dashed", "solid"),  # Assigning linetypes to Colby and Conservative
+        color = c("orange", "darkred", "green", "darkblue", "yellow")  # Assigning colors to Colby and Conservative in the legend
       )
     )
   )

@@ -1,0 +1,241 @@
+AnimalID,Sex,Season,Year,Kill_ID,Period,Start Date,Start time,End Date,End Time,StartStalk,StartCons,EndCons,StartLib,EndLib,StillnessPrior,MaternalStatus,# ind,Scavenger1,Scavenger2,Scavenger3,Pick up young?,Comments,Prey Species,Prey Age Class,Prey Age,Prey Sex,"If Male, antler condition",MarrowColor,MarrowConsistency
+202,F,Late Winter,2017,850.0,Forage,2017-03-14,07:49:00,2017-03-14,23:53:00,,,,,,,Yearlings,5,Coyote,Fox,,,,Black-tailed Deer,Unknown,0,Unknown,Unknown,Red,Gelatinous
+202,F,Late Winter,2017,850.0,Kill,2017-03-14,23:54:00,2017-03-14,23:57:00,,,,,,0.0,Yearlings,5,Coyote,Fox,,,,Black-tailed Deer,Unknown,0,Unknown,Unknown,Red,Gelatinous
+202,F,Late Winter,2017,850.0,Handling,2017-03-14,23:58:00,2017-03-16,14:45:00,,,,,,,Yearlings,5,Coyote,Fox,,,,Black-tailed Deer,Unknown,0,Unknown,Unknown,Red,Gelatinous
+202,F,Summer,2016,325.0,Forage,2016-06-25,05:18:00,2016-06-25,05:18:00,,,,,,,Young Kittens,5,None,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,not available
+202,F,Summer,2016,325.0,Kill,2016-06-25,05:19:00,2016-06-25,05:19:00,,,,,,,Young Kittens,5,None,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,not available
+202,F,Summer,2016,325.0,Handling,2016-06-25,05:20:00,2016-06-27,17:27:00,,,,,,,Young Kittens,5,None,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,not available
+202,F,Summer,2016,331.0,Forage,2016-07-12,11:57:00,2016-07-15,11:07:00,,,,,,,Young Kittens,5,None,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,not available
+202,F,Summer,2016,331.0,Kill,2016-07-15,11:08:00,2016-07-15,11:08:00,,,,,,0.0,Young Kittens,5,None,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,not available
+202,F,Summer,2016,331.0,Handling,2016-07-15,11:09:00,2016-07-17,12:18:00,,,,,,,Young Kittens,5,None,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,not available
+202,F,Early Winter,2016,337.0,Forage,2016-11-16,01:40:00,2016-11-17,20:14:00,,,,,,,Kittens,5,Coyote,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2016,337.0,Kill,2016-11-17,20:15:00,2016-11-17,20:16:00,,,,,,,Kittens,5,Coyote,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2016,337.0,Handling,2016-11-17,20:17:00,2016-11-19,14:13:00,,,,,,,Kittens,5,Coyote,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2016,334.0,Forage,2016-11-19,14:14:00,2016-11-19,15:36:00,,,,,,,Kittens,5,None,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2016,334.0,Kill,2016-11-19,15:37:00,2016-11-19,15:37:00,,,,,,1.0,Kittens,5,None,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2016,334.0,Handling,2016-11-19,15:38:00,2016-11-20,19:01:00,,,,,,,Kittens,5,None,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2016,339.0,Forage,2016-11-20,19:02:00,2016-11-21,15:18:00,,,,,,,Kittens,5,None,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2016,339.0,Kill,2016-11-21,15:19:00,2016-11-21,15:20:00,,,,,,2.0,Kittens,5,None,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2016,339.0,Handling,2016-11-21,15:21:00,2016-11-23,15:48:00,,,,,,,Kittens,5,None,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,12.0,Forage,2018-06-08,05:31:00,2018-06-08,05:58:00,,,,,,,,1,None,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,12.0,Kill,2018-06-08,05:59:00,2018-06-08,05:59:00,,,,,,,,1,None,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,12.0,Handling,2018-06-08,06:00:00,2018-06-09,11:34:00,,,,,,,,1,None,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,61.0,Forage,2018-07-16,09:14:00,2018-07-18,00:18:00,,,,,,,,1,Fox,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,61.0,Kill,2018-07-18,00:19:00,2018-07-18,00:19:00,,,,,,,,1,Fox,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,61.0,Handling,2018-07-18,00:20:00,2018-07-21,11:30:00,,,,,,,,1,Fox,,,,,Black-tailed Deer,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Late Winter,2016,116.0,Forage,2016-03-22,01:11:00,2016-03-27,08:34:00,,,,,,,Yearlings,4,Fox,,,,,Deer (mule),Neonate,0,Unknown,00:00:00,0,not available
+202,F,Late Winter,2016,116.0,Kill,2016-03-27,08:35:00,2016-03-27,08:35:00,,,,,,0.0,Yearlings,4,Fox,,,1.0,,Deer (mule),Neonate,0,Unknown,00:00:00,0,not available
+202,F,Late Winter,2016,116.0,Handling,2016-03-27,08:36:00,2016-03-27,16:10:00,,,,,,,Yearlings,4,Fox,,,,,Deer (mule),Neonate,0,Unknown,00:00:00,0,not available
+202,F,Late Winter,2016,221.0,Forage,2016-02-28,13:39:00,2016-03-02,02:10:00,,,,,,,Yearlings,4,,,,,,Elk,Neonate,0,Unknown,00:00:00,Unknown,Unknown
+202,F,Late Winter,2016,221.0,Kill,2016-03-02,02:11:00,2016-03-02,02:11:00,,,,,,0.0,Yearlings,4,,,,,,Elk,Neonate,0,Unknown,00:00:00,Unknown,Unknown
+202,F,Late Winter,2016,221.0,Handling,2016-03-02,02:12:00,2016-03-04,13:33:00,,,,,,,Yearlings,4,,,,,,Elk,Neonate,0,Unknown,00:00:00,Unknown,Unknown
+202,F,Late Winter,2016,311.0,Forage,2016-03-04,13:34:00,2016-03-06,12:44:00,,,,,,,Yearlings,4,Fox,,,,,Elk,Neonate,0,Female,00:00:00,white-pink,solid
+202,F,Late Winter,2016,311.0,Kill,2016-03-06,12:45:00,2016-03-06,12:45:00,,,,,,33.0,Yearlings,4,Fox,,,,,Elk,Neonate,0,Female,00:00:00,white-pink,solid
+202,F,Late Winter,2016,311.0,Handling,2016-03-06,12:46:00,2016-03-09,09:50:00,,,,,,,Yearlings,4,Fox,,,,,Elk,Neonate,0,Female,00:00:00,white-pink,solid
+202,F,Late Winter,2016,222.0,Forage,2016-03-09,09:51:00,2016-03-11,02:31:00,,,,,,,Yearlings,4,Coyote,Fox,,,,Elk,Neonate,0,Unknown,00:00:00,0,0
+202,F,Late Winter,2016,222.0,Kill,2016-03-11,02:32:00,2016-03-11,02:33:00,,,,,,0.0,Yearlings,4,Coyote,Fox,,,,Elk,Neonate,0,Unknown,00:00:00,0,0
+202,F,Late Winter,2016,222.0,Handling,2016-03-11,02:34:00,2016-03-13,06:05:00,,,,,,,Yearlings,4,Coyote,Fox,,,,Elk,Neonate,0,Unknown,00:00:00,0,0
+202,F,Late Winter,2016,222.0,Handling,2016-03-14,07:24:00,2016-03-14,10:01:00,,,,,,,Yearlings,4,Coyote,Fox,,,,Elk,Neonate,0,Unknown,00:00:00,0,0
+202,F,Late Winter,2017,820.0,Forage,2017-03-04,00:33:00,2017-03-04,15:34:00,,,,,,,Yearlings,5,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,0
+202,F,Late Winter,2017,820.0,Kill,2017-03-04,15:35:00,2017-03-04,15:36:00,,,,,,,Yearlings,5,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,0
+202,F,Late Winter,2017,820.0,Handling,2017-03-04,15:37:00,2017-03-07,13:26:00,,,,,,,Yearlings,5,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,0
+202,F,Late Winter,2017,851.0,Forage,2017-03-07,13:27:00,2017-03-10,23:27:00,,,,,,,Yearlings,5,Fox,,,,,Elk,Neonate,0,Female,00:00:00,White,Solid
+202,F,Late Winter,2017,851.0,Kill,2017-03-10,23:28:00,2017-03-10,23:29:00,,,,,,1.0,Yearlings,5,Fox,,,,,Elk,Neonate,0,Female,00:00:00,White,Solid
+202,F,Late Winter,2017,851.0,Handling,2017-03-10,23:30:00,2017-03-14,07:48:00,,,,,,,Yearlings,5,Fox,,,,,Elk,Neonate,0,Female,00:00:00,White,Solid
+202,F,Late Winter,2017,826.0,Forage,2017-03-16,14:46:00,2017-03-18,03:27:00,,,,,,,Yearlings,5,None,,,,,Elk,Neonate,0,Unknown,00:00:00,White-Pink,Liver
+202,F,Late Winter,2017,826.0,Kill,2017-03-18,03:28:00,2017-03-18,03:28:00,,,,,,2.0,Yearlings,5,None,,,,,Elk,Neonate,0,Unknown,00:00:00,White-Pink,Liver
+202,F,Summer,2016,323.0,Forage,2016-06-27,17:28:00,2016-06-28,17:50:00,,,,,,,Young Kittens,5,Fox,,,,,Elk,Neonate,0,Unknown,00:00:00,white,solid
+202,F,Summer,2016,323.0,Kill,2016-06-28,17:51:00,2016-06-28,17:51:00,,,,,,1.5,Young Kittens,5,Fox,,,,,Elk,Neonate,0,Unknown,00:00:00,white,solid
+202,F,Summer,2016,323.0,Handling,2016-06-28,17:52:00,2016-07-03,03:49:00,,,,,,,Young Kittens,5,Fox,,,,,Elk,Neonate,0,Unknown,00:00:00,white,solid
+202,F,Early Winter,2016,338.0,Kill,2016-11-14,18:30:00,2016-11-14,18:33:00,,,,,,0.0,Kittens,5,Coyote,,,,,Elk,Neonate,0,Unknown,00:00:00,Pink,Solid
+202,F,Early Winter,2016,338.0,Handling,2016-11-14,18:34:00,2016-11-16,01:39:00,,,,,,,Kittens,5,Coyote,,,,,Elk,Neonate,0,Unknown,00:00:00,Pink,Solid
+202,F,Early Winter,2016,336.0,Forage,2016-11-23,15:49:00,2016-11-23,16:12:00,,,,,,,Kittens,5,None,,,,,Elk,Neonate,0,Unknown,00:00:00,White-Pink,Solid
+202,F,Early Winter,2016,336.0,Kill,2016-11-23,16:13:00,2016-11-23,16:14:00,,,,,,,Kittens,5,None,,,,,Elk,Neonate,0,Unknown,00:00:00,White-Pink,Solid
+202,F,Early Winter,2016,336.0,Handling,2016-11-23,16:15:00,2016-11-27,07:03:00,,,,,,,Kittens,5,None,,,,,Elk,Neonate,0,Unknown,00:00:00,White-Pink,Solid
+202,F,Early Winter,2016,335.0,Forage,2016-11-27,07:04:00,2016-11-29,00:00:00,,,,,,,Kittens,5,Coyote,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2016,335.0,Kill,2016-11-29,00:01:00,2016-11-29,00:01:00,,,,,,1.0,Kittens,5,Coyote,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2016,335.0,Handling,2016-11-29,00:02:00,2016-11-29,15:32:00,,,,,,,Kittens,5,Coyote,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2016,343.0,Forage,2016-12-14,05:38:00,2016-12-14,21:58:00,,,,,,,Kittens,5,Coyote,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2016,343.0,Kill,2016-12-14,21:59:00,2016-12-14,21:59:00,,,,,,,Kittens,5,Coyote,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2016,343.0,Handling,2016-12-14,22:00:00,2016-12-17,00:42:00,,,,,,,Kittens,5,Coyote,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Late Winter,2018,976.0,Forage,2018-03-21,08:09:00,2018-03-24,04:11:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Late Winter,2018,976.0,Forage,2018-03-24,06:16:00,2018-03-24,09:07:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Late Winter,2018,976.0,Kill,2018-03-24,09:08:00,2018-03-24,09:16:00,09:03:00,09:08:40,09:09:11,,09:25:58,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Late Winter,2018,976.0,Handling,2018-03-24,09:17:00,2018-03-30,23:39:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,998.0,Kill,2018-05-20,11:05:00,2018-05-20,11:05:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,998.0,Handling,2018-05-20,11:06:00,2018-05-22,10:39:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,999.0,Forage,2018-05-22,10:40:00,2018-05-22,23:41:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,999.0,Kill,2018-05-22,23:42:00,2018-05-22,23:42:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,999.0,Handling,2018-05-22,23:43:00,2018-05-24,18:57:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,4.0,Forage,2018-05-24,18:58:00,2018-05-26,13:39:00,,,,,,,,1,Bear,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,4.0,Kill,2018-05-26,13:40:00,2018-05-26,13:41:00,,,,,,,,1,Bear,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,4.0,Handling,2018-05-26,13:42:00,2018-05-27,00:56:00,,,,,,,,1,Bear,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,5.0,Forage,2018-05-27,00:57:00,2018-05-27,07:42:00,,,,,,,,1,Coyote,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,5.0,Kill,2018-05-27,07:43:00,2018-05-27,07:45:00,,,,,,,,1,Coyote,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,5.0,Handling,2018-05-27,07:46:00,2018-05-28,13:28:00,,,,,,,,1,Coyote,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,7.0,Forage,2018-05-29,23:40:00,2018-05-30,12:13:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,7.0,Kill,2018-05-30,12:14:00,2018-05-30,12:15:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,7.0,Handling,2018-05-30,12:16:00,2018-06-01,13:04:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,11.0,Forage,2018-06-01,13:05:00,2018-06-05,07:31:00,,,,,,,,1,Bear,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,11.0,Kill,2018-06-05,07:32:00,2018-06-05,07:34:00,,,,,,,,1,Bear,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,11.0,Handling,2018-06-05,07:35:00,2018-06-08,05:30:00,,,,,,,,1,Bear,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,25.0,Forage,2018-06-14,10:41:00,2018-06-16,01:34:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,25.0,Kill,2018-06-16,01:35:00,2018-06-16,01:36:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,25.0,Handling,2018-06-16,01:37:00,2018-06-17,19:01:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,32.0,Forage,2018-06-17,19:02:00,2018-06-23,20:55:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,32.0,Kill,2018-06-23,20:56:00,2018-06-23,20:56:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,32.0,Handling,2018-06-23,20:57:00,2018-06-25,06:55:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2019,167.0,Forage,2019-06-10,12:11:00,2019-06-15,03:58:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2019,167.0,Kill,2019-06-15,03:59:00,2019-06-15,03:59:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2019,167.0,Handling,2019-06-15,04:00:00,2019-06-16,17:06:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2019,172.0,Forage,2019-06-16,17:07:00,2019-06-20,22:45:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2019,172.0,Kill,2019-06-20,22:46:00,2019-06-20,22:46:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2019,172.0,Handling,2019-06-20,22:47:00,2019-06-21,11:19:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2019,170.0,Forage,2019-06-21,11:20:00,2019-06-22,08:07:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2019,170.0,Kill,2019-06-22,08:08:00,2019-06-22,08:09:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2019,170.0,Handling,2019-06-22,08:10:00,2019-06-23,11:02:00,,,,,,,,1,None,,,,,Elk,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2019,166.0,Forage,2019-05-30,11:14:00,2019-06-05,17:58:00,,,,,,,,1,None,,,,,"Elk
+",Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2019,166.0,Forage,2019-06-05,20:00:00,2019-06-08,16:53:00,,,,,,,,1,None,,,,,"Elk
+",Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2019,166.0,Kill,2019-06-08,16:54:00,2019-06-08,16:55:00,,,,,,,,1,None,,,,,"Elk
+",Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2019,166.0,Handling,2019-06-08,16:56:00,2019-06-10,12:10:00,,,,,,,,1,None,,,,,"Elk
+",Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2016,342.0,Forage,2016-12-08,10:54:00,2016-12-13,03:50:00,,,,,,,Kittens,5,None,,,,,Pronghorn Antelope,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2016,342.0,Kill,2016-12-13,03:51:00,2016-12-13,03:52:00,,,,,,4.0,Kittens,5,None,,,,,Pronghorn Antelope,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2016,342.0,Handling,2016-12-13,03:53:00,2016-12-14,05:37:00,,,,,,,Kittens,5,None,,,,,Pronghorn Antelope,Neonate,0,Unknown,00:00:00,0,Not Available
+202,F,Summer,2016,321.0,Forage,2016-06-16,05:20:00,2016-06-17,13:15:00,,,,,,,Young Kittens,5,None,,,,,Red Fox,Adult,0,Unknown,00:00:00,0,not available
+202,F,Summer,2016,321.0,Kill,2016-06-17,13:16:00,2016-06-17,13:16:00,,,,,,,Young Kittens,5,None,,,,,Red Fox,Adult,0,Unknown,00:00:00,0,not available
+202,F,Summer,2016,321.0,Handling,2016-06-17,13:17:00,2016-06-18,09:06:00,,,,,,,Young Kittens,5,None,,,,,Red Fox,Adult,0,Unknown,00:00:00,0,not available
+202,F,Summer,2016,332.0,Forage,2016-07-09,02:24:00,2016-07-12,03:05:00,,,,,,,Young Kittens,5,None,,,,,Red Fox,Unknown,Unknown,Unknown,00:00:00,0,not available
+202,F,Summer,2016,332.0,Kill,2016-07-12,03:06:00,2016-07-12,03:06:00,,,,,,1.0,Young Kittens,5,None,,,,,Red Fox,Unknown,Unknown,Unknown,00:00:00,0,not available
+202,F,Summer,2016,332.0,Handling,2016-07-12,03:07:00,2016-07-12,11:56:00,,,,,,,Young Kittens,5,None,,,,Cached carcass here and then came back,Red Fox,Unknown,Unknown,Unknown,00:00:00,0,not available
+202,F,Summer,2016,332.0,Handling,2016-07-17,12:32:00,2016-07-18,01:23:00,,,,,,,Young Kittens,5,None,,,,,Red Fox,Unknown,Unknown,Unknown,00:00:00,0,not available
+202,F,Summer,2016,316.0,Kill,2016-06-06,15:08:00,2016-06-06,15:08:00,,,,,,9.0,Young Kittens,5,None,,,,,Yellow-Bellied Marmot,Adult,0,Unknown,00:00:00,0,not available
+202,F,Summer,2016,316.0,Handling,2016-06-06,15:09:00,2016-06-07,10:54:00,,,,,,,Young Kittens,5,None,,,,,Yellow-Bellied Marmot,Adult,0,Unknown,00:00:00,0,not available
+202,F,Summer,2016,317.0,Forage,2016-06-07,10:55:00,2016-06-12,22:54:00,,,,,,,Young Kittens,5,Fox,,,,,Yellow-Bellied Marmot,Unknown,Unknown,Unknown,00:00:00,0,not available
+202,F,Summer,2016,317.0,Kill,2016-06-12,22:55:00,2016-06-12,22:55:00,,,,,,,Young Kittens,5,Fox,,,,,Yellow-Bellied Marmot,Unknown,Unknown,Unknown,00:00:00,0,not available
+202,F,Summer,2016,317.0,Handling,2016-06-12,22:56:00,2016-06-13,02:57:00,,,,,,,Young Kittens,5,Fox,,,,,Yellow-Bellied Marmot,Unknown,Unknown,Unknown,00:00:00,0,not available
+202,F,Summer,2016,318.0,Forage,2016-06-13,02:58:00,2016-06-14,20:03:00,,,,,,,Young Kittens,5,Fox,,,,,Yellow-Bellied Marmot,Adult,0,Unknown,00:00:00,0,not available
+202,F,Summer,2016,318.0,Kill,2016-06-14,20:04:00,2016-06-14,20:04:00,,,,,,,Young Kittens,5,Fox,,,,,Yellow-Bellied Marmot,Adult,0,Unknown,00:00:00,0,not available
+202,F,Summer,2016,318.0,Handling,2016-06-14,20:05:00,2016-06-16,05:19:00,,,,,,,Young Kittens,5,Fox,,,,,Yellow-Bellied Marmot,Adult,0,Unknown,00:00:00,0,not available
+202,F,Summer,2016,326.0,Forage,2016-06-18,09:07:00,2016-06-24,16:17:00,,,,,,,Young Kittens,5,None,,,,,Yellow-Bellied Marmot,Unknown,Unknown,Unknown,00:00:00,0,not available
+202,F,Summer,2016,326.0,Kill,2016-06-24,16:18:00,2016-06-24,16:18:00,,,,,,,Young Kittens,5,None,,,,,Yellow-Bellied Marmot,Unknown,Unknown,Unknown,00:00:00,0,not available
+202,F,Summer,2016,326.0,Handling,2016-06-24,16:19:00,2016-06-25,05:17:00,,,,,,,Young Kittens,5,None,,,,,Yellow-Bellied Marmot,Unknown,Unknown,Unknown,00:00:00,0,not available
+202,F,Summer,2016,327.0,Forage,2016-07-03,03:50:00,2016-07-07,01:15:00,,,,,,,Young Kittens,5,None,,,,,Yellow-Bellied Marmot,Adult,0,Unknown,00:00:00,0,not available
+202,F,Summer,2016,327.0,Kill,2016-07-07,01:16:00,2016-07-07,01:17:00,,,,,,,Young Kittens,5,None,,,,,Yellow-Bellied Marmot,Adult,0,Unknown,00:00:00,0,not available
+202,F,Summer,2016,327.0,Handling,2016-07-07,01:18:00,2016-07-07,12:04:00,,,,,,,Young Kittens,5,None,,,,,Yellow-Bellied Marmot,Adult,0,Unknown,00:00:00,0,not available
+202,F,Summer,2016,324.0,Forage,2016-07-07,12:05:00,2016-07-08,17:09:00,,,,,,,Young Kittens,5,Fox,,,,,Yellow-Bellied Marmot,Adult,0,Unknown,00:00:00,0,0
+202,F,Summer,2016,324.0,Kill,2016-07-08,17:10:00,2016-07-08,17:10:00,,,,,,0.0,Young Kittens,5,Fox,,,,,Yellow-Bellied Marmot,Adult,0,Unknown,00:00:00,0,0
+202,F,Summer,2016,324.0,Handling,2016-07-08,17:11:00,2016-07-09,02:23:00,,,,,,,Young Kittens,5,Fox,,,,,Yellow-Bellied Marmot,Adult,0,Unknown,00:00:00,0,0
+202,F,Late Winter,2018,940.0,Forage,2018-02-16,01:38:00,2018-02-19,20:03:00,,,,,,,,1,Coyote,,,,,Black-tailed Deer,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Late Winter,2018,940.0,Kill,2018-02-19,20:04:00,2018-02-19,20:05:00,19:59:00,20:04:58,20:05:30,,20:05:44,,,1,Coyote,,,,,Black-tailed Deer,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Late Winter,2018,940.0,Handling,2018-02-19,20:06:00,2018-02-24,18:25:00,,,,,,,,1,Coyote,,,,,Black-tailed Deer,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Late Winter,2018,972.0,Forage,2018-03-14,01:52:00,2018-03-21,02:07:00,,,,,,,,1,None,,,,,Black-tailed Deer,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Late Winter,2018,972.0,Handling,2018-03-21,02:08:00,2018-03-21,08:08:00,,,,,,,,1,None,,,,,Black-tailed Deer,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2018,73.0,Forage,2018-11-24,23:48:00,2018-11-25,02:55:00,,,,,,,,1,Coyote,,,,,Black-tailed Deer,Calf/fawn,1,Male,00:00:00,0,Not Available
+202,F,Early Winter,2018,73.0,Kill,2018-11-25,02:56:00,2018-11-25,03:02:00,,,,,,,,1,Coyote,,,,,Black-tailed Deer,Calf/fawn,1,Male,00:00:00,0,Not Available
+202,F,Early Winter,2018,73.0,Handling,2018-11-25,03:03:00,2018-11-29,01:53:00,,,,,,,,1,Coyote,,,,,Black-tailed Deer,Calf/fawn,1,Male,00:00:00,0,Not Available
+202,F,Early Winter,2018,79.0,Forage,2018-12-01,16:12:00,2018-12-04,09:03:00,,,,,,,,1,None,,,,,Black-tailed Deer,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2018,79.0,Kill,2018-12-04,09:04:00,2018-12-04,09:04:00,,,,,,,,1,None,,,,,Black-tailed Deer,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2018,79.0,Handling,2018-12-04,09:05:00,2018-12-07,01:34:00,,,,,,,,1,None,,,,,Black-tailed Deer,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2018,89.0,Forage,2018-12-09,14:48:00,2018-12-10,08:44:00,,,,,,,,1,None,,,,,Black-tailed Deer,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2018,89.0,Kill,2018-12-10,08:45:00,2018-12-10,08:45:00,,,,,,,,1,None,,,,,Black-tailed Deer,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Early Winter,2018,89.0,Handling,2018-12-10,08:46:00,2018-12-13,00:23:00,,,,,,,,1,None,,,,,Black-tailed Deer,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Late Winter,2016,219.0,Kill,2016-02-24,21:40:00,2016-02-24,21:40:00,,,,,,12.0,Yearlings,4,Fox,,,,,Elk,Yearling,1,Female,00:00:00,pink,solid
+203,F,Late Winter,2016,219.0,Handling,2016-02-24,21:41:00,2016-02-28,13:38:00,,,,,,,Yearlings,4,Fox,,,,,Elk,Yearling,1,Female,00:00:00,pink,solid
+202,F,Early Winter,2016,341.0,Forage,2016-11-29,15:33:00,2016-12-04,22:50:00,,,,,,,Kittens,5,Coyote,,,,,Elk,Yearling,1,Unknown,00:00:00,Red,Liver
+202,F,Early Winter,2016,341.0,Kill,2016-12-04,22:51:00,2016-12-04,22:53:00,,,,,,,Kittens,5,Coyote,,,,,Elk,Yearling,1,Unknown,00:00:00,Red,Liver
+202,F,Early Winter,2016,341.0,Handling,2016-12-04,22:54:00,2016-12-07,03:14:00,,,,,,,Kittens,5,Coyote,,,,,Elk,Yearling,1,Unknown,00:00:00,Red,Liver
+202,F,Late Winter,2018,942.0,Kill,2018-02-11,06:01:00,2018-02-11,06:01:00,05:56:51,06:01:05,06:02:02,,06:02:51,,,1,Coyote,,,,,Elk,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Late Winter,2018,942.0,Handling,2018-02-11,06:02:00,2018-02-16,01:37:00,,,,,,,,1,Coyote,,,,,Elk,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Summer,2018,41.0,Forage,2018-06-29,05:08:00,2018-06-29,05:37:00,,,,,,,,1,Bear,,,,,Elk,Yearling,1,Female,00:00:00,0,Not Available
+202,F,Summer,2018,41.0,Kill,2018-06-29,05:38:00,2018-06-29,05:39:00,,,,,,,,1,Bear,,,,,Elk,Yearling,1,Female,00:00:00,0,Not Available
+202,F,Summer,2018,41.0,Handling,2018-06-29,05:40:00,2018-07-05,10:37:00,,,,,,,,1,Bear,,,,,Elk,Yearling,1,Female,00:00:00,0,Not Available
+202,F,Early Winter,2018,84.0,Forage,2018-12-13,00:24:00,2018-12-14,00:24:00,,,,,,,,1,None,,,,,Elk,Calf/fawn,1,Female,00:00:00,Pink,Solid
+202,F,Early Winter,2018,84.0,Handling,2018-12-14,00:25:00,2018-12-15,11:27:00,,,,,,,,1,None,,,,,Elk,Calf/fawn,1,Female,00:00:00,Pink,Solid
+202,F,Late Winter,2019,109.0,Kill,2019-03-03,02:39:00,2019-03-03,02:43:00,,,,,,,,1,None,,,,,Elk,Calf/fawn,1,Unknown,00:00:00,Pink,Liver
+202,F,Late Winter,2019,109.0,Handling,2019-03-03,02:44:00,2019-03-05,12:51:00,,,,,,,,1,None,,,,,Elk,Calf/fawn,1,Unknown,00:00:00,Pink,Liver
+202,F,Late Winter,2019,97.0,Forage,2019-03-15,16:10:00,2019-03-16,03:55:00,,,,,,,,1,Wolf,Fox,,,,Elk,Calf/fawn,1,Female,00:00:00,Pink-Red,Liver
+202,F,Late Winter,2019,97.0,Kill,2019-03-16,03:56:00,2019-03-16,03:57:00,,,,,,,,1,Wolf,Fox,,,,Elk,Calf/fawn,1,Female,00:00:00,Pink-Red,Liver
+202,F,Late Winter,2019,97.0,Handling,2019-03-16,03:58:00,2019-03-17,01:49:00,,,,,,,,1,Wolf,Fox,,,,Elk,Calf/fawn,1,Female,00:00:00,Pink-Red,Liver
+202,F,Summer,2019,145.0,Forage,2019-04-30,11:54:00,2019-04-30,17:54:00,,,,,,,,1,Coyote,,,,,Elk,Calf/fawn,1,Female,00:00:00,0,Not Available
+202,F,Summer,2019,145.0,Kill,2019-04-30,17:55:00,2019-04-30,17:55:00,,,,,,,,1,Coyote,,,,,Elk,Calf/fawn,1,Female,00:00:00,0,Not Available
+202,F,Summer,2019,145.0,Handling,2019-04-30,17:56:00,2019-05-05,03:32:00,,,,,,,,1,Coyote,,,,,Elk,Calf/fawn,1,Female,00:00:00,0,Not Available
+202,F,Summer,2019,155.0,Forage,2019-05-19,12:08:00,2019-05-20,23:42:00,,,,,,,,1,Bear,,,,,Elk,Yearling,1,Female,00:00:00,Pink,Gelatinous
+202,F,Summer,2019,155.0,Kill,2019-05-20,23:43:00,2019-05-20,23:44:00,,,,,,,,1,Bear,,,,,Elk,Yearling,1,Female,00:00:00,Pink,Gelatinous
+202,F,Summer,2019,155.0,Handling,2019-05-20,23:45:00,2019-05-30,11:13:00,,,,,,,,1,Bear,,,,,Elk,Yearling,1,Female,00:00:00,Pink,Gelatinous
+202,F,Late Winter,2019,117.0,Forage,2019-03-17,01:50:00,2019-03-18,01:39:00,,,,,,,,1,None,,,,,Mule Deer,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Late Winter,2019,117.0,Kill,2019-03-18,01:40:00,2019-03-18,01:40:00,,,,,,,,1,None,,,,,Mule Deer,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Late Winter,2019,117.0,Handling,2019-03-18,01:41:00,2019-03-20,13:35:00,,,,,,,,1,None,,,,,Mule Deer,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Late Winter,2019,114.0,Forage,2019-03-22,00:40:00,2019-03-22,10:04:00,,,,,,,,1,None,,,,,Mule Deer,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Late Winter,2019,114.0,Kill,2019-03-22,10:05:00,2019-03-22,10:05:00,,,,,,,,1,None,,,,,Mule Deer,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Late Winter,2019,114.0,Handling,2019-03-22,10:06:00,2019-03-24,02:59:00,,,,,,,,1,None,,,,,Mule Deer,Calf/fawn,1,Unknown,00:00:00,0,Not Available
+202,F,Late Winter,2019,111.0,Forage,2019-03-24,03:00:00,2019-03-24,08:42:00,,,,,,,,1,Fox,,,,,Mule Deer,Calf/fawn,1,Unknown,00:00:00,Red,Gelatinous
+202,F,Late Winter,2019,111.0,Kill,2019-03-24,08:43:00,2019-03-24,08:44:00,,,,,,,,1,Fox,,,,,Mule Deer,Calf/fawn,1,Unknown,00:00:00,Red,Gelatinous
+202,F,Late Winter,2019,111.0,Handling,2019-03-24,08:45:00,2019-03-25,12:28:00,,,,,,,,1,Fox,,,,,Mule Deer,Calf/fawn,1,Unknown,00:00:00,Red,Gelatinous
+202,F,Summer,2019,144.0,Forage,2019-05-11,11:20:00,2019-05-17,05:20:00,,,,,,,,1,None,,,,,Mule Deer,Calf/fawn,1,Unk,00:00:00,0,Not Available
+202,F,Summer,2019,144.0,Kill,2019-05-17,05:21:00,2019-05-17,05:22:00,,,,,,,,1,None,,,,,Mule Deer,Calf/fawn,1,Unk,00:00:00,0,Not Available
+202,F,Summer,2019,144.0,Handling,2019-05-17,05:23:00,2019-05-18,05:27:00,,,,,,,,1,None,,,,,Mule Deer,Calf/fawn,1,Unk,00:00:00,0,Not Available
+202,F,Late Winter,2018,964.0,Forage,2018-03-04,08:26:00,2018-03-11,04:37:00,,,,,,,,1,Coyote,,,,,Elk,Yearling,2,Unknown,00:00:00,Pink-Red,Gelatinous
+202,F,Late Winter,2018,964.0,Kill,2018-03-11,04:38:00,2018-03-11,04:39:00,04:33:00,04:37:58,04:38:46,,04:49:45,,,1,Coyote,,,,,Elk,Yearling,2,Unknown,00:00:00,Pink-Red,Gelatinous
+202,F,Late Winter,2018,964.0,Handling,2018-03-11,04:40:00,2018-03-14,01:51:00,,,,,,,,1,Coyote,,,,,Elk,Yearling,2,Unknown,00:00:00,Pink-Red,Gelatinous
+202,F,Late Winter,2018,964.0,Handling,2018-03-24,04:12:00,2018-03-24,06:15:00,,,,,,,,1,Coyote,,,,,Elk,Yearling,2,Unknown,00:00:00,Pink-Red,Gelatinous
+202,F,Summer,2019,118.0,Forage,2019-05-05,11:28:00,2019-05-09,08:08:00,,,,,,,,1,Coyote,Fox,,,,Mule Deer,Adult,2,Unknown,00:00:00,0,Not Available
+202,F,Summer,2019,118.0,Kill,2019-05-09,08:09:00,2019-05-09,08:10:00,,,,,,,,1,Coyote,Fox,,,,Mule Deer,Adult,2,Unknown,00:00:00,0,Not Available
+202,F,Summer,2019,118.0,Handling,2019-05-09,08:11:00,2019-05-11,11:19:00,,,,,,,,1,Coyote,Fox,,,,Mule Deer,Adult,2,Unknown,00:00:00,0,Not Available
+202,F,Summer,2019,142.0,Kill,2019-04-29,11:47:00,2019-04-29,11:51:00,,,,,,,,1,None,,,,,Mule Deer,Adult,5,Female,00:00:00,Pink-Red,Gelatinous
+202,F,Summer,2019,142.0,Handling,2019-04-29,11:52:00,2019-04-30,11:53:00,,,,,,,,1,None,,,,,Mule Deer,Adult,5,Female,00:00:00,Pink-Red,Gelatinous
+202,F,Summer,2019,142.0,Forage,2019-05-05,03:33:00,2019-05-05,03:59:00,,,,,,,,1,None,,,,,Mule Deer,Adult,5,Female,00:00:00,Pink-Red,Gelatinous
+202,F,Summer,2019,142.0,Handling,2019-05-05,05:00:00,2019-05-05,11:27:00,,,,,,,,1,None,,,,,Mule Deer,Adult,5,Female,00:00:00,Pink-Red,Gelatinous
+202,F,Late Winter,2018,951.0,Forage,2018-02-24,18:26:00,2018-02-24,20:41:00,,,,,,,,1,Coyote,,,,,Black-tailed Deer,Adult,6,Male,Unknown,0,Not Available
+202,F,Late Winter,2018,951.0,Handling,2018-02-24,20:42:00,2018-02-25,03:57:00,,,,,,,,1,Coyote,,,,,Black-tailed Deer,Adult,6,Male,Unknown,0,Not Available
+202,F,Summer,2019,143.0,Kill,2019-05-18,05:28:00,2019-05-18,05:29:00,,,,,,,,1,None,,,,,Mule Deer,Adult,6,Female,00:00:00,Pink-Red,Gelatinous
+202,F,Summer,2019,143.0,Handling,2019-05-18,05:30:00,2019-05-20,23:42:00,,,,,,,,1,None,,,,,Mule Deer,Adult,6,Female,00:00:00,Pink-Red,Gelatinous
+202,F,Late Winter,2016,314.0,Forage,2016-03-27,16:11:00,2016-03-29,08:34:00,,,,,,,Yearlings,4,Grizzly,,,,,Elk,Adult,7,Male,pedicel,pink-red,gelatinous
+202,F,Late Winter,2016,314.0,Handling,2016-03-29,08:35:00,2016-03-31,04:38:00,,,,,,,Yearlings,4,Grizzly,,,,,Elk,Adult,7,Male,pedicel,pink-red,gelatinous
+202,F,Early Winter,2018,88.0,Forage,2018-11-29,01:54:00,2018-12-01,04:09:00,,,,,,,,1,None,,,,,Elk,Adult,7,Female,00:00:00,0,Not Examined
+202,F,Early Winter,2018,88.0,Handling,2018-12-01,04:10:00,2018-12-01,16:11:00,,,,,,,,1,None,,,,,Elk,Adult,7,Female,00:00:00,0,Not Examined
+202,F,Late Winter,2017,821.0,Kill,2017-03-01,22:45:00,2017-03-01,22:45:00,,,,,,,Yearlings,5,None,,,,,Black-tailed Deer,Adult,8,Unknown,00:00:00,0,0
+202,F,Late Winter,2017,821.0,Handling,2017-03-01,22:46:00,2017-03-04,00:33:00,,,,,,,Yearlings,5,None,,,,,Black-tailed Deer,Adult,8,Unknown,00:00:00,0,0
+202,F,Late Winter,2016,313.0,Forage,2016-03-13,06:06:00,2016-03-14,07:23:00,,,,,,,Yearlings,2,Grizzly,,,,,Elk,Old adult (10+ yrs),16,Female,00:00:00,white,solid
+202,F,Late Winter,2016,313.0,Forage,2016-03-14,10:02:00,2016-03-17,01:46:00,,,,,,,Yearlings,2,Grizzly,,,,,Elk,Old adult (10+ yrs),16,Female,00:00:00,white,solid
+202,F,Late Winter,2016,313.0,Handling,2016-03-17,01:47:00,2016-03-22,01:10:00,,,,,,,Yearlings,2,Grizzly,,,,,Elk,Old adult (10+ yrs),16,Female,00:00:00,white,solid
+202,F,Late Winter,2018,950.0,Forage,2018-02-25,03:58:00,2018-02-26,00:44:00,,,,,,,,1,Coyote,Fox,,,,Elk,Adult,59,Female,00:00:00,White-Pink,Solid
+202,F,Late Winter,2018,950.0,Kill,2018-02-26,00:45:00,2018-02-26,00:47:00,00:40:00,00:45:16,00:46:10,,00:48:00,,,1,Coyote,Fox,,,,Elk,Adult,59,Female,00:00:00,White-Pink,Solid
+202,F,Late Winter,2018,950.0,Handling,2018-02-26,00:48:00,2018-03-04,08:25:00,,,,,,,,1,Coyote,Fox,,,,Elk,Adult,59,Female,00:00:00,White-Pink,Solid
+202,F,Early Winter,2016,340.0,Forage,2016-12-07,03:15:00,2016-12-07,18:24:00,,,,,,,Kittens,5,,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Early Winter,2016,340.0,Kill,2016-12-07,18:25:00,2016-12-07,18:25:00,,,,,,,Kittens,5,,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Early Winter,2016,340.0,Handling,2016-12-07,18:26:00,2016-12-08,10:53:00,,,,,,,Kittens,5,,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2018,,Forage,2018-05-28,13:29:00,2018-05-29,14:08:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2018,,Kill,2018-05-29,14:09:00,2018-05-29,14:09:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2018,,Handling,2018-05-29,14:10:00,2018-05-29,23:39:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2018,,Forage,2018-06-09,11:35:00,2018-06-11,20:28:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2018,,Kill,2018-06-11,20:29:00,2018-06-11,20:29:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2018,,Handling,2018-06-11,20:30:00,2018-06-12,04:13:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2018,,Forage,2018-06-12,04:14:00,2018-06-14,00:41:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2018,,Kill,2018-06-14,00:42:00,2018-06-14,00:42:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2018,,Handling,2018-06-14,00:43:00,2018-06-14,10:40:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2018,,Forage,2018-06-25,06:56:00,2018-06-27,20:34:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2018,,Kill,2018-06-27,20:35:00,2018-06-27,20:35:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2018,,Handling,2018-06-27,20:36:00,2018-06-29,05:07:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2018,,Forage,2018-07-05,10:38:00,2018-07-07,23:43:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2018,,Kill,2018-07-07,23:44:00,2018-07-07,23:44:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2018,,Handling,2018-07-07,23:45:00,2018-07-09,11:00:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2018,,Forage,2018-07-09,11:01:00,2018-07-15,06:51:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2018,,Kill,2018-07-15,06:52:00,2018-07-15,06:53:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2018,,Handling,2018-07-15,06:54:00,2018-07-16,09:13:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Early Winter,2018,,Handling,2018-11-20,23:54:00,2018-11-24,23:47:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Early Winter,2018,,Forage,2018-12-07,01:35:00,2018-12-09,01:24:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Early Winter,2018,,Handling,2018-12-09,01:25:00,2018-12-09,14:47:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Late Winter,2019,,Forage,2019-03-05,12:52:00,2019-03-05,13:01:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Late Winter,2019,,Handling,2019-03-05,13:02:00,2019-03-11,10:01:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Late Winter,2019,,Forage,2019-03-11,10:02:00,2019-03-14,16:14:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Late Winter,2019,,Kill,2019-03-14,16:15:00,2019-03-14,16:15:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Late Winter,2019,,Handling,2019-03-14,16:16:00,2019-03-15,16:09:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Late Winter,2019,,Forage,2019-03-20,13:36:00,2019-03-21,00:26:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Late Winter,2019,,Kill,2019-03-21,00:27:00,2019-03-21,00:27:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Late Winter,2019,,Handling,2019-03-21,00:28:00,2019-03-22,00:39:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2019,,,2019-05-05,04:00:00,2019-05-05,04:59:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+202,F,Summer,2019,,,2019-06-05,18:00:00,2019-06-05,19:59:00,,,,,,,,1,Unknown,,,,,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown

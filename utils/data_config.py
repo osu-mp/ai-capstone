@@ -16,10 +16,11 @@ Various disk paths for where to read and write data
 """
 data_paths = {
     "spreadsheet_root": f"{ROOT_DIR}/data",
+    "csv_backup": f"{ROOT_DIR}/data/csv_backup",
     "template_path": f"{ROOT_DIR}/rcode/template.r",
     "output_path": f"{ROOT_DIR}/rcode/jobs/",
     "r_path": "C:\\Program Files\\R\\R-4.3.1\\bin\\Rscript.exe",
-    "plot_root": f"{ROOT_DIR}/plots/"
+    "plot_root": f"{ROOT_DIR}/plots/",
 }
 
 if is_unix:
@@ -36,11 +37,11 @@ spreadsheets = {
     "Cougars_ODBA_KIlls_Setup.xlsx": {
         "tabs": {
             "M201": f"{csv_root}/M201_20170_020116_120116/MotionData_0/",
-            # "F202": f"{csv_root}/F202_27905_010518_072219/MotionData_27905",
-            # "F207": f"{csv_root}/F207_22263_030117_012919/MotionData_0",
-            # "F209": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
+            "F202": f"{csv_root}/F202_27905_010518_072219/MotionData_27905",
+            "F207": f"{csv_root}/F207_22263_030117_012919/MotionData_0",
+            "F209": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
         },
-        "data_cols": ["AnimalID", "Sex", "Period", "Kill_ID", "Start Date", "Start time", "End Time", "StartCons", "EndCons", "StartLib", "EndLib"]
+        "data_cols": ["AnimalID", "Sex", "Period", "Kill_ID", "Start Date", "Start time", "End Time", "StartStalk", "StartKill", "EndCons", "EndLib"]
     }
 }
 

@@ -29,15 +29,21 @@ clear_plot_dir = False
 import openpyxl
 import csv
 
-def dump_tabs(xls_path):
-    # Load the Excel file into a pandas DataFrame
-    xls = pd.ExcelFile(xls_path)
+def dump_tab(xls_path, sheet_name):
+    # Get the current date
+    current_date = datetime.now()
 
-    # Iterate through each sheet and dump its contents into separate CSV files
-    for sheet_name in xls.sheet_names:
-        df = pd.read_excel(xls_path, sheet_name=sheet_name)
-        df.to_csv(f'{sheet_name}.csv', index=False)
+    # Format the date as year_month_date
+    formatted_date = current_date.strftime("%Y_%m_%d")
 
+    root_dir = os.path.join(data_paths["csv_backup"], formatted_date)
+    os.makedirs(root_dir, exist_ok=True)
+
+    csv_path = os.path.join(root_dir, f"{sheet_name}.csv")
+
+    df = pd.read_excel(xls_path, sheet_name=sheet_name)
+    df.to_csv(csv_path, index=False)
+    print(f"Created {csv_path=}")
 
 def identify_kills():
     """
@@ -55,7 +61,6 @@ def identify_kills():
     for spreadsheet in spreadsheets:
         path = os.path.join(spreadsheet_root, spreadsheet)
         print(f"Processing spreadsheet {path}")
-        dump_tabs(path)
         df_all = pd.DataFrame()
         with pd.ExcelFile(path) as f:
             sheets = f.sheet_names
@@ -70,6 +75,7 @@ def identify_kills():
 
             tab_skipped = False
             for sheet in cfg_sheets:
+                dump_tab(path, sheet)
                 df = f.parse(sheet)
                 cols = spreadsheets[spreadsheet]['data_cols']
                 if not all(column in df.columns for column in cols):
@@ -96,25 +102,32 @@ def identify_kills():
         window_high_min = row['End Time'].minute
         window_high_min = max(window_low_min + 1, window_high_min)      # ensure the window is at least 1 minute
 
-        cons_window_low_hour = row['StartCons'].hour
-        cons_window_low_min = row['StartCons'].minute
-        cons_window_low_sec = row['StartCons'].second
+        if 'StartKill' not in row or pd.isnull(row['StartKill']):
+            continue
+
+        cons_window_low_hour = row['StartKill'].hour
+        cons_window_low_min = row['StartKill'].minute
+        cons_window_low_sec = row['StartKill'].second
         cons_window_high_hour = row['EndCons'].hour
         cons_window_high_min = row['EndCons'].minute
         cons_window_high_sec = row['EndCons'].second
 
-        lib_window_low_hour = row['StartLib'].hour
-        lib_window_low_min = row['StartLib'].minute
-        lib_window_low_sec = row['StartLib'].second
+        lib_window_low_hour = cons_window_low_hour# row['StartLib'].hour
+        lib_window_low_min = cons_window_low_min # row['StartLib'].minute
+        lib_window_low_sec = cons_window_low_sec # row['StartLib'].second
         lib_window_high_hour = row['EndLib'].hour
         lib_window_high_min = row['EndLib'].minute
         lib_window_high_sec = row['EndLib'].second
 
+        stalk_start_hour = row['StartStalk'].hour
+        stalk_start_min = row['StartStalk'].minute
+        stalk_start_sec = row['StartStalk'].second
+
         plot_date = datetime(year=year, month=month, day=day, hour=hour, minute=window_low_min)
 
         kill_id = row['Kill_ID']
-        if kill_id != 312:          # TODO Debug get rid of
-            continue
+        # if kill_id != 940:          # TODO Debug get rid of
+        #     continue
         if math.isnan(kill_id):
             kill_id = no_id_kill_index
             no_id_kill_index += 1
@@ -157,6 +170,10 @@ def identify_kills():
             "lib_window_high_hour": lib_window_high_hour,
             "lib_window_high_min": lib_window_high_min,
             "lib_window_high_sec": lib_window_high_sec,
+            # TODO
+            "stalk_start_hour": stalk_start_hour,
+            "stalk_start_min": stalk_start_min,
+            "stalk_start_sec": stalk_start_sec,
             "year": year,
             "month": month,
             "day": day,
