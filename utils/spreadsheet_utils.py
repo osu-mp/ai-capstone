@@ -178,7 +178,19 @@ def identify_kills():
             "hour": hour,
             "Kill_ID": kill_id,
             "lion_plot_path": lion_plot_path,
-            "csv_path": csv_path
+            "csv_path": csv_path,
+
+            "marker_1_hour": 0,
+            "marker_1_min": 0,
+            "marker_1_sec": 0,
+            "marker_1_label": 0,   
+            # TODO
+            "marker_2_hour": 0,
+            "marker_2_min": 0,
+            "marker_2_sec": 0,
+            "marker_2_label": 0, 
+
+            "marker_info": get_marker_info(info_plot=False),
         }
         configs.append(data)
         # expected_plots.add(data["lion_plot_path"])
@@ -192,6 +204,268 @@ def identify_kills():
     for key, value in plot_counts.items():
         print(f"\t{key}: {value * len(view_configs)}")
     return configs, expected_plots
+
+def get_plot_info_entries():
+    """
+    Iterate over all entries in the info tab
+    for each data window of interest.
+    :return:
+    """
+    configs = []
+    expected_plots = set()
+    spreadsheet_root = os.path.abspath(data_paths["spreadsheet_root"])
+    plot_root = data_paths["plot_root"]
+    missing_csvs = set()
+    plot_counts = defaultdict(int)
+    generated_files = []
+    template_path = os.path.abspath(data_paths["template_path"])
+    output_path = os.path.abspath(data_paths["output_path"])
+
+    for spreadsheet in spreadsheets:
+        path = os.path.join(spreadsheet_root, spreadsheet)
+        print(f"Processing spreadsheet {path}")
+        df_all = pd.DataFrame()
+        with pd.ExcelFile(path) as f:
+            sheets = f.sheet_names
+            if 'InfoPlots' not in sheets:
+                print("No InfoPlots tab, skipping")
+                continue
+            sheet = 'InfoPlots'
+            
+            dump_tab(path, sheet)
+            df = f.parse(sheet)
+            cols = spreadsheets[spreadsheet]['data_cols_info']
+            if not all(column in df.columns for column in cols):
+                print(f"WARNING: Missing columns in tab {sheet}, no data read from there.")
+                continue
+            df = df[cols]
+            # TODO 
+            # df["data_root"] = spreadsheets[spreadsheet]["tabs"][sheet]
+            df_all = pd.concat([df_all, df], ignore_index=True)
+
+
+    for index, row in df_all.iterrows():
+        year = row['Start Date'].year
+        month = row['Start Date'].month
+        day = row['Start Date'].day
+        hour = row['Start time'].hour
+        window_low_min = row['Start time'].minute
+        window_high_min = row['End time'].minute
+        window_high_min = max(window_low_min + 1, window_high_min)      # ensure the window is at least 1 minute
+
+        # if 'StartKill' not in row or pd.isnull(row['StartKill']):
+        #     continue
+
+        if not pd.isnull(row['MarkerTime1']):
+            marker_1_hour = row['MarkerTime1'].hour
+            marker_1_min = row['MarkerTime1'].minute
+            marker_1_sec = row['MarkerTime1'].second
+            marker_1_label = row['MarkerLabel1']
+        else:
+            marker_1_hour = marker_1_min = marker_1_sec = 0
+            marker_1_label = "Unused"
+
+        if not pd.isnull(row['MarkerTime2']):
+            marker_2_hour = row['MarkerTime2'].hour
+            marker_2_min = row['MarkerTime2'].minute
+            marker_2_sec = row['MarkerTime2'].second
+            marker_2_label = row['MarkerLabel2']
+        else:
+            marker_2_hour = marker_2_min = marker_2_sec = 0
+            marker_2_label = "Unused"
+
+        plot_label = row['PlotLabel']
+        plot_label = plot_label.replace(' ', '_')
+
+
+        plot_date = datetime(year=year, month=month, day=day, hour=hour, minute=window_low_min)
+
+        kill_id = row['Kill_ID']
+        # if kill_id != 940:          # TODO Debug get rid of
+        #     continue
+        # if math.isnan(kill_id):
+        #     kill_id = no_id_kill_index
+        #     no_id_kill_index += 1
+        # else:
+        #     kill_id = int(kill_id)
+
+        lion_id = f"{row['Sex']}{int(row['AnimalID'])}"
+        lion_plot_root = os.path.join(plot_root, lion_id)
+        if not os.path.isdir(lion_plot_root):
+            os.makedirs(lion_plot_root)
+
+        plot_name = plot_date.strftime(f"{lion_id}_%Y-%m-%d__%H_%M__{kill_id}__{plot_label}")  # the R script will append config type/kill id and .png
+        lion_plot_path = os.path.join(lion_plot_root, plot_name)
+
+        csv_folder = plot_date.strftime("%Y/%m %b/%d/")
+        csv_name = plot_date.strftime("%Y-%m-%d.csv")
+        data_root = spreadsheets[spreadsheet]["tabs"][lion_id]
+        csv_path = os.path.join(data_root, csv_folder, csv_name)
+        csv_path = csv_path.replace("\\", "/")      # R does not like backward slashes, convert to forward
+        if not os.path.isfile(csv_path):
+            missing_csvs.add(csv_path)
+            continue
+
+        expected_plots.add(plot_name)
+
+        plot_counts[lion_id] += 1
+        data = {
+            "lion_name": f"{lion_id}",
+            "window_low_min": window_low_min,
+            "window_high_min": window_high_min,
+            "info_view": True,
+            # TODO : can this be simplified?
+            "cons_window_low_hour": 0, #cons_window_low_hour,
+            "cons_window_low_min": 0, #cons_window_low_min,
+            "cons_window_low_sec": 0, #cons_window_low_sec,
+            "cons_window_high_hour": 0, #cons_window_high_hour,
+            "cons_window_high_min": 0, #cons_window_high_min,
+            "cons_window_high_sec": 0, #cons_window_high_sec,
+            # TODO
+            "lib_window_low_hour": 0, #lib_window_low_hour,
+            "lib_window_low_min": 0, #lib_window_low_min,
+            "lib_window_low_sec": 0, #lib_window_low_sec,
+            "lib_window_high_hour":0, # lib_window_high_hour,
+            "lib_window_high_min": 0, #lib_window_high_min,
+            "lib_window_high_sec": 0, #lib_window_high_sec,
+            # TODO
+            "stalk_start_hour": 0, #stalk_start_hour,
+            "stalk_start_min": 0, #stalk_start_min,
+            "stalk_start_sec": 0, #stalk_start_sec,
+            # TODO
+            "marker_1_hour": marker_1_hour,
+            "marker_1_min": marker_1_min,
+            "marker_1_sec": marker_1_sec,
+            "marker_1_label": marker_1_label,   
+            # TODO
+            "marker_2_hour": marker_2_hour,
+            "marker_2_min": marker_2_min,
+            "marker_2_sec": marker_2_sec,
+            "marker_2_label": marker_2_label,           
+
+            "year": year,
+            "month": month,
+            "day": day,
+            "hour": hour,
+            "Kill_ID": kill_id,
+            "lion_plot_path": lion_plot_path,
+            "csv_path": csv_path,
+
+            "marker_info": get_marker_info(info_plot=True, marker_1_label=marker_1_label, marker_2_label=marker_2_label),
+        }
+        # configs.append(data)
+        # expected_plots.add(data["lion_plot_path"])
+
+    # if missing_csvs:
+    #     print(f"WARNING: The following {len(missing_csvs)} CSVs were missing, will not be processed:")
+    #     for csv in missing_csvs:
+    #         print(f"\t{csv}")
+
+    # print("\nWe plan on generating this many plots per cat:")
+    # for key, value in plot_counts.items():
+    #     print(f"\t{key}: {value * len(view_configs)}")
+    
+    
+        
+        with open(template_path, "r") as template_file:
+            template_content = template_file.read()
+
+        # for config in configs:
+        #     # for key, value in view_configs.items():
+            data["plot_type"] = f"{lion_id} {plot_label}"
+            data["window_pre_mins"] = 0# value["window_pre_mins"]
+            data["window_post_mins"] = 0# value["window_post_mins"]
+            data["minor_tick_interval"] = 10 # TODO value["minor_tick_interval"]
+            filled_template = template_content.format(**data)
+            filled_template = filled_template.replace("\\", "/")
+
+            out_fname = os.path.join(output_path, f"script_{data['lion_name']}_{data['plot_type']}_{data['Kill_ID']}_{plot_label}.r")
+            with open(out_fname, "w") as output_file:
+                output_file.write(filled_template)
+            if verbose:
+                print(f"Generated {out_fname}")
+            generated_files.append(out_fname)
+
+    print(f"\nGenerated {len(generated_files)} commands")
+
+    
+    # for expected_plot in expected_plots:
+    #     for key in view_configs.keys():
+    #         all_expected_plots.add(f"{expected_plot}_{key}")
+
+    return generated_files, expected_plots
+
+def get_marker_info(info_plot=False, marker_1_label="Marker1", marker_2_label="Marker2"):
+    if info_plot:
+        return '''
+p <- p +  
+  geom_vline(
+    data = data.frame(xpos = c(marker_1), label = c("{marker_1_label}")),
+    aes(xintercept = as.numeric(xpos), linetype = "{marker_1_label}"),
+    color = "green", alpha = 0.75
+  ) +
+  geom_vline(
+    data = data.frame(xpos = c(marker_2), label = c("{marker_2_label}")),
+    aes(xintercept = as.numeric(xpos), linetype = "{marker_2_label}"),
+    color = "orange", alpha = 0.75
+  ) +
+  scale_linetype_manual(
+    name = "Times of Interest",
+    values = c("{marker_1_label}" = "solid", "{marker_2_label}" = "solid"),
+    labels = c("{marker_1_label}", "{marker_2_label}"),
+    guide = guide_legend(
+      override.aes = list(
+        linetype = c("solid", "solid"),
+        color = c("green", "orange")
+      )
+    )
+  )
+'''.format(marker_1_label=marker_1_label, marker_2_label=marker_2_label)
+    else:
+        return '''
+p <- p +
+  geom_vline(
+    data = data.frame(xpos = c(window_high, window_low), label = c("Original", "Low")),
+    aes(xintercept = as.numeric(xpos), linetype = "Original"),
+    color = "orange", alpha = 0.3
+  ) +
+  geom_vline(
+    data = data.frame(xpos = c(cons_window_low), label = c("KillStart")),
+    aes(xintercept = as.numeric(xpos), linetype = "KillStart"),
+    color = "darkred", alpha = 0.8
+  ) +
+  geom_vline(
+    data = data.frame(xpos = c(cons_window_high), label = c("Conservative")),
+    aes(xintercept = as.numeric(xpos), linetype = "Conservative"),
+    color = "green", alpha = 0.9
+  ) +
+  geom_vline(
+    data = data.frame(xpos = c(lib_window_high), label = c("Liberal")),
+    aes(xintercept = as.numeric(xpos), linetype = "Liberal"),
+    color = "darkblue", alpha = 0.9
+  ) +
+  geom_vline(
+    data = data.frame(xpos = c(stalk_window_start), label = c("StalkStart")),
+    aes(xintercept = as.numeric(xpos), linetype = "StalkStart"),
+    color = "yellow", alpha = 0.75
+  ) +  
+  scale_linetype_manual(
+    name = "Surge Windows",
+    values = c("Original" = "solid",
+                "KillStart" = "solid",
+                "Conservative" = "dashed", "Liberal" = "dashed", "StalkStart" = "solid"),
+    labels = c("KillOrig", "KillStart", "KillEndPhase1", "KillEndPhase2", "StalkStart"),
+    guide = guide_legend(
+      override.aes = list(
+        linetype = c("solid", "solid", "dashed", "dashed", "solid"),  # Assigning linetypes to Colby and Conservative
+        color = c("orange", "darkred", "green", "darkblue", "yellow")  # Assigning colors to Colby and Conservative in the legend
+      )
+    )
+  )
+'''
+
+
+
 
 
 def run_r_script(script_name):
@@ -214,10 +488,6 @@ def generate_scripts(configs, expected_plots):
     """
     template_path = os.path.abspath(data_paths["template_path"])
     output_path = os.path.abspath(data_paths["output_path"])
-    r_path = os.path.abspath(data_paths["r_path"])
-    batch_fname = os.path.join(output_path, "run_batch.bat")
-    if is_unix:
-        batch_fname = os.path.join(output_path, "run.csh")
     all_expected_plots = set()
 
     with open(template_path, "r") as template_file:
@@ -314,7 +584,12 @@ def main():
     validate_config()
     configs, expected_plots = identify_kills()
     generated_scripts, expected_plots = generate_scripts(configs, expected_plots)
-
+    
+    info_scripts, info_expected_plots = get_plot_info_entries()
+    generated_scripts.extend(info_scripts)
+    for plot in info_expected_plots:
+        expected_plots.add(plot)
+    
     if launch:
         if clear_plot_dir:
             plot_root = data_paths["plot_root"]
@@ -331,7 +606,6 @@ def main():
         start = time.time()
         
         max_processes = get_optimal_processes()  # Adjust this based on your system's capacity
-        print(f"{max_processes=}")
         # Using ThreadPoolExecutor to run the scripts in parallel
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_processes) as executor:
             # Submit each script to the executor

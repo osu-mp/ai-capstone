@@ -58,6 +58,15 @@ stalk_start_hour = {stalk_start_hour}
 stalk_start_min = {stalk_start_min}
 stalk_start_sec = {stalk_start_sec}
 
+marker_1_hour = {marker_1_hour}
+marker_1_min = {marker_1_min}
+marker_1_sec = {marker_1_sec}
+marker_1_label = "{marker_1_label}"
+
+marker_2_hour = {marker_2_hour}
+marker_2_min = {marker_2_min}
+marker_2_sec = {marker_2_sec}
+marker_2_label = "{marker_2_label}"
 
 
 # vertical line to show time(s) of interest
@@ -158,6 +167,12 @@ lib_window_high <- strptime(as.character(paste(lib_window_high, "001", sep = "."
 
 stalk_window_start <- paste(paste(year, month, day, sep = "-"), paste(stalk_start_hour, stalk_start_min, stalk_start_sec, sep = ":"))
 stalk_window_start <- strptime(as.character(paste(stalk_window_start, "001", sep = ".")), format = "%Y-%m-%d %H:%M:%OS", tz = "UTC")
+
+marker_1 <- paste(paste(year, month, day, sep = "-"), paste(marker_1_hour, marker_1_min, marker_1_sec, sep = ":"))
+marker_1 <- strptime(as.character(paste(marker_1, "001", sep = ".")), format = "%Y-%m-%d %H:%M:%OS", tz = "UTC")
+
+marker_2 <- paste(paste(year, month, day, sep = "-"), paste(marker_2_hour, marker_2_min, marker_2_sec, sep = ":"))
+marker_2 <- strptime(as.character(paste(marker_2, "001", sep = ".")), format = "%Y-%m-%d %H:%M:%OS", tz = "UTC")
 
 
 ###
@@ -278,46 +293,58 @@ p <- ggplot(data = df_long, aes(x = UTC, y = value, color = variable)) +
   facet_wrap(~variable, scales = "free_y", ncol = 1)
 
 
+
+# normal plots
+
 # Adding vertical lines and mapping them to linetype with a manual scale for legend
-p <- p +
-  geom_vline(
-    data = data.frame(xpos = c(window_high, window_low), label = c("Original", "Low")),
-    aes(xintercept = as.numeric(xpos), linetype = "Original"),
-    color = "orange", alpha = 0.3
-  ) +
-  geom_vline(
-    data = data.frame(xpos = c(cons_window_low), label = c("KillStart")),
-    aes(xintercept = as.numeric(xpos), linetype = "KillStart"),
-    color = "darkred", alpha = 0.8
-  ) +
-  geom_vline(
-    data = data.frame(xpos = c(cons_window_high), label = c("Conservative")),
-    aes(xintercept = as.numeric(xpos), linetype = "Conservative"),
-    color = "green", alpha = 0.9
-  ) +
-  geom_vline(
-    data = data.frame(xpos = c(lib_window_high), label = c("Liberal")),
-    aes(xintercept = as.numeric(xpos), linetype = "Liberal"),
-    color = "darkblue", alpha = 0.9
-  ) +
-  geom_vline(
-    data = data.frame(xpos = c(stalk_window_start), label = c("StalkStart")),
-    aes(xintercept = as.numeric(xpos), linetype = "StalkStart"),
-    color = "yellow", alpha = 0.75
-  ) +
-  scale_linetype_manual(
-    name = "Surge Windows",
-    values = c("Original" = "solid",
-                "KillStart" = "solid",
-                "Conservative" = "dashed", "Liberal" = "dashed", "StalkStart" = "solid"),
-    labels = c("KillOrig", "KillStart", "KillEndPhase1", "KillEndPhase2", "StalkStart"),
-    guide = guide_legend(
-      override.aes = list(
-        linetype = c("solid", "solid", "dashed", "dashed", "solid"),  # Assigning linetypes to Colby and Conservative
-        color = c("orange", "darkred", "green", "darkblue", "yellow")  # Assigning colors to Colby and Conservative in the legend
-      )
-    )
-  )
+# p <- p +
+#   geom_vline(
+#     data = data.frame(xpos = c(window_high, window_low), label = c("Original", "Low")),
+#     aes(xintercept = as.numeric(xpos), linetype = "Original"),
+#     color = "orange", alpha = 0.3
+#   ) +
+#   geom_vline(
+#     data = data.frame(xpos = c(cons_window_low), label = c("KillStart")),
+#     aes(xintercept = as.numeric(xpos), linetype = "KillStart"),
+#     color = "darkred", alpha = 0.8
+#   ) +
+#   geom_vline(
+#     data = data.frame(xpos = c(cons_window_high), label = c("Conservative")),
+#     aes(xintercept = as.numeric(xpos), linetype = "Conservative"),
+#     color = "green", alpha = 0.9
+#   ) +
+#   geom_vline(
+#     data = data.frame(xpos = c(lib_window_high), label = c("Liberal")),
+#     aes(xintercept = as.numeric(xpos), linetype = "Liberal"),
+#     color = "darkblue", alpha = 0.9
+#   ) +
+#   geom_vline(
+#     data = data.frame(xpos = c(stalk_window_start), label = c("StalkStart")),
+#     aes(xintercept = as.numeric(xpos), linetype = "StalkStart"),
+#     color = "yellow", alpha = 0.75
+#   ) +
+#   geom_vline(
+#     data = data.frame(xpos = c(marker_1), label = c("{marker_1_label}")),
+#     aes(xintercept = as.numeric(xpos), linetype = "{marker_1_label}"),
+#     color = "green", alpha = 0.75
+#   ) +
+#   scale_linetype_manual(
+#     name = "Surge Windows",
+#     values = c("Original" = "solid",
+#                 "KillStart" = "solid",
+#                 "Conservative" = "dashed", "Liberal" = "dashed", "StalkStart" = "solid",
+#                 "{marker_1_label}" = "solid"),
+#     labels = c("KillOrig", "KillStart", "KillEndPhase1", "KillEndPhase2", "StalkStart", "{marker_1_label}"),
+#     guide = guide_legend(
+#       override.aes = list(
+#         linetype = c("solid", "solid", "dashed", "dashed", "solid", "solid"),  # Assigning linetypes to Colby and Conservative
+#         color = c("orange", "darkred", "green", "darkblue", "yellow", "green")  # Assigning colors to Colby and Conservative in the legend
+#       )
+#     )
+#   )
+{marker_info}
+
+
 
 # Calculate the minimum and maximum timestamps
 min_time <- min(df$UTC)

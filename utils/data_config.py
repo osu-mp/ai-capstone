@@ -41,7 +41,10 @@ spreadsheets = {
             # "F207": f"{csv_root}/F207_22263_030117_012919/MotionData_0",
             # "F209": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
         },
-        "data_cols": ["AnimalID", "Sex", "Period", "Kill_ID", "Start Date", "Start time", "End Time", "StartStalk", "StartKill", "EndCons", "EndLib"]
+        "data_cols": ["AnimalID", "Sex", "Period", "Kill_ID", "Start Date", "Start time", "End Time", "StartStalk", "StartKill", "EndCons", "EndLib"],
+
+        "data_cols_info": ["AnimalID", "Sex", "Kill_ID", "Start Date", "Start time", "End time", 
+                           "MarkerTime1", "MarkerLabel1", "MarkerTime2",  "MarkerLabel2","PlotLabel"]
     }
 }
 
