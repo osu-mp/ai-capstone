@@ -199,8 +199,9 @@ def run_r_script(script_name):
     Launch R script, save output to name of script + .log
     """
     output_file = f"{script_name}.log"
+    r_path = os.path.abspath(data_paths["r_path"])
     with open(output_file, 'w') as f:
-        subprocess.run(['Rscript', script_name], stdout=f, stderr=subprocess.STDOUT, check=True)
+        subprocess.run([r_path, script_name], stdout=f, stderr=subprocess.STDOUT, check=True)
     
 
 def generate_scripts(configs, expected_plots):
@@ -329,24 +330,13 @@ def main():
 
         start = time.time()
         
-        
-        # TODO: delete (testing several iterations of each plot for parallel execution)
-        updated_scripts = []
-        import shutil
-        for i in range(5):
-            for script in generated_scripts:
-                i_script = script.replace(".r", f"_{i}.r")
-                shutil.copy(script, i_script)
-                updated_scripts.append(i_script)
-        # end delete
-
         max_processes = get_optimal_processes()  # Adjust this based on your system's capacity
-
+        print(f"{max_processes=}")
         # Using ThreadPoolExecutor to run the scripts in parallel
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_processes) as executor:
             # Submit each script to the executor
             # TODO: use generated scripts instead of updated scripts
-            futures = [executor.submit(run_r_script, script) for script in updated_scripts]
+            futures = [executor.submit(run_r_script, script) for script in generated_scripts]
 
             # Wait for all scripts to complete
             for future in concurrent.futures.as_completed(futures):
