@@ -1,7 +1,9 @@
 from collections import defaultdict
+import concurrent.futures
 from datetime import datetime
 import glob
 import math
+import multiprocessing
 import os
 import pandas as pd
 from pathlib import Path
@@ -16,9 +18,6 @@ sys.path.append(ROOT_DIR)
 from utils.data_config import data_paths, spreadsheets, validate_config, view_configs, is_unix
 
 # TODO: use logger
-
-# TODO: combine multiple plots into utone image
-
 # TODO: make command line args
 
 # TODO: make yellow transpare
@@ -26,8 +25,6 @@ launch = True
 verbose = False
 clear_plot_dir = False
 
-import openpyxl
-import csv
 
 def dump_tab(xls_path, sheet_name):
     # Get the current date
@@ -138,6 +135,7 @@ def identify_kills():
         lion_plot_root = os.path.join(plot_root, lion_id)
         if not os.path.isdir(lion_plot_root):
             os.makedirs(lion_plot_root)
+
         plot_name = plot_date.strftime(f"{lion_id}_%Y-%m-%d__%H_%M__{kill_id}")  # the R script will append config type/kill id and .png
         lion_plot_path = os.path.join(lion_plot_root, plot_name)
 
@@ -196,6 +194,15 @@ def identify_kills():
     return configs, expected_plots
 
 
+def run_r_script(script_name):
+    """
+    Launch R script, save output to name of script + .log
+    """
+    output_file = f"{script_name}.log"
+    with open(output_file, 'w') as f:
+        subprocess.run(['Rscript', script_name], stdout=f, stderr=subprocess.STDOUT, check=True)
+    
+
 def generate_scripts(configs, expected_plots):
     """
     For each config generated from the spreadhsheet data, generate
@@ -232,29 +239,14 @@ def generate_scripts(configs, expected_plots):
                 print(f"Generated {out_fname}")
             generated_files.append(out_fname)
 
-    batch_path = os.path.abspath(batch_fname)
-    with open(batch_path, "w") as output_file:
-        if is_unix:
-            output_file.write("#!/usr/bin/bash\n\n")
-        else:
-            output_file.write("@echo off\n\n")
+    print(f"\nGenerated {len(generated_files)} commands")
 
-        for fname in generated_files:
-            if is_unix:
-                output_file.write(f"{r_path} {fname} > {fname}.log 2>&1\n")
-            else:
-                output_file.write(f"\"{r_path}\" \"{fname}\" > \"{fname}.log\" 2>&1\n")
-
-    print(f"\nGenerated {len(generated_files)} files in {batch_path}")
-
+    
     for expected_plot in expected_plots:
         for key in view_configs.keys():
             all_expected_plots.add(f"{expected_plot}_{key}")
 
-    # make the file executable
-    os.chmod(batch_path, 0o755)
-
-    return batch_path, all_expected_plots
+    return generated_files, all_expected_plots
 
 def get_all_view_options():
      # return a list of all valid views, used by command line parser
@@ -296,7 +288,6 @@ def make_mega_plots(root, expected_plots):
     :param expected_plots:
     :return:
     """
-    # hardcoded BS here
     generated_plots = glob.glob(os.path.join(data_paths["plot_root"], "*/*.png"))
     for plot in generated_plots:
         if 'killing' in plot:
@@ -308,10 +299,20 @@ def make_mega_plots(root, expected_plots):
             image_paths = [path0, path1, path2, path3]
             combine_images(image_paths, new_name)
 
-if __name__ == '__main__':
+
+def get_optimal_processes():
+    # Get the number of available CPU cores
+    num_cores = multiprocessing.cpu_count()
+
+    # You can adjust this logic based on your specific use case
+    optimal_processes = max(1, num_cores - 1)  # Example: Use all cores except one
+
+    return optimal_processes
+
+def main():
     validate_config()
     configs, expected_plots = identify_kills()
-    batch_file, expected_plots = generate_scripts(configs, expected_plots)
+    generated_scripts, expected_plots = generate_scripts(configs, expected_plots)
 
     if launch:
         if clear_plot_dir:
@@ -325,10 +326,35 @@ if __name__ == '__main__':
                     print(f"Removed file: {file_path}")
                 except OSError as e:
                     print(f"Error removing file {file_path}: {e}")
-        print(f"Launching {batch_file} (this may take awhile)")
-        print("Results from each script will be written to <script>.log")
+
         start = time.time()
-        subprocess.run([batch_file])
+        
+        
+        # TODO: delete (testing several iterations of each plot for parallel execution)
+        updated_scripts = []
+        import shutil
+        for i in range(5):
+            for script in generated_scripts:
+                i_script = script.replace(".r", f"_{i}.r")
+                shutil.copy(script, i_script)
+                updated_scripts.append(i_script)
+        # end delete
+
+        max_processes = get_optimal_processes()  # Adjust this based on your system's capacity
+
+        # Using ThreadPoolExecutor to run the scripts in parallel
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_processes) as executor:
+            # Submit each script to the executor
+            # TODO: use generated scripts instead of updated scripts
+            futures = [executor.submit(run_r_script, script) for script in updated_scripts]
+
+            # Wait for all scripts to complete
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    future.result()
+                except Exception as e:
+                    print(f"Error occurred: {e}")
+
         runtime = time.time() - start
         print(f"Runtime: {runtime:3.0f} seconds")
         print(f"Average time per run: {runtime/len(expected_plots):2.2f} seconds")
@@ -351,3 +377,6 @@ if __name__ == '__main__':
             print("SUCCESS: All expected plots appear to be generated!")
 
 
+
+if __name__ == '__main__':
+    main()

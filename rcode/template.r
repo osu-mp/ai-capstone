@@ -43,7 +43,6 @@ window_high_sec = 0
 second_low = 00
 second_high = 00
 
-# conservative estimate: 10:24:40 PM - 10:25:15 PM
 cons_window_low_hour = {cons_window_low_hour}
 cons_window_low_min = {cons_window_low_min}
 cons_window_low_sec = {cons_window_low_sec}
@@ -51,10 +50,6 @@ cons_window_high_hour = {cons_window_high_hour}
 cons_window_high_min = {cons_window_high_min}
 cons_window_high_sec = {cons_window_high_sec}
 
-# liberal estimate: 10:24:30 PM - 10:25:15 PM
-# lib_window_low_hour = {lib_window_low_hour}
-# lib_window_low_min = {lib_window_low_min}
-# lib_window_low_sec = {lib_window_low_sec}
 lib_window_high_hour = {lib_window_high_hour}
 lib_window_high_min = {lib_window_high_min}
 lib_window_high_sec = {lib_window_high_sec}
@@ -64,7 +59,6 @@ stalk_start_min = {stalk_start_min}
 stalk_start_sec = {stalk_start_sec}
 
 
-# TODO liberal estimate
 
 # vertical line to show time(s) of interest
 window_low_hour = {hour}

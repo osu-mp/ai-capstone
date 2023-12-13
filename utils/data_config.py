@@ -36,10 +36,10 @@ Each root key represents a spreadsheet file (relative to spreadsheet_root)
 spreadsheets = {
     "Cougars_ODBA_KIlls_Setup.xlsx": {
         "tabs": {
-            "M201": f"{csv_root}/M201_20170_020116_120116/MotionData_0/",
+            # "M201": f"{csv_root}/M201_20170_020116_120116/MotionData_0/",
             "F202": f"{csv_root}/F202_27905_010518_072219/MotionData_27905",
-            "F207": f"{csv_root}/F207_22263_030117_012919/MotionData_0",
-            "F209": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
+            # "F207": f"{csv_root}/F207_22263_030117_012919/MotionData_0",
+            # "F209": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
         },
         "data_cols": ["AnimalID", "Sex", "Period", "Kill_ID", "Start Date", "Start time", "End Time", "StartStalk", "StartKill", "EndCons", "EndLib"]
     }
@@ -58,32 +58,31 @@ view_configs = {
         "window_post_mins": 1,
         "minor_tick_interval": 5,
     },
-    #
     # stalking: short before, short after
-    # "stalking": {
-    #     "window_pre_mins": 5,
-    #     "window_post_mins": 2,
-    #     "minor_tick_interval": 10,
-    # },
-    # # feeding: short before, long after
-    # "feeding": {
-    #     "window_pre_mins": 2,
-    #     "window_post_mins": 30,
-    #     "minor_tick_interval": 60,
-    # },
+    "stalking": {
+        "window_pre_mins": 5,
+        "window_post_mins": 2,
+        "minor_tick_interval": 10,
+    },
+    # feeding: short before, long after
+    "feeding": {
+        "window_pre_mins": 2,
+        "window_post_mins": 30,
+        "minor_tick_interval": 60,
+    },
     
-    # # day: several hours before and after (will not cross days yet)
-    # "day": {
-    #     "window_pre_mins": 24*60,
-    #     "window_post_mins": 24*60,
-    #     "minor_tick_interval": 60 * 60,     # every hour
-    # },
-    # # sixhour: shorter than day window, still wide window
-    # "sixhour": {
-    #     "window_pre_mins": 6 * 60,
-    #     "window_post_mins": 6 * 60,
-    #     "minor_tick_interval": 60 * 60,     # every hour
-    # }
+    # day: several hours before and after (will not cross days yet)
+    "day": {
+        "window_pre_mins": 24*60,
+        "window_post_mins": 24*60,
+        "minor_tick_interval": 60 * 60,     # every hour
+    },
+    # sixhour: shorter than day window, still wide window
+    "sixhour": {
+        "window_pre_mins": 6 * 60,
+        "window_post_mins": 6 * 60,
+        "minor_tick_interval": 60 * 60,     # every hour
+    }
 }
 
 
