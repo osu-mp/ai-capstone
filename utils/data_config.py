@@ -88,6 +88,20 @@ view_configs = {
     }
 }
 
+plot_lines = {
+    "default": [
+        {"label": "Original", "value": "window_high, window_low", "color": "orange", "alpha": "0.3", "linetype": "solid"},
+        {"label": "KillStart", "value": "cons_window_low", "color": "darkred", "alpha": "0.8", "linetype": "solid"},
+        {"label": "KillEndPhase1", "value": "cons_window_high", "color": "green", "alpha": "0.9", "linetype": "dashed"},
+        {"label": "KillEndPhase2", "value": "lib_window_high", "color": "darkblue", "alpha": "0.9", "linetype": "dashed"},
+        {"label": "StalkStart", "value": "stalk_window_start", "color": "yellow", "alpha": "0.75", "linetype": "solid"},
+    ],
+    "info_plot": [
+        {"label": "{marker_1_label}", "value": "marker_1", "color": "green", "alpha": "0.75", "linetype": "solid"},
+        {"label": "{marker_2_label}", "value": "marker_2", "color": "orange", "alpha": "0.75", "linetype": "solid"},
+    ]
+
+}
 
 def validate_config():
     """

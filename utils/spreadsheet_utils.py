@@ -15,7 +15,7 @@ import time
 # get the project root as the parent of the parent directory of this file
 ROOT_DIR = str(Path(__file__).parent.parent.absolute())
 sys.path.append(ROOT_DIR)
-from utils.data_config import data_paths, spreadsheets, validate_config, view_configs, is_unix
+from utils.data_config import data_paths, spreadsheets, validate_config, view_configs, is_unix, plot_lines
 
 # TODO: use logger
 # TODO: make command line args
@@ -23,7 +23,7 @@ from utils.data_config import data_paths, spreadsheets, validate_config, view_co
 # TODO: make yellow transpare
 launch = True
 verbose = False
-clear_plot_dir = False
+clear_plot_dir = True
 
 
 def dump_tab(xls_path, sheet_name):
@@ -395,76 +395,54 @@ def get_plot_info_entries():
 
     return generated_files, expected_plots
 
+
+def get_vline_info(key_name, legend_title):
+    lines = []
+    values = []
+    labels = []
+    line_types = []
+    colors = []
+
+    for line_dict in plot_lines[key_name]:
+            line_text = f'''  geom_vline(
+    data = data.frame(xpos = c({line_dict["value"]}), label = c("{line_dict["label"]}")),
+    aes(xintercept = as.numeric(xpos), linetype = "{line_dict["label"]}"),
+    color = "{line_dict["color"]}", alpha = {line_dict["alpha"]}) +
+'''         
+            lines.append(line_text)
+            values.append(f"\"{line_dict['label']}\" = \"{line_dict['linetype']}\"")
+            labels.append(f"\"{line_dict['label']}\"")
+            line_types.append(f"\"{line_dict['linetype']}\"")
+            colors.append(f"\"{line_dict['color']}\"")    
+
+    r_lines = "\n".join(lines)
+    r_values = ", ".join(values)
+    r_labels = ", ".join(labels)
+    r_linetypes = ", ".join(line_types)
+    r_colors = ", ".join(colors)
+    r_code = f'''p <- p +
+    {r_lines}         scale_linetype_manual(
+name = "{legend_title}",
+values = c({r_values}),
+labels = c({r_labels}),
+guide = guide_legend(
+    override.aes = list(
+    linetype = c({r_linetypes}),
+    color = c({r_colors})
+    )
+)
+) 
+    '''
+    return r_code
+    
+
 def get_marker_info(info_plot=False, marker_1_label="Marker1", marker_2_label="Marker2"):
     if info_plot:
-        return '''
-p <- p +  
-  geom_vline(
-    data = data.frame(xpos = c(marker_1), label = c("{marker_1_label}")),
-    aes(xintercept = as.numeric(xpos), linetype = "{marker_1_label}"),
-    color = "green", alpha = 0.75
-  ) +
-  geom_vline(
-    data = data.frame(xpos = c(marker_2), label = c("{marker_2_label}")),
-    aes(xintercept = as.numeric(xpos), linetype = "{marker_2_label}"),
-    color = "orange", alpha = 0.75
-  ) +
-  scale_linetype_manual(
-    name = "Times of Interest",
-    values = c("{marker_1_label}" = "solid", "{marker_2_label}" = "solid"),
-    labels = c("{marker_1_label}", "{marker_2_label}"),
-    guide = guide_legend(
-      override.aes = list(
-        linetype = c("solid", "solid"),
-        color = c("green", "orange")
-      )
-    )
-  )
-'''.format(marker_1_label=marker_1_label, marker_2_label=marker_2_label)
+        info_str = get_vline_info("info_plot", "Times of Interest")
+        info_str = info_str.format(marker_1_label=marker_1_label, marker_2_label=marker_2_label)
+        return info_str
     else:
-        return '''
-p <- p +
-  geom_vline(
-    data = data.frame(xpos = c(window_high, window_low), label = c("Original", "Low")),
-    aes(xintercept = as.numeric(xpos), linetype = "Original"),
-    color = "orange", alpha = 0.3
-  ) +
-  geom_vline(
-    data = data.frame(xpos = c(cons_window_low), label = c("KillStart")),
-    aes(xintercept = as.numeric(xpos), linetype = "KillStart"),
-    color = "darkred", alpha = 0.8
-  ) +
-  geom_vline(
-    data = data.frame(xpos = c(cons_window_high), label = c("Conservative")),
-    aes(xintercept = as.numeric(xpos), linetype = "Conservative"),
-    color = "green", alpha = 0.9
-  ) +
-  geom_vline(
-    data = data.frame(xpos = c(lib_window_high), label = c("Liberal")),
-    aes(xintercept = as.numeric(xpos), linetype = "Liberal"),
-    color = "darkblue", alpha = 0.9
-  ) +
-  geom_vline(
-    data = data.frame(xpos = c(stalk_window_start), label = c("StalkStart")),
-    aes(xintercept = as.numeric(xpos), linetype = "StalkStart"),
-    color = "yellow", alpha = 0.75
-  ) +  
-  scale_linetype_manual(
-    name = "Surge Windows",
-    values = c("Original" = "solid",
-                "KillStart" = "solid",
-                "Conservative" = "dashed", "Liberal" = "dashed", "StalkStart" = "solid"),
-    labels = c("KillOrig", "KillStart", "KillEndPhase1", "KillEndPhase2", "StalkStart"),
-    guide = guide_legend(
-      override.aes = list(
-        linetype = c("solid", "solid", "dashed", "dashed", "solid"),  # Assigning linetypes to Colby and Conservative
-        color = c("orange", "darkred", "green", "darkblue", "yellow")  # Assigning colors to Colby and Conservative in the legend
-      )
-    )
-  )
-'''
-
-
+        return get_vline_info("default", "Surge Windows")
 
 
 
@@ -599,7 +577,7 @@ def main():
             for file_path in files_to_remove:
                 try:
                     os.remove(file_path)
-                    print(f"Removed file: {file_path}")
+                    # print(f"Removed file: {file_path}")
                 except OSError as e:
                     print(f"Error removing file {file_path}: {e}")
 
