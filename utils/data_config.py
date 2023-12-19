@@ -36,10 +36,10 @@ Each root key represents a spreadsheet file (relative to spreadsheet_root)
 spreadsheets = {
     "Cougars_ODBA_KIlls_Setup.xlsx": {
         "tabs": {
-            # "M201": f"{csv_root}/M201_20170_020116_120116/MotionData_0/",
+            "M201": f"{csv_root}/M201_20170_020116_120116/MotionData_0/",
             "F202": f"{csv_root}/F202_27905_010518_072219/MotionData_27905",
-            # "F207": f"{csv_root}/F207_22263_030117_012919/MotionData_0",
-            # "F209": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
+            "F207": f"{csv_root}/F207_22263_030117_012919/MotionData_0",
+            "F209": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
         },
         "data_cols": ["AnimalID", "Sex", "Period", "Kill_ID", "Start Date", "Start time", "End Time", "StartStalk", "StartKill", "EndCons", "EndLib"],
 

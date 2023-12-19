@@ -21,7 +21,7 @@ from utils.data_config import data_paths, spreadsheets, validate_config, view_co
 # TODO: make command line args
 
 # TODO: make yellow transpare
-launch = True
+launch = False
 verbose = False
 clear_plot_dir = True
 
@@ -42,6 +42,112 @@ def dump_tab(xls_path, sheet_name):
     df.to_csv(csv_path, index=False)
     print(f"Created {csv_path=}")
 
+def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
+    plot_root = data_paths["plot_root"]
+
+    year = row['Start Date'].year
+    month = row['Start Date'].month
+    day = row['Start Date'].day
+    hour = row['Start time'].hour
+    window_low_min = row['Start time'].minute
+    window_high_min = row['End Time'].minute
+    window_high_min = max(window_low_min + 1, window_high_min)      # ensure the window is at least 1 minute
+
+    if 'StartKill' not in row or pd.isnull(row['StartKill']):
+        return None
+
+    cons_window_low_hour = row['StartKill'].hour
+    cons_window_low_min = row['StartKill'].minute
+    cons_window_low_sec = row['StartKill'].second
+    cons_window_high_hour = row['EndCons'].hour
+    cons_window_high_min = row['EndCons'].minute
+    cons_window_high_sec = row['EndCons'].second
+
+    lib_window_low_hour = cons_window_low_hour# row['StartLib'].hour
+    lib_window_low_min = cons_window_low_min # row['StartLib'].minute
+    lib_window_low_sec = cons_window_low_sec # row['StartLib'].second
+    lib_window_high_hour = row['EndLib'].hour
+    lib_window_high_min = row['EndLib'].minute
+    lib_window_high_sec = row['EndLib'].second
+
+    stalk_start_hour = row['StartStalk'].hour
+    stalk_start_min = row['StartStalk'].minute
+    stalk_start_sec = row['StartStalk'].second
+
+    plot_date = datetime(year=year, month=month, day=day, hour=hour, minute=window_low_min)
+
+    kill_id = row['Kill_ID']
+    # if kill_id != 940:          # TODO Debug get rid of
+    #     continue
+    if math.isnan(kill_id):
+        kill_id = no_id_kill_index
+        no_id_kill_index += 1
+    else:
+        kill_id = int(kill_id)
+
+    lion_id = f"{row['Sex']}{int(row['AnimalID'])}"
+    lion_plot_root = os.path.join(plot_root, lion_id)
+    if not os.path.isdir(lion_plot_root):
+        os.makedirs(lion_plot_root)
+
+    plot_name = plot_date.strftime(f"{lion_id}_%Y-%m-%d__%H_%M__{kill_id}")  # the R script will append config type/kill id and .png
+    lion_plot_path = os.path.join(lion_plot_root, plot_name)
+
+    csv_folder = plot_date.strftime("%Y/%m %b/%d/")
+    csv_name = plot_date.strftime("%Y-%m-%d.csv")
+    csv_path = os.path.join(row["data_root"], csv_folder, csv_name)
+    csv_path = csv_path.replace("\\", "/")      # R does not like backward slashes, convert to forward
+    if not os.path.isfile(csv_path):
+        missing_csvs.add(csv_path)
+        return None
+
+    expected_plots.add(plot_name)
+
+    plot_counts[lion_id] += 1
+    data = {
+        "lion_name": f"{lion_id}",
+        "window_low_min": window_low_min,
+        "window_high_min": window_high_min,
+        # TODO : can this be simplified?
+        "cons_window_low_hour": cons_window_low_hour,
+        "cons_window_low_min": cons_window_low_min,
+        "cons_window_low_sec": cons_window_low_sec,
+        "cons_window_high_hour": cons_window_high_hour,
+        "cons_window_high_min": cons_window_high_min,
+        "cons_window_high_sec": cons_window_high_sec,
+        # TODO
+        "lib_window_low_hour": lib_window_low_hour,
+        "lib_window_low_min": lib_window_low_min,
+        "lib_window_low_sec": lib_window_low_sec,
+        "lib_window_high_hour": lib_window_high_hour,
+        "lib_window_high_min": lib_window_high_min,
+        "lib_window_high_sec": lib_window_high_sec,
+        # TODO
+        "stalk_start_hour": stalk_start_hour,
+        "stalk_start_min": stalk_start_min,
+        "stalk_start_sec": stalk_start_sec,
+        "year": year,
+        "month": month,
+        "day": day,
+        "hour": hour,
+        "Kill_ID": kill_id,
+        "lion_plot_path": lion_plot_path,
+        "csv_path": csv_path,
+
+        "marker_1_hour": 0,
+        "marker_1_min": 0,
+        "marker_1_sec": 0,
+        "marker_1_label": 0,   
+        # TODO
+        "marker_2_hour": 0,
+        "marker_2_min": 0,
+        "marker_2_sec": 0,
+        "marker_2_label": 0, 
+
+        "marker_info": get_marker_info(info_plot=False),
+    }
+
+    return data
 def identify_kills():
     """
     Iterate over all spreadsheets/tabs and generate a config dict
@@ -51,7 +157,7 @@ def identify_kills():
     configs = []
     expected_plots = set()
     spreadsheet_root = os.path.abspath(data_paths["spreadsheet_root"])
-    plot_root = data_paths["plot_root"]
+    
     missing_csvs = set()
     plot_counts = defaultdict(int)
 
@@ -91,108 +197,13 @@ def identify_kills():
 
     no_id_kill_index = 9999
     for index, row in df_all.iterrows():
-        year = row['Start Date'].year
-        month = row['Start Date'].month
-        day = row['Start Date'].day
-        hour = row['Start time'].hour
-        window_low_min = row['Start time'].minute
-        window_high_min = row['End Time'].minute
-        window_high_min = max(window_low_min + 1, window_high_min)      # ensure the window is at least 1 minute
-
-        if 'StartKill' not in row or pd.isnull(row['StartKill']):
-            continue
-
-        cons_window_low_hour = row['StartKill'].hour
-        cons_window_low_min = row['StartKill'].minute
-        cons_window_low_sec = row['StartKill'].second
-        cons_window_high_hour = row['EndCons'].hour
-        cons_window_high_min = row['EndCons'].minute
-        cons_window_high_sec = row['EndCons'].second
-
-        lib_window_low_hour = cons_window_low_hour# row['StartLib'].hour
-        lib_window_low_min = cons_window_low_min # row['StartLib'].minute
-        lib_window_low_sec = cons_window_low_sec # row['StartLib'].second
-        lib_window_high_hour = row['EndLib'].hour
-        lib_window_high_min = row['EndLib'].minute
-        lib_window_high_sec = row['EndLib'].second
-
-        stalk_start_hour = row['StartStalk'].hour
-        stalk_start_min = row['StartStalk'].minute
-        stalk_start_sec = row['StartStalk'].second
-
-        plot_date = datetime(year=year, month=month, day=day, hour=hour, minute=window_low_min)
-
-        kill_id = row['Kill_ID']
-        # if kill_id != 940:          # TODO Debug get rid of
-        #     continue
-        if math.isnan(kill_id):
-            kill_id = no_id_kill_index
-            no_id_kill_index += 1
-        else:
-            kill_id = int(kill_id)
-
-        lion_id = f"{row['Sex']}{int(row['AnimalID'])}"
-        lion_plot_root = os.path.join(plot_root, lion_id)
-        if not os.path.isdir(lion_plot_root):
-            os.makedirs(lion_plot_root)
-
-        plot_name = plot_date.strftime(f"{lion_id}_%Y-%m-%d__%H_%M__{kill_id}")  # the R script will append config type/kill id and .png
-        lion_plot_path = os.path.join(lion_plot_root, plot_name)
-
-        csv_folder = plot_date.strftime("%Y/%m %b/%d/")
-        csv_name = plot_date.strftime("%Y-%m-%d.csv")
-        csv_path = os.path.join(row["data_root"], csv_folder, csv_name)
-        csv_path = csv_path.replace("\\", "/")      # R does not like backward slashes, convert to forward
-        if not os.path.isfile(csv_path):
-            missing_csvs.add(csv_path)
-            continue
-
-        expected_plots.add(plot_name)
-
-        plot_counts[lion_id] += 1
-        data = {
-            "lion_name": f"{lion_id}",
-            "window_low_min": window_low_min,
-            "window_high_min": window_high_min,
-            # TODO : can this be simplified?
-            "cons_window_low_hour": cons_window_low_hour,
-            "cons_window_low_min": cons_window_low_min,
-            "cons_window_low_sec": cons_window_low_sec,
-            "cons_window_high_hour": cons_window_high_hour,
-            "cons_window_high_min": cons_window_high_min,
-            "cons_window_high_sec": cons_window_high_sec,
-            # TODO
-            "lib_window_low_hour": lib_window_low_hour,
-            "lib_window_low_min": lib_window_low_min,
-            "lib_window_low_sec": lib_window_low_sec,
-            "lib_window_high_hour": lib_window_high_hour,
-            "lib_window_high_min": lib_window_high_min,
-            "lib_window_high_sec": lib_window_high_sec,
-            # TODO
-            "stalk_start_hour": stalk_start_hour,
-            "stalk_start_min": stalk_start_min,
-            "stalk_start_sec": stalk_start_sec,
-            "year": year,
-            "month": month,
-            "day": day,
-            "hour": hour,
-            "Kill_ID": kill_id,
-            "lion_plot_path": lion_plot_path,
-            "csv_path": csv_path,
-
-            "marker_1_hour": 0,
-            "marker_1_min": 0,
-            "marker_1_sec": 0,
-            "marker_1_label": 0,   
-            # TODO
-            "marker_2_hour": 0,
-            "marker_2_min": 0,
-            "marker_2_sec": 0,
-            "marker_2_label": 0, 
-
-            "marker_info": get_marker_info(info_plot=False),
-        }
-        configs.append(data)
+        try:
+            data = create_data_from_row(row, missing_csvs, expected_plots, plot_counts)
+            if data:
+                configs.append(data)
+        except Exception as e:
+            # print(f"Ignoring row {row}")
+            print(f"Invalid row for animal of {row['AnimalID']}, kill of {row['Kill_ID']}: {e}")
         # expected_plots.add(data["lion_plot_path"])
 
     if missing_csvs:
