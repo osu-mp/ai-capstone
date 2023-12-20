@@ -24,6 +24,7 @@ from utils.data_config import data_paths, spreadsheets, validate_config, view_co
 launch = False
 verbose = False
 clear_plot_dir = True
+create_csvs = True
 
 
 def dump_tab(xls_path, sheet_name):
@@ -75,6 +76,9 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
     stalk_start_sec = row['StartStalk'].second
 
     plot_date = datetime(year=year, month=month, day=day, hour=hour, minute=window_low_min)
+
+    # csv related
+    # TODO: stalk window, kill start, phase1, phase2  
 
     kill_id = row['Kill_ID']
     # if kill_id != 940:          # TODO Debug get rid of
@@ -216,6 +220,7 @@ def identify_kills():
         print(f"\t{key}: {value * len(view_configs)}")
     return configs, expected_plots
 
+    
 def get_plot_info_entries():
     """
     Iterate over all entries in the info tab
@@ -569,9 +574,40 @@ def get_optimal_processes():
 
     return optimal_processes
 
+def create_csv_per_window(configs):
+    print("Not currently generating csvs for each target window")
+    return
+    # TODO 
+    for config in configs:
+        print(config)
+        input_csv = config['csv_path']
+        df = pd.read_csv(input_csv)
+        
+        # Convert 'timestamp' column from string to datetime format
+        df['UTC DateTime'] = pd.to_datetime(df['UTC DateTime'])
+
+        start_timestamp = pd.to_datetime('04:37:58 AM')# 2023-12-01 08:30:00')
+        end_timestamp = pd.to_datetime('04:38:47 AM') # 2023-12-01 09:30:00')
+
+        # Filter DataFrame based on the timestamp range
+        filtered_df = df[(df['UTC DateTime'] >= start_timestamp) & (df['UTC DateTime'] <= end_timestamp)]
+
+        # Display the filtered DataFrame
+        # print(filtered_df)
+
+        # Save the DataFrame to a CSV file
+        output_csv = '/home/matthew/AI_Capstone/ai-capstone/data/labeled_windows/F202_kill.csv'
+        filtered_df.to_csv(output_csv, index=False)  # Set index=False to avoid saving row numbers as a column
+        
+        break
+
+        
+
 def main():
     validate_config()
     configs, expected_plots = identify_kills()
+    if create_csvs:
+        create_csv_per_window(configs)
     generated_scripts, expected_plots = generate_scripts(configs, expected_plots)
     
     info_scripts, info_expected_plots = get_plot_info_entries()
