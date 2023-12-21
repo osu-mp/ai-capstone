@@ -35,7 +35,7 @@ window_low_min = {window_low_min}
 window_low_sec = 0
 window_high_min = {window_high_min}
 window_high_sec = 0
-
+is_sixhour = {is_sixhour}
 
 # min_low = 42; second_low = 00
 # min_high = 59; second_high = 00
@@ -342,8 +342,22 @@ p <- ggplot(data = df_long, aes(x = UTC, y = value, color = variable)) +
 #       )
 #     )
 #   )
-{marker_info}
 
+
+# Adding a separate legend for green triangles
+if (is_sixhour) {{
+  extra_legend <- data.frame(x = cons_window_low, y = -0.3)
+  p <- p +
+    geom_point(
+      data = extra_legend,
+      aes(x = x, y = y, shape = "Kill Start"),
+      color = "orange",
+      size = 6
+    ) +
+    scale_shape_manual(name = "Surge Windows", values = c("Kill Start" = 4))
+}}  else{{
+  {marker_info}
+}}
 
 
 # Calculate the minimum and maximum timestamps
@@ -365,12 +379,28 @@ p <- p +
 
 
 # END subplots
-p = p +
+
+
+# Calculate the minimum and maximum timestamps
+min_time <- min(df$UTC)
+max_time <- max(df$UTC)
+
+# Define the interval for minor breaks in seconds
+minor_interval <- minor_tick_interval  # For example, every 5 seconds
+
+# Generate minor breaks at the specified interval
+minor_breaks <- seq.POSIXt(from = min_time, to = max_time, by = minor_interval)
+
+# Finalize the plot with title and axis breaks
+p <- p +
+  ggtitle(plot_title) +
+  theme(
+    plot.title = element_text(hjust = 0.5)  # Center title horizontally
+  ) +
   scale_x_datetime(
-    #breaks = seq(min(df$UTC), max(df$UTC), by = interval),
-    #labels = scales::date_format("%H:%M:%S"),
     minor_breaks = minor_breaks
-    )
+  )
+
 p
 ggsave(plot_name, plot=p)
 

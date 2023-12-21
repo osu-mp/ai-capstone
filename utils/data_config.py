@@ -63,9 +63,9 @@ view_configs = {
     },
     # stalking: short before, short after
     "stalking": {
-        "window_pre_mins": 5,
+        "window_pre_mins": 10,
         "window_post_mins": 2,
-        "minor_tick_interval": 10,
+        "minor_tick_interval": 30,
     },
     # feeding: short before, long after
     "feeding": {
@@ -99,7 +99,8 @@ plot_lines = {
     "info_plot": [
         {"label": "{marker_1_label}", "value": "marker_1", "color": "green", "alpha": "0.75", "linetype": "solid"},
         {"label": "{marker_2_label}", "value": "marker_2", "color": "orange", "alpha": "0.75", "linetype": "solid"},
-    ]
+    ],
+    "sixhour": [],
 
 }
 

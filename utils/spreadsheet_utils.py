@@ -21,7 +21,7 @@ from utils.data_config import data_paths, spreadsheets, validate_config, view_co
 # TODO: make command line args
 
 # TODO: make yellow transpare
-launch = False
+launch = True
 verbose = False
 clear_plot_dir = True
 create_csvs = True
@@ -149,6 +149,7 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
         "marker_2_label": 0, 
 
         "marker_info": get_marker_info(info_plot=False),
+        "is_sixhour": "FALSE",
     }
 
     return data
@@ -368,6 +369,7 @@ def get_plot_info_entries():
             "csv_path": csv_path,
 
             "marker_info": get_marker_info(info_plot=True, marker_1_label=marker_1_label, marker_2_label=marker_2_label),
+            "is_sixhour": "FALSE",
         }
         # configs.append(data)
         # expected_plots.add(data["lion_plot_path"])
@@ -494,6 +496,7 @@ def generate_scripts(configs, expected_plots):
             config["window_pre_mins"] = value["window_pre_mins"]
             config["window_post_mins"] = value["window_post_mins"]
             config["minor_tick_interval"] = value["minor_tick_interval"]
+            config["is_sixhour"] = str(key == "sixhour").upper()
             filled_template = template_content.format(**config)
             filled_template = filled_template.replace("\\", "/")
 
@@ -566,11 +569,12 @@ def make_mega_plots(root, expected_plots):
 
 
 def get_optimal_processes():
+    return 7
     # Get the number of available CPU cores
     num_cores = multiprocessing.cpu_count()
 
     # You can adjust this logic based on your specific use case
-    optimal_processes = max(1, num_cores - 1)  # Example: Use all cores except one
+    optimal_processes = max(1, num_cores - 4)  # Example: Use all cores except one
 
     return optimal_processes
 
