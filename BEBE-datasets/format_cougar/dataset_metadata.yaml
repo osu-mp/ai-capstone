@@ -1,0 +1,37 @@
+clip_column_names:
+- AccX
+- AccY
+- AccZ
+- GyrX
+- GyrY
+- GyrZ
+- individual_id
+- label
+clip_id_to_individual_id:
+  exp01_user01: 1
+clip_ids:
+- exp01_user01
+clip_ids_per_fold:
+  0:
+  - exp01_user01
+  1: []
+  2: []
+  3: []
+  4: []
+dataset_name: cougar
+individual_ids:
+- 1
+individuals_per_fold:
+  0:
+  - 1
+  1: []
+  2: []
+  3: []
+  4: []
+label_names:
+- unknown
+- STALKING
+- KILLING
+- FEEDING
+n_folds: 5
+sr: 16
