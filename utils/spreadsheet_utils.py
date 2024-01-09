@@ -8,6 +8,7 @@ import os
 import pandas as pd
 from pathlib import Path
 from PIL import Image
+import shutil
 import subprocess
 import sys
 import time
@@ -43,9 +44,21 @@ def dump_tab(xls_path, sheet_name):
     df.to_csv(csv_path, index=False)
     print(f"Created {csv_path=}")
 
-def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
+def get_lion_plot_window_dir(lion_id, main=False):
+    """
+    Return the path where the sub plots (individual windows) for the given lion are expected
+    Make the dir if it does not exist
+    """
     plot_root = data_paths["plot_root"]
+    lion_plot_root = os.path.join(plot_root, lion_id)
+    if not main:
+        lion_plot_root = os.path.join(lion_plot_root, "windows")
+    if not os.path.isdir(lion_plot_root):
+        os.makedirs(lion_plot_root)
 
+    return lion_plot_root
+
+def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
     year = row['Start Date'].year
     month = row['Start Date'].month
     day = row['Start Date'].day
@@ -90,10 +103,7 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
         kill_id = int(kill_id)
 
     lion_id = f"{row['Sex']}{int(row['AnimalID'])}"
-    lion_plot_root = os.path.join(plot_root, lion_id)
-    if not os.path.isdir(lion_plot_root):
-        os.makedirs(lion_plot_root)
-
+    lion_plot_root = get_lion_plot_window_dir(lion_id)    
     plot_name = plot_date.strftime(f"{lion_id}_%Y-%m-%d__%H_%M__{kill_id}")  # the R script will append config type/kill id and .png
     lion_plot_path = os.path.join(lion_plot_root, plot_name)
 
@@ -231,7 +241,6 @@ def get_plot_info_entries():
     configs = []
     expected_plots = set()
     spreadsheet_root = os.path.abspath(data_paths["spreadsheet_root"])
-    plot_root = data_paths["plot_root"]
     missing_csvs = set()
     plot_counts = defaultdict(int)
     generated_files = []
@@ -307,10 +316,7 @@ def get_plot_info_entries():
         #     kill_id = int(kill_id)
 
         lion_id = f"{row['Sex']}{int(row['AnimalID'])}"
-        lion_plot_root = os.path.join(plot_root, lion_id)
-        if not os.path.isdir(lion_plot_root):
-            os.makedirs(lion_plot_root)
-
+        lion_plot_root = get_lion_plot_window_dir(lion_id, main=True)        
         plot_name = plot_date.strftime(f"{lion_id}_%Y-%m-%d__%H_%M__{kill_id}__{plot_label}")  # the R script will append config type/kill id and .png
         lion_plot_path = os.path.join(lion_plot_root, plot_name)
 
@@ -556,7 +562,7 @@ def make_mega_plots(root, expected_plots):
     :param expected_plots:
     :return:
     """
-    generated_plots = glob.glob(os.path.join(data_paths["plot_root"], "*/*.png"))
+    generated_plots = glob.glob(os.path.join(data_paths["plot_root"], "*/*/*.png"))
     for plot in generated_plots:
         if 'killing' in plot:
             path0 = plot.replace('killing', 'sixhour')
@@ -566,15 +572,21 @@ def make_mega_plots(root, expected_plots):
             new_name = plot.replace('killing', 'mega')
             image_paths = [path0, path1, path2, path3]
             combine_images(image_paths, new_name)
+            if os.path.isfile(new_name):
+                # move mega plots up one dr
+                directory_containing_file = os.path.dirname(new_name)
+                parent_directory = os.path.dirname(directory_containing_file)
+                new_file_path = os.path.join(parent_directory, os.path.basename(new_name))
 
+                # Move the file
+                shutil.move(new_name, new_file_path)
 
 def get_optimal_processes():
-    return 7
-    # Get the number of available CPU cores
+    """
+    Allow the images to generate in parallel on all but X of the cores
+    """
     num_cores = multiprocessing.cpu_count()
-
-    # You can adjust this logic based on your specific use case
-    optimal_processes = max(1, num_cores - 4)  # Example: Use all cores except one
+    optimal_processes = max(1, num_cores - 4)  
 
     return optimal_processes
 
@@ -604,7 +616,6 @@ def create_csv_per_window(configs):
         filtered_df.to_csv(output_csv, index=False)  # Set index=False to avoid saving row numbers as a column
         
         break
-
         
 
 def main():
@@ -623,7 +634,7 @@ def main():
         if clear_plot_dir:
             plot_root = data_paths["plot_root"]
             print(f"Clearing PNG files from plot dir: {plot_root}")
-            file_pattern = os.path.join(plot_root, '*/*.png')  # Example: Remove all txt files
+            file_pattern = os.path.join(plot_root, '*/*.png')  # remove all mega png files
             files_to_remove = glob.glob(file_pattern)
             for file_path in files_to_remove:
                 try:
@@ -655,7 +666,7 @@ def main():
         make_mega_plots(data_paths["plot_root"], expected_plots)
 
         # check expected plots
-        generated_plots = glob.glob(os.path.join(data_paths["plot_root"], "*/*.png"))
+        generated_plots = glob.glob(os.path.join(data_paths["plot_root"], "*/*/*.png"))
         for plot in list(expected_plots):
             for generated_plot in generated_plots:
                 if plot in generated_plot:
