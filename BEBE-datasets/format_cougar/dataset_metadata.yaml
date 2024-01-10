@@ -2,9 +2,6 @@ clip_column_names:
 - AccX
 - AccY
 - AccZ
-- GyrX
-- GyrY
-- GyrZ
 - individual_id
 - label
 clip_id_to_individual_id:
@@ -33,5 +30,6 @@ label_names:
 - STALKING
 - KILLING
 - FEEDING
+- NON_KILL
 n_folds: 5
 sr: 16
