@@ -1,6 +1,6 @@
 from collections import defaultdict
 import concurrent.futures
-from datetime import datetime
+from datetime import datetime, timedelta
 import glob
 import math
 import multiprocessing
@@ -83,10 +83,18 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
     lib_window_high_hour = row['EndLib'].hour
     lib_window_high_min = row['EndLib'].minute
     lib_window_high_sec = row['EndLib'].second
-
+   
     stalk_start_hour = row['StartStalk'].hour
     stalk_start_min = row['StartStalk'].minute
     stalk_start_sec = row['StartStalk'].second
+
+    feed_start_hour = row['FeedStart'].hour
+    feed_start_min = row['FeedStart'].minute
+    feed_start_sec = row['FeedStart'].second
+    feed_stop_hour = row['FeedStop'].hour
+    feed_stop_min = row['FeedStop'].minute
+    feed_stop_sec = row['FeedStop'].second
+    
 
     plot_date = datetime(year=year, month=month, day=day, hour=hour, minute=window_low_min)
 
@@ -160,6 +168,15 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
 
         "marker_info": get_marker_info(info_plot=False),
         "is_sixhour": "FALSE",
+        # timestamps
+        "ts_kill_start": datetime(year, month, day, cons_window_low_hour, cons_window_low_min, cons_window_low_sec),
+        # dataframe timestamps, used for behavior classification
+        "df_stalk_start": pd.Timestamp(pd.Timestamp(year, month, day, stalk_start_hour, stalk_start_min, stalk_start_sec).strftime("%I:%M:%S %p")),
+        "df_stalk_end": pd.Timestamp(pd.Timestamp(year, month, day, cons_window_low_hour, cons_window_low_min, cons_window_low_sec).strftime("%I:%M:%S %p")),
+        "df_kill_start": pd.Timestamp(pd.Timestamp(year, month, day, cons_window_low_hour, cons_window_low_min, cons_window_low_sec).strftime("%I:%M:%S %p")),
+        "df_kill_end": pd.Timestamp(pd.Timestamp(year, month, day, cons_window_high_hour, cons_window_high_min, cons_window_high_sec).strftime("%I:%M:%S %p")),
+        "df_feed_start": pd.Timestamp(pd.Timestamp(year, month, day, feed_start_hour, feed_start_min, feed_start_sec).strftime("%I:%M:%S %p")),
+        "df_feed_stop": pd.Timestamp(pd.Timestamp(year, month, day, feed_stop_hour, feed_stop_min, feed_stop_sec).strftime("%I:%M:%S %p")),
     }
 
     return data
@@ -590,26 +607,38 @@ def get_optimal_processes():
 
     return optimal_processes
 
+# Define a function that categorizes each row
+def categorize(row, config):    
+    """
+    Label the behavior in the row using the start/end windows set in the ODBA spreadsheet.
+    """
+    if config["df_stalk_start"] <= row['UTC DateTime'] < config["df_kill_start"]:
+        return "STALK"
+    elif config["df_kill_start"] <= row['UTC DateTime'] < config["df_kill_end"]:
+        return "KILL"
+    elif config["df_feed_start"] <= row['UTC DateTime'] < config["df_feed_stop"]:
+        return "FEEDING"
+    else:
+        return "NON_KILL"
+    
 def create_csv_per_window(configs):
-    print("Not currently generating csvs for each target window")
-    return
-    # TODO 
     for config in configs:
-        print(config)
+        for field in config:
+            print(f"{field=}, {config[field]}")
         input_csv = config['csv_path']
-        df = pd.read_csv(input_csv)
+        df = pd.read_csv(input_csv, skiprows=1)
         
         # Convert 'timestamp' column from string to datetime format
         df['UTC DateTime'] = pd.to_datetime(df['UTC DateTime'])
-
-        start_timestamp = pd.to_datetime('04:37:58 AM')# 2023-12-01 08:30:00')
-        end_timestamp = pd.to_datetime('04:38:47 AM') # 2023-12-01 09:30:00')
+        
+        start_timestamp = (config["ts_kill_start"] - timedelta(hours=6)).strftime("%I:%M:%S %p")
+        end_timestamp = (config["ts_kill_start"] + timedelta(hours=6)).strftime("%I:%M:%S %p")
 
         # Filter DataFrame based on the timestamp range
         filtered_df = df[(df['UTC DateTime'] >= start_timestamp) & (df['UTC DateTime'] <= end_timestamp)]
-
-        # Display the filtered DataFrame
-        # print(filtered_df)
+        
+        # add the behavior label using the windows set in ODBA spreadsheet
+        filtered_df['Category'] = filtered_df.apply(lambda row: categorize(row, config), axis=1)
 
         # Save the DataFrame to a CSV file
         output_csv = '/home/matthew/AI_Capstone/ai-capstone/data/labeled_windows/F202_kill.csv'
@@ -623,6 +652,8 @@ def main():
     configs, expected_plots = identify_kills()
     if create_csvs:
         create_csv_per_window(configs)
+        print("STOPPING at labeled files generation for now")
+        return
     generated_scripts, expected_plots = generate_scripts(configs, expected_plots)
     
     info_scripts, info_expected_plots = get_plot_info_entries()
