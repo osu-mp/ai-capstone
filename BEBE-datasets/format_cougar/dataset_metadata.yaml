@@ -5,22 +5,34 @@ clip_column_names:
 - individual_id
 - label
 clip_id_to_individual_id:
-  exp01_user01: 1
+  exp940_user202: 202
+  exp942_user202: 202
+  exp950_user202: 202
+  exp964_user202: 202
+  exp976_user202: 202
 clip_ids:
-- exp01_user01
+- exp940_user202
+- exp942_user202
+- exp950_user202
+- exp964_user202
+- exp976_user202
 clip_ids_per_fold:
   0:
-  - exp01_user01
+  - exp940_user202
+  - exp942_user202
+  - exp950_user202
+  - exp964_user202
+  - exp976_user202
   1: []
   2: []
   3: []
   4: []
 dataset_name: cougar
 individual_ids:
-- 1
+- 202
 individuals_per_fold:
   0:
-  - 1
+  - 202
   1: []
   2: []
   3: []
@@ -31,5 +43,8 @@ label_names:
 - KILLING
 - FEEDING
 - NON_KILL
+mean_dur_sec_by_individual:
+  202: 53838.915
+mean_overall_dur_sec: 53838.915
 n_folds: 5
 sr: 16

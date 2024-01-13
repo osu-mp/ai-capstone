@@ -21,6 +21,7 @@ data_paths = {
     "output_path": f"{ROOT_DIR}/rcode/jobs/",
     "r_path": "C:\\Program Files\\R\\R-4.3.1\\bin\\Rscript.exe",
     "plot_root": f"{ROOT_DIR}/plots/",
+    "raw_data_root": f"{ROOT_DIR}/BEBE-datasets/raw_cougar/RawData/"   # dir where spreadsheet script writes files for BEBE formatter
 }
 
 if is_unix:

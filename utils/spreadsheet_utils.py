@@ -128,6 +128,7 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
     plot_counts[lion_id] += 1
     data = {
         "lion_name": f"{lion_id}",
+        "lion_id": lion_id,
         "window_low_min": window_low_min,
         "window_high_min": window_high_min,
         # TODO : can this be simplified?
@@ -612,27 +613,54 @@ def categorize(row, config):
     """
     Label the behavior in the row using the start/end windows set in the ODBA spreadsheet.
     """
-    if config["df_stalk_start"] <= row['UTC DateTime'] < config["df_kill_start"]:
-        return "STALK"
-    elif config["df_kill_start"] <= row['UTC DateTime'] < config["df_kill_end"]:
-        return "KILL"
-    elif config["df_feed_start"] <= row['UTC DateTime'] < config["df_feed_stop"]:
-        return "FEEDING"
-    else:
-        return "NON_KILL"
+    try:
+        # print(f"Time {row['UTC DateTime']=}")
+        if config["df_stalk_start"] <= row['UTC DateTime'] < config["df_kill_start"]:
+            return "STALK"
+        elif config["df_kill_start"] <= row['UTC DateTime'] < config["df_kill_end"]:
+            return "KILL"
+        elif config["df_feed_start"] <= row['UTC DateTime'] < config["df_feed_stop"]:
+            return "FEEDING"
+        else:
+            return "NON_KILL"
+    except Exception as e:
+        print(f"Error at time {row['UTC DateTime']=}")
+        raise e
     
 def create_csv_per_window(configs):
+    raw_data_root = data_paths["raw_data_root"]
     for config in configs:
-        for field in config:
-            print(f"{field=}, {config[field]}")
+        print(f"Working on {config['Kill_ID']=}")
+        # for field in config:
+        #     print(f"{field=}, {config[field]}")
         input_csv = config['csv_path']
         df = pd.read_csv(input_csv, skiprows=1)
         
         # Convert 'timestamp' column from string to datetime format
-        df['UTC DateTime'] = pd.to_datetime(df['UTC DateTime'])
+        df['UTC DateTime'] = pd.to_datetime(df['UTC DateTime'])        
         
         start_timestamp = (config["ts_kill_start"] - timedelta(hours=6)).strftime("%I:%M:%S %p")
         end_timestamp = (config["ts_kill_start"] + timedelta(hours=6)).strftime("%I:%M:%S %p")
+
+        # TODO: this code cuts off the end of the window at midnight
+        # this is because the accel csv files are of single days
+        # a future improvement will be to combine the two csvs into one frame
+
+        # Example start timestamp
+        start_timestamp = config["ts_kill_start"]
+
+        # Add six hours to the start timestamp
+        end_timestamp_with_six_hours = start_timestamp + timedelta(hours=6)
+
+        # Get the end of the current day (midnight of the next day)
+        end_of_day = datetime(start_timestamp.year, start_timestamp.month, start_timestamp.day) + timedelta(days=1)
+
+        # Compare and choose the earlier timestamp
+        final_end_timestamp = min(end_timestamp_with_six_hours, end_of_day)
+
+        # Format the timestamp
+        end_timestamp = final_end_timestamp.strftime("%I:%M:%S %p")
+
 
         # Filter DataFrame based on the timestamp range
         filtered_df = df[(df['UTC DateTime'] >= start_timestamp) & (df['UTC DateTime'] <= end_timestamp)]
@@ -641,11 +669,10 @@ def create_csv_per_window(configs):
         filtered_df['Category'] = filtered_df.apply(lambda row: categorize(row, config), axis=1)
 
         # Save the DataFrame to a CSV file
-        output_csv = '/home/matthew/AI_Capstone/ai-capstone/data/labeled_windows/F202_kill.csv'
+        # only use the lion number (remove the sex)
+        output_csv = os.path.join(raw_data_root, f"acc_exp{config['Kill_ID']}_user{config['lion_id'][1:]}.txt")# '/home/matthew/AI_Capstone/ai-capstone/data/labeled_windows/F202_kill.csv'
         filtered_df.to_csv(output_csv, index=False)  # Set index=False to avoid saving row numbers as a column
-        
-        break
-        
+        print(f"Generated RAW file: {output_csv}")
 
 def main():
     validate_config()
