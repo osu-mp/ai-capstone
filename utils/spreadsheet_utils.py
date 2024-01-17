@@ -149,6 +149,12 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
         "stalk_start_hour": stalk_start_hour,
         "stalk_start_min": stalk_start_min,
         "stalk_start_sec": stalk_start_sec,
+        "feed_start_hour": feed_start_hour,
+        "feed_start_min": feed_start_min,
+        "feed_start_sec": feed_start_sec,
+        "feed_stop_hour": feed_stop_hour,
+        "feed_stop_min": feed_stop_min,
+        "feed_stop_sec": feed_stop_sec,
         "year": year,
         "month": month,
         "day": day,
@@ -373,6 +379,12 @@ def get_plot_info_entries():
             "stalk_start_hour": 0, #stalk_start_hour,
             "stalk_start_min": 0, #stalk_start_min,
             "stalk_start_sec": 0, #stalk_start_sec,
+            "feed_start_hour": 0,
+            "feed_start_min": 0,
+            "feed_start_sec": 0,
+            "feed_stop_hour": 0,
+            "feed_stop_min": 0,
+            "feed_stop_sec": 0,
             # TODO
             "marker_1_hour": marker_1_hour,
             "marker_1_min": marker_1_min,
@@ -637,7 +649,7 @@ def create_csv_per_window(configs):
         df = pd.read_csv(input_csv, skiprows=1)
         
         # Convert 'timestamp' column from string to datetime format
-        df['UTC DateTime'] = pd.to_datetime(df['UTC DateTime'])        
+        df['UTC DateTime'] = pd.to_datetime(df['UTC DateTime'])#, format='%H:%M:%S')        
         
         start_timestamp = (config["ts_kill_start"] - timedelta(hours=6)).strftime("%I:%M:%S %p")
         end_timestamp = (config["ts_kill_start"] + timedelta(hours=6)).strftime("%I:%M:%S %p")
@@ -679,8 +691,8 @@ def main():
     configs, expected_plots = identify_kills()
     if create_csvs:
         create_csv_per_window(configs)
-        print("STOPPING at labeled files generation for now")
-        return
+        # print("STOPPING at labeled files generation for now")
+        # return
     generated_scripts, expected_plots = generate_scripts(configs, expected_plots)
     
     info_scripts, info_expected_plots = get_plot_info_entries()

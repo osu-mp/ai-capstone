@@ -96,6 +96,8 @@ plot_lines = {
         {"label": "KillEndPhase1", "value": "cons_window_high", "color": "green", "alpha": "0.9", "linetype": "dashed"},
         {"label": "KillEndPhase2", "value": "lib_window_high", "color": "darkblue", "alpha": "0.9", "linetype": "dashed"},
         {"label": "StalkStart", "value": "stalk_window_start", "color": "yellow", "alpha": "0.75", "linetype": "solid"},
+        {"label": "FeedStart", "value": "feed_window_start", "color": "magenta", "alpha": "0.75", "linetype": "solid"},
+        {"label": "FeedStop", "value": "feed_window_stop", "color": "purple", "alpha": "0.75", "linetype": "solid"},
     ],
     "info_plot": [
         {"label": "{marker_1_label}", "value": "marker_1", "color": "green", "alpha": "0.75", "linetype": "solid"},
