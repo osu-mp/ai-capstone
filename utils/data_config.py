@@ -21,6 +21,7 @@ data_paths = {
     "output_path": f"{ROOT_DIR}/rcode/jobs/",
     "r_path": "C:\\Program Files\\R\\R-4.3.1\\bin\\Rscript.exe",
     "plot_root": f"{ROOT_DIR}/plots/",
+    "raw_data_root": f"{ROOT_DIR}/BEBE-datasets/raw_cougar/RawData/"   # dir where spreadsheet script writes files for BEBE formatter
 }
 
 if is_unix:
@@ -41,7 +42,7 @@ spreadsheets = {
             "F207": f"{csv_root}/F207_22263_030117_012919/MotionData_0",
             "F209": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
         },
-        "data_cols": ["AnimalID", "Sex", "Period", "Kill_ID", "Start Date", "Start time", "End Time", "StartStalk", "StartKill", "EndCons", "EndLib"],
+        "data_cols": ["AnimalID", "Sex", "Period", "Kill_ID", "Start Date", "Start time", "End Time", "StartStalk", "StartKill", "EndCons", "EndLib", "FeedStart", "FeedStop"],
 
         "data_cols_info": ["AnimalID", "Sex", "Kill_ID", "Start Date", "Start time", "End time", 
                            "MarkerTime1", "MarkerLabel1", "MarkerTime2",  "MarkerLabel2","PlotLabel"]
@@ -95,6 +96,8 @@ plot_lines = {
         {"label": "KillEndPhase1", "value": "cons_window_high", "color": "green", "alpha": "0.9", "linetype": "dashed"},
         {"label": "KillEndPhase2", "value": "lib_window_high", "color": "darkblue", "alpha": "0.9", "linetype": "dashed"},
         {"label": "StalkStart", "value": "stalk_window_start", "color": "yellow", "alpha": "0.75", "linetype": "solid"},
+        {"label": "FeedStart", "value": "feed_window_start", "color": "magenta", "alpha": "0.75", "linetype": "solid"},
+        {"label": "FeedStop", "value": "feed_window_stop", "color": "purple", "alpha": "0.75", "linetype": "solid"},
     ],
     "info_plot": [
         {"label": "{marker_1_label}", "value": "marker_1", "color": "green", "alpha": "0.75", "linetype": "solid"},

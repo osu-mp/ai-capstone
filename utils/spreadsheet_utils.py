@@ -1,6 +1,6 @@
 from collections import defaultdict
 import concurrent.futures
-from datetime import datetime
+from datetime import datetime, timedelta
 import glob
 import math
 import multiprocessing
@@ -83,10 +83,18 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
     lib_window_high_hour = row['EndLib'].hour
     lib_window_high_min = row['EndLib'].minute
     lib_window_high_sec = row['EndLib'].second
-
+   
     stalk_start_hour = row['StartStalk'].hour
     stalk_start_min = row['StartStalk'].minute
     stalk_start_sec = row['StartStalk'].second
+
+    feed_start_hour = row['FeedStart'].hour
+    feed_start_min = row['FeedStart'].minute
+    feed_start_sec = row['FeedStart'].second
+    feed_stop_hour = row['FeedStop'].hour
+    feed_stop_min = row['FeedStop'].minute
+    feed_stop_sec = row['FeedStop'].second
+    
 
     plot_date = datetime(year=year, month=month, day=day, hour=hour, minute=window_low_min)
 
@@ -120,6 +128,7 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
     plot_counts[lion_id] += 1
     data = {
         "lion_name": f"{lion_id}",
+        "lion_id": lion_id,
         "window_low_min": window_low_min,
         "window_high_min": window_high_min,
         # TODO : can this be simplified?
@@ -140,6 +149,12 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
         "stalk_start_hour": stalk_start_hour,
         "stalk_start_min": stalk_start_min,
         "stalk_start_sec": stalk_start_sec,
+        "feed_start_hour": feed_start_hour,
+        "feed_start_min": feed_start_min,
+        "feed_start_sec": feed_start_sec,
+        "feed_stop_hour": feed_stop_hour,
+        "feed_stop_min": feed_stop_min,
+        "feed_stop_sec": feed_stop_sec,
         "year": year,
         "month": month,
         "day": day,
@@ -160,6 +175,15 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
 
         "marker_info": get_marker_info(info_plot=False),
         "is_sixhour": "FALSE",
+        # timestamps
+        "ts_kill_start": datetime(year, month, day, cons_window_low_hour, cons_window_low_min, cons_window_low_sec),
+        # dataframe timestamps, used for behavior classification
+        "df_stalk_start": pd.Timestamp(pd.Timestamp(year, month, day, stalk_start_hour, stalk_start_min, stalk_start_sec).strftime("%I:%M:%S %p")),
+        "df_stalk_end": pd.Timestamp(pd.Timestamp(year, month, day, cons_window_low_hour, cons_window_low_min, cons_window_low_sec).strftime("%I:%M:%S %p")),
+        "df_kill_start": pd.Timestamp(pd.Timestamp(year, month, day, cons_window_low_hour, cons_window_low_min, cons_window_low_sec).strftime("%I:%M:%S %p")),
+        "df_kill_end": pd.Timestamp(pd.Timestamp(year, month, day, cons_window_high_hour, cons_window_high_min, cons_window_high_sec).strftime("%I:%M:%S %p")),
+        "df_feed_start": pd.Timestamp(pd.Timestamp(year, month, day, feed_start_hour, feed_start_min, feed_start_sec).strftime("%I:%M:%S %p")),
+        "df_feed_stop": pd.Timestamp(pd.Timestamp(year, month, day, feed_stop_hour, feed_stop_min, feed_stop_sec).strftime("%I:%M:%S %p")),
     }
 
     return data
@@ -355,6 +379,12 @@ def get_plot_info_entries():
             "stalk_start_hour": 0, #stalk_start_hour,
             "stalk_start_min": 0, #stalk_start_min,
             "stalk_start_sec": 0, #stalk_start_sec,
+            "feed_start_hour": 0,
+            "feed_start_min": 0,
+            "feed_start_sec": 0,
+            "feed_stop_hour": 0,
+            "feed_stop_min": 0,
+            "feed_stop_sec": 0,
             # TODO
             "marker_1_hour": marker_1_hour,
             "marker_1_min": marker_1_min,
@@ -590,39 +620,79 @@ def get_optimal_processes():
 
     return optimal_processes
 
+# Define a function that categorizes each row
+def categorize(row, config):    
+    """
+    Label the behavior in the row using the start/end windows set in the ODBA spreadsheet.
+    """
+    try:
+        # print(f"Time {row['UTC DateTime']=}")
+        if config["df_stalk_start"] <= row['UTC DateTime'] < config["df_kill_start"]:
+            return "STALK"
+        elif config["df_kill_start"] <= row['UTC DateTime'] < config["df_kill_end"]:
+            return "KILL"
+        elif config["df_feed_start"] <= row['UTC DateTime'] < config["df_feed_stop"]:
+            return "FEEDING"
+        else:
+            return "NON_KILL"
+    except Exception as e:
+        print(f"Error at time {row['UTC DateTime']=}")
+        raise e
+    
 def create_csv_per_window(configs):
-    print("Not currently generating csvs for each target window")
-    return
-    # TODO 
+    raw_data_root = data_paths["raw_data_root"]
     for config in configs:
-        print(config)
+        print(f"Working on {config['Kill_ID']=}")
+        # for field in config:
+        #     print(f"{field=}, {config[field]}")
         input_csv = config['csv_path']
-        df = pd.read_csv(input_csv)
+        df = pd.read_csv(input_csv, skiprows=1)
         
         # Convert 'timestamp' column from string to datetime format
-        df['UTC DateTime'] = pd.to_datetime(df['UTC DateTime'])
+        df['UTC DateTime'] = pd.to_datetime(df['UTC DateTime'])#, format='%H:%M:%S')        
+        
+        start_timestamp = (config["ts_kill_start"] - timedelta(hours=6)).strftime("%I:%M:%S %p")
+        end_timestamp = (config["ts_kill_start"] + timedelta(hours=6)).strftime("%I:%M:%S %p")
 
-        start_timestamp = pd.to_datetime('04:37:58 AM')# 2023-12-01 08:30:00')
-        end_timestamp = pd.to_datetime('04:38:47 AM') # 2023-12-01 09:30:00')
+        # TODO: this code cuts off the end of the window at midnight
+        # this is because the accel csv files are of single days
+        # a future improvement will be to combine the two csvs into one frame
+
+        # Example start timestamp
+        start_timestamp = config["ts_kill_start"]
+
+        # Add six hours to the start timestamp
+        end_timestamp_with_six_hours = start_timestamp + timedelta(hours=6)
+
+        # Get the end of the current day (midnight of the next day)
+        end_of_day = datetime(start_timestamp.year, start_timestamp.month, start_timestamp.day) + timedelta(days=1)
+
+        # Compare and choose the earlier timestamp
+        final_end_timestamp = min(end_timestamp_with_six_hours, end_of_day)
+
+        # Format the timestamp
+        end_timestamp = final_end_timestamp.strftime("%I:%M:%S %p")
+
 
         # Filter DataFrame based on the timestamp range
         filtered_df = df[(df['UTC DateTime'] >= start_timestamp) & (df['UTC DateTime'] <= end_timestamp)]
-
-        # Display the filtered DataFrame
-        # print(filtered_df)
+        
+        # add the behavior label using the windows set in ODBA spreadsheet
+        filtered_df['Category'] = filtered_df.apply(lambda row: categorize(row, config), axis=1)
 
         # Save the DataFrame to a CSV file
-        output_csv = '/home/matthew/AI_Capstone/ai-capstone/data/labeled_windows/F202_kill.csv'
+        # only use the lion number (remove the sex)
+        output_csv = os.path.join(raw_data_root, f"acc_exp{config['Kill_ID']}_user{config['lion_id'][1:]}.txt")# '/home/matthew/AI_Capstone/ai-capstone/data/labeled_windows/F202_kill.csv'
         filtered_df.to_csv(output_csv, index=False)  # Set index=False to avoid saving row numbers as a column
-        
-        break
-        
+        print(f"Generated RAW file: {output_csv}")
 
 def main():
     validate_config()
     configs, expected_plots = identify_kills()
     if create_csvs:
         create_csv_per_window(configs)
+        # print("STOPPING at labeled files generation for now")
+        # return
     generated_scripts, expected_plots = generate_scripts(configs, expected_plots)
     
     info_scripts, info_expected_plots = get_plot_info_entries()

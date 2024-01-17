@@ -58,6 +58,14 @@ stalk_start_hour = {stalk_start_hour}
 stalk_start_min = {stalk_start_min}
 stalk_start_sec = {stalk_start_sec}
 
+feed_start_hour = {feed_start_hour}
+feed_start_min = {feed_start_min}
+feed_start_sec = {feed_start_sec}
+feed_stop_hour = {feed_stop_hour}
+feed_stop_min = {feed_stop_min}
+feed_stop_sec = {feed_stop_sec}
+
+
 marker_1_hour = {marker_1_hour}
 marker_1_min = {marker_1_min}
 marker_1_sec = {marker_1_sec}
@@ -167,6 +175,13 @@ lib_window_high <- strptime(as.character(paste(lib_window_high, "001", sep = "."
 
 stalk_window_start <- paste(paste(year, month, day, sep = "-"), paste(stalk_start_hour, stalk_start_min, stalk_start_sec, sep = ":"))
 stalk_window_start <- strptime(as.character(paste(stalk_window_start, "001", sep = ".")), format = "%Y-%m-%d %H:%M:%OS", tz = "UTC")
+
+feed_window_start <- paste(paste(year, month, day, sep = "-"), paste(feed_start_hour, feed_start_min, feed_start_sec, sep = ":"))
+feed_window_start <- strptime(as.character(paste(feed_window_start, "001", sep = ".")), format = "%Y-%m-%d %H:%M:%OS", tz = "UTC")
+
+feed_window_stop <- paste(paste(year, month, day, sep = "-"), paste(feed_stop_hour, feed_stop_min, feed_stop_sec, sep = ":"))
+feed_window_stop <- strptime(as.character(paste(feed_window_stop, "001", sep = ".")), format = "%Y-%m-%d %H:%M:%OS", tz = "UTC")
+
 
 marker_1 <- paste(paste(year, month, day, sep = "-"), paste(marker_1_hour, marker_1_min, marker_1_sec, sep = ":"))
 marker_1 <- strptime(as.character(paste(marker_1, "001", sep = ".")), format = "%Y-%m-%d %H:%M:%OS", tz = "UTC")
