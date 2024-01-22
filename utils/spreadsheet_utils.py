@@ -26,7 +26,7 @@ launch = True
 verbose = False
 clear_plot_dir = True
 create_csvs = True
-
+PRE_POST_WINDOW_HOURS = 1
 
 def dump_tab(xls_path, sheet_name):
     # Get the current date
@@ -178,12 +178,12 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
         # timestamps
         "ts_kill_start": datetime(year, month, day, cons_window_low_hour, cons_window_low_min, cons_window_low_sec),
         # dataframe timestamps, used for behavior classification
-        "df_stalk_start": pd.Timestamp(pd.Timestamp(year, month, day, stalk_start_hour, stalk_start_min, stalk_start_sec).strftime("%I:%M:%S %p")),
-        "df_stalk_end": pd.Timestamp(pd.Timestamp(year, month, day, cons_window_low_hour, cons_window_low_min, cons_window_low_sec).strftime("%I:%M:%S %p")),
-        "df_kill_start": pd.Timestamp(pd.Timestamp(year, month, day, cons_window_low_hour, cons_window_low_min, cons_window_low_sec).strftime("%I:%M:%S %p")),
-        "df_kill_end": pd.Timestamp(pd.Timestamp(year, month, day, cons_window_high_hour, cons_window_high_min, cons_window_high_sec).strftime("%I:%M:%S %p")),
-        "df_feed_start": pd.Timestamp(pd.Timestamp(year, month, day, feed_start_hour, feed_start_min, feed_start_sec).strftime("%I:%M:%S %p")),
-        "df_feed_stop": pd.Timestamp(pd.Timestamp(year, month, day, feed_stop_hour, feed_stop_min, feed_stop_sec).strftime("%I:%M:%S %p")),
+        "df_stalk_start": pd.Timestamp(pd.Timestamp(year, month, day, stalk_start_hour, stalk_start_min, stalk_start_sec)),
+        "df_stalk_end": pd.Timestamp(pd.Timestamp(year, month, day, cons_window_low_hour, cons_window_low_min, cons_window_low_sec)),
+        "df_kill_start": pd.Timestamp(pd.Timestamp(year, month, day, cons_window_low_hour, cons_window_low_min, cons_window_low_sec)),
+        "df_kill_end": pd.Timestamp(pd.Timestamp(year, month, day, cons_window_high_hour, cons_window_high_min, cons_window_high_sec)),
+        "df_feed_start": pd.Timestamp(pd.Timestamp(year, month, day, feed_start_hour, feed_start_min, feed_start_sec)),
+        "df_feed_stop": pd.Timestamp(pd.Timestamp(year, month, day, feed_stop_hour, feed_stop_min, feed_stop_sec)),
     }
 
     return data
@@ -641,37 +641,46 @@ def categorize(row, config):
     
 def create_csv_per_window(configs):
     raw_data_root = data_paths["raw_data_root"]
+    alternate_ids = defaultdict(bool)               # hack to "create" more users by splitting each user in half
     for config in configs:
         print(f"Working on {config['Kill_ID']=}")
         # for field in config:
         #     print(f"{field=}, {config[field]}")
+
+        # for each lion, we will add a 0 or 1 to its id (alternating each kill)
+        # this will create the illusion of more lions (so that we will have enough to do 5-fold validation)
+        # i.e. F207 becomes 2070 and 2071 (need to drop the M/F so that BEBE can process as int)
+        lion_id = config['lion_id'][1:]
+        alternate_ids[lion_id] = not alternate_ids[lion_id]
+        if alternate_ids[lion_id]:
+            lion_id += "0"
+        else:
+            lion_id += "1"
         input_csv = config['csv_path']
         df = pd.read_csv(input_csv, skiprows=1)
-        
+
+
+        specific_day = f"{config['year']:04d}-{config['month']:02d}-{config['day']:02d}"
         # Convert 'timestamp' column from string to datetime format
-        df['UTC DateTime'] = pd.to_datetime(df['UTC DateTime'])#, format='%H:%M:%S')        
+        df['UTC DateTime'] = df['UTC DateTime'].astype(str)
+        df['UTC DateTime'] = pd.to_datetime(specific_day + ' ' + df['UTC DateTime'])#, format='%H:%M:%S')        
         
-        start_timestamp = (config["ts_kill_start"] - timedelta(hours=6)).strftime("%I:%M:%S %p")
-        end_timestamp = (config["ts_kill_start"] + timedelta(hours=6)).strftime("%I:%M:%S %p")
+        start_timestamp = (config["ts_kill_start"] - timedelta(hours=PRE_POST_WINDOW_HOURS))#.strftime("%I:%M:%S %p")
+        end_timestamp = (config["ts_kill_start"] + timedelta(hours=PRE_POST_WINDOW_HOURS))#.strftime("%I:%M:%S %p")
 
         # TODO: this code cuts off the end of the window at midnight
         # this is because the accel csv files are of single days
         # a future improvement will be to combine the two csvs into one frame
 
-        # Example start timestamp
-        start_timestamp = config["ts_kill_start"]
-
-        # Add six hours to the start timestamp
-        end_timestamp_with_six_hours = start_timestamp + timedelta(hours=6)
-
+        
         # Get the end of the current day (midnight of the next day)
         end_of_day = datetime(start_timestamp.year, start_timestamp.month, start_timestamp.day) + timedelta(days=1)
 
         # Compare and choose the earlier timestamp
-        final_end_timestamp = min(end_timestamp_with_six_hours, end_of_day)
+        final_end_timestamp = min(end_timestamp, end_of_day)
 
         # Format the timestamp
-        end_timestamp = final_end_timestamp.strftime("%I:%M:%S %p")
+        # end_timestamp = final_end_timestamp.strftime("%I:%M:%S %p")
 
 
         # Filter DataFrame based on the timestamp range
@@ -680,19 +689,23 @@ def create_csv_per_window(configs):
         # add the behavior label using the windows set in ODBA spreadsheet
         filtered_df['Category'] = filtered_df.apply(lambda row: categorize(row, config), axis=1)
 
+        # export only the accel data and label (leave out timestamp)
+        export_cols = ['Acc X [g]', 'Acc Y [g]', 'Acc Z [g]', 'Category']
+
         # Save the DataFrame to a CSV file
         # only use the lion number (remove the sex)
-        output_csv = os.path.join(raw_data_root, f"acc_exp{config['Kill_ID']}_user{config['lion_id'][1:]}.txt")# '/home/matthew/AI_Capstone/ai-capstone/data/labeled_windows/F202_kill.csv'
-        filtered_df.to_csv(output_csv, index=False)  # Set index=False to avoid saving row numbers as a column
+        output_csv = os.path.join(raw_data_root, f"acc_exp{config['Kill_ID']}_user{lion_id}.txt",)# '/home/matthew/AI_Capstone/ai-capstone/data/labeled_windows/F202_kill.csv'
+        filtered_df.to_csv(output_csv, index=False, columns=export_cols)  # Set index=False to avoid saving row numbers as a column
         print(f"Generated RAW file: {output_csv}")
+
 
 def main():
     validate_config()
     configs, expected_plots = identify_kills()
     if create_csvs:
         create_csv_per_window(configs)
-        # print("STOPPING at labeled files generation for now")
-        # return
+        print("STOPPING at labeled files generation for now")
+        return
     generated_scripts, expected_plots = generate_scripts(configs, expected_plots)
     
     info_scripts, info_expected_plots = get_plot_info_entries()

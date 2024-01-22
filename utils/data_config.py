@@ -21,7 +21,7 @@ data_paths = {
     "output_path": f"{ROOT_DIR}/rcode/jobs/",
     "r_path": "C:\\Program Files\\R\\R-4.3.1\\bin\\Rscript.exe",
     "plot_root": f"{ROOT_DIR}/plots/",
-    "raw_data_root": f"{ROOT_DIR}/BEBE-datasets/raw_cougar/RawData/"   # dir where spreadsheet script writes files for BEBE formatter
+    "raw_data_root": f"{ROOT_DIR}/BEBE-datasets/raw_cougar_2hr_window/RawData/"   # dir where spreadsheet script writes files for BEBE formatter
 }
 
 if is_unix:
@@ -124,6 +124,9 @@ def validate_config():
 
     os.makedirs(data_paths["plot_root"], exist_ok=True) # "Unable to make plot root dir"
     assert(os.access(data_paths["plot_root"], os.W_OK)), "Unable to write to plot dir"
+
+    os.makedirs(data_paths["raw_data_root"], exist_ok=True)
+    assert(os.access(data_paths["raw_data_root"], os.W_OK)), "Unable to write to raw_data dir"
 
     for spreadsheet in spreadsheets:
         fname = os.path.join(spreadsheet_root, spreadsheet)
