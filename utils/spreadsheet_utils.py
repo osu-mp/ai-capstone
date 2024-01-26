@@ -16,7 +16,7 @@ import time
 # get the project root as the parent of the parent directory of this file
 ROOT_DIR = str(Path(__file__).parent.parent.absolute())
 sys.path.append(ROOT_DIR)
-from utils.data_config import data_paths, spreadsheets, validate_config, view_configs, is_unix, plot_lines
+from utils.data_config import data_paths, spreadsheets, validate_config, view_configs, is_unix, plot_lines, constants
 
 # TODO: use logger
 # TODO: make command line args
@@ -27,8 +27,8 @@ verbose = False
 clear_plot_dir = True
 create_csvs = True
 PRE_POST_WINDOW_HOURS = 1
-PRE_KILL_WINDOW_MINS = 15
-POST_KILL_WINDOW_MINS = 15
+PRE_KILL_WINDOW_MINS = 30
+POST_KILL_WINDOW_MINS = 30
 
 def dump_tab(xls_path, sheet_name):
     # Get the current date
@@ -646,6 +646,12 @@ def create_csv_per_window(configs):
     alternate_ids = defaultdict(bool)               # hack to "create" more users by splitting each user in half
     alt_ids_idx = 0
 
+    input_sr = constants['INPUT_SAMPLE_RATE']
+    output_sr = constants['OUTPUT_SAMPLE_RATE']
+    if input_sr != output_sr:
+        samples_to_aggregate = input_sr // output_sr
+        print(f"Aggregating {samples_to_aggregate} into 1 (reducing sample rate from {input_sr} Hz to {output_sr} Hz)")
+
     for config in configs:
         # for field in config:
         #     print(f"{field=}, {config[field]}")
@@ -677,9 +683,6 @@ def create_csv_per_window(configs):
         # Convert 'timestamp' column from string to datetime format
         df['UTC DateTime'] = df['UTC DateTime'].astype(str)
         df['UTC DateTime'] = pd.to_datetime(specific_day + ' ' + df['UTC DateTime'])#, format='%H:%M:%S')        
-        
-        # start_timestamp = (config["ts_kill_start"] - timedelta(hours=PRE_POST_WINDOW_HOURS))#.strftime("%I:%M:%S %p")
-        # end_timestamp = (config["ts_kill_start"] + timedelta(hours=PRE_POST_WINDOW_HOURS))#.strftime("%I:%M:%S %p")
 
         start_timestamp = (config["ts_kill_start"] - timedelta(minutes=PRE_KILL_WINDOW_MINS))
         end_timestamp = (config["ts_kill_start"] + timedelta(minutes=POST_KILL_WINDOW_MINS))
@@ -688,6 +691,11 @@ def create_csv_per_window(configs):
         # this is because the accel csv files are of single days
         # a future improvement will be to combine the two csvs into one frame
 
+        # the data_config allows users to downsample the data
+        if input_sr != output_sr:
+            samples_to_aggregate = input_sr // output_sr
+            df = df.groupby(df.index // samples_to_aggregate).mean()
+            
         
         # Get the end of the current day (midnight of the next day)
         end_of_day = datetime(start_timestamp.year, start_timestamp.month, start_timestamp.day) + timedelta(days=1)

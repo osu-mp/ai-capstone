@@ -12,7 +12,7 @@ if is_unix:
     csv_root = "/home/matthew/AI_Capstone/accel_data/cougars"
 
 
-experiment_name = "cougar_F207_0.5hr"
+experiment_name = "cougar_F202_1hr_1hz"
 
 """
 Various disk paths for where to read and write data
@@ -55,7 +55,7 @@ spreadsheets = {
 
 constants = {
     "INPUT_SAMPLE_RATE": 16,      # input from cougar collars is 16Hz
-    "OUTPUT_SAMPLE_RATE": 16,     # desired output (Hz) to feed into BEBE models (unused yet)
+    "OUTPUT_SAMPLE_RATE": 1,     # desired output (Hz) to feed into BEBE models (unused yet)
 }
 
 
@@ -149,7 +149,7 @@ def validate_config():
     # sanity checks for sampling rates
     assert constants['INPUT_SAMPLE_RATE'] == 16, "Input sample rate should always be 16"
     assert 0 < constants['OUTPUT_SAMPLE_RATE'] <= constants['INPUT_SAMPLE_RATE'], f"Output sample rate must be positive and less than input sample rate ({constants['INPUT_SAMPLE_RATE']} Hz)"
-
+    assert constants['INPUT_SAMPLE_RATE'] % constants['OUTPUT_SAMPLE_RATE'] == 0, f"Input sample rate must divide evenly into into output"
 
     print("Data config checks passed\n")
 

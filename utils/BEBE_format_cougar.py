@@ -14,11 +14,12 @@ import sys
 # get the project root as the parent of the parent directory of this file
 ROOT_DIR = str(Path(__file__).parent.parent.absolute())
 sys.path.append(ROOT_DIR)
-from utils.data_config import data_paths, spreadsheets, validate_config, view_configs, is_unix, plot_lines
+from utils.data_config import data_paths, constants
 
 raw_data_root = Path(data_paths["raw_data_root"])
 raw_data_dir = str(raw_data_root.parent)
 formatted_data_dir = data_paths["formatted_data_root"]
+
 
 # %% [markdown]
 # ## Outputs:
@@ -92,8 +93,8 @@ if not os.path.exists(clip_data_dir):
 # Dataset metadata is tracked as a dictionary
 
 dataset_metadata = {}
-sr = 16 # sampling rate, in Hz
-dataset_metadata['sr'] = sr ## from dataset documentation
+sr = constants['OUTPUT_SAMPLE_RATE'] # sampling rate, in Hz
+dataset_metadata['sr'] = sr
 dataset_metadata['dataset_name'] = 'cougar'
 
 # %% [markdown]
