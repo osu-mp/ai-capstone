@@ -11,6 +11,9 @@ csv_root = "C:/accel_data/cougars"
 if is_unix:
     csv_root = "/home/matthew/AI_Capstone/accel_data/cougars"
 
+
+experiment_name = "cougar_F207_0.5hr"
+
 """
 Various disk paths for where to read and write data
 """
@@ -21,7 +24,8 @@ data_paths = {
     "output_path": f"{ROOT_DIR}/rcode/jobs/",
     "r_path": "C:\\Program Files\\R\\R-4.3.1\\bin\\Rscript.exe",
     "plot_root": f"{ROOT_DIR}/plots/",
-    "raw_data_root": f"{ROOT_DIR}/BEBE-datasets/raw_cougar_2hr_window/RawData/"   # dir where spreadsheet script writes files for BEBE formatter
+    "raw_data_root": f"{ROOT_DIR}/BEBE-datasets/raw_{experiment_name}/RawData/",   # dir where spreadsheet script writes files for BEBE formatter
+    "formatted_data_root": f"{ROOT_DIR}/BEBE-datasets/format_{experiment_name}/",   # dir where BEBE formatted datasets live
 }
 
 if is_unix:
@@ -47,6 +51,11 @@ spreadsheets = {
         "data_cols_info": ["AnimalID", "Sex", "Kill_ID", "Start Date", "Start time", "End time", 
                            "MarkerTime1", "MarkerLabel1", "MarkerTime2",  "MarkerLabel2","PlotLabel"]
     }
+}
+
+constants = {
+    "INPUT_SAMPLE_RATE": 16,      # input from cougar collars is 16Hz
+    "OUTPUT_SAMPLE_RATE": 16,     # desired output (Hz) to feed into BEBE models (unused yet)
 }
 
 
@@ -136,6 +145,11 @@ def validate_config():
         assert("window_pre_mins" in value), f"Missing window_pre_mins for view_configs[{key}]"
         assert ("window_post_mins" in value), f"Missing window_post_mins for view_configs[{key}]"
         assert ("minor_tick_interval" in value), f"Missing minor_tick_interval for view_configs[{key}]"
+
+    # sanity checks for sampling rates
+    assert constants['INPUT_SAMPLE_RATE'] == 16, "Input sample rate should always be 16"
+    assert 0 < constants['OUTPUT_SAMPLE_RATE'] <= constants['INPUT_SAMPLE_RATE'], f"Output sample rate must be positive and less than input sample rate ({constants['INPUT_SAMPLE_RATE']} Hz)"
+
 
     print("Data config checks passed\n")
 
