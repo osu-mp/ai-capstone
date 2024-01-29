@@ -35,4 +35,30 @@ df_final = df[['AnimalID', 'Sex', 'Kill_ID', 'Start Date', 'Start time', 'End ti
 # Write to new CSV file
 df_final.to_csv('processed_winter_kill_data.csv', index=False)
 
+# Printout of the range of clust_start dates for each cougar_id
+for cougar_id in df['cougar_id'].unique():
+    # Filter the DataFrame for the current cougar_id
+    cougar_df = df[df['cougar_id'] == cougar_id]
+
+    # Get the range of dates
+    dates = cougar_df['Start Date']
+    date_range = f"{dates.min()} to {dates.max()}"
+
+    # Get the sorted list of start dates in a human-readable format
+    sorted_dates = cougar_df.sort_values('Start Date')['Start Date'].tolist()
+    sorted_dates_str = [date.strftime('%Y-%m-%d') for date in sorted_dates]
+
+
+    # Print the information
+    print(f"Cougar ID: {cougar_id}, Date Range: {date_range}")
+    print(f"\tDates: {', '.join(sorted_dates_str)}\n")
+
+    # dates = df[df['cougar_id'] == cougar_id]['Start Date']
+    # print(f"Cougar ID: {cougar_id}, Date Range: {dates.min()} to {dates.max()}")
+    # # for date in sorted(dates):
+    #     # print(date)
+    # print(", ".join(lambda: date in dates))
+
+
+
 print("Data processed and saved to processed_winter_kill_data.csv.")
