@@ -1,4 +1,5 @@
 from collections import defaultdict
+import copy
 import concurrent.futures
 from datetime import datetime, timedelta
 import glob
@@ -27,8 +28,8 @@ verbose = False
 clear_plot_dir = True
 create_csvs = True
 PRE_POST_WINDOW_HOURS = 1
-PRE_KILL_WINDOW_MINS = 30
-POST_KILL_WINDOW_MINS = 30
+PRE_KILL_WINDOW_MINS = 15
+POST_KILL_WINDOW_MINS = 15
 
 def dump_tab(xls_path, sheet_name):
     # Get the current date
@@ -42,9 +43,12 @@ def dump_tab(xls_path, sheet_name):
 
     csv_path = os.path.join(root_dir, f"{sheet_name}.csv")
 
-    df = pd.read_excel(xls_path, sheet_name=sheet_name)
-    df.to_csv(csv_path, index=False)
-    print(f"Created {csv_path=}")
+    try:
+        df = pd.read_excel(xls_path, sheet_name=sheet_name)
+        df.to_csv(csv_path, index=False)
+        print(f"Created {csv_path=}")
+    except:
+        print(f"Unable to save tab {sheet_name}")
 
 def get_lion_plot_window_dir(lion_id, main=False):
     """
@@ -65,6 +69,7 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
     month = row['Start Date'].month
     day = row['Start Date'].day
     hour = row['Start time'].hour
+    hour_high = hour
     window_low_min = row['Start time'].minute
     window_high_min = row['End Time'].minute
     window_high_min = max(window_low_min + 1, window_high_min)      # ensure the window is at least 1 minute
@@ -114,8 +119,8 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
 
     lion_id = f"{row['Sex']}{int(row['AnimalID'])}"
     lion_plot_root = get_lion_plot_window_dir(lion_id)    
-    plot_name = plot_date.strftime(f"{lion_id}_%Y-%m-%d__%H_%M__{kill_id}")  # the R script will append config type/kill id and .png
-    lion_plot_path = os.path.join(lion_plot_root, plot_name)
+    plot_name = plot_date.strftime(f"{lion_id}_%Y-%m-%d__%H_%M__PLOTTYPE_{kill_id}")  # the R script will append config type/kill id and .png
+    lion_plot_path = os.path.join(lion_plot_root, f"{plot_name}.png")
 
     csv_folder = plot_date.strftime("%Y/%m %b/%d/")
     csv_name = plot_date.strftime("%Y-%m-%d.csv")
@@ -125,7 +130,7 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
         missing_csvs.add(csv_path)
         return None
 
-    expected_plots.add(plot_name)
+    expected_plots.add(lion_plot_path)
 
     plot_counts[lion_id] += 1
     data = {
@@ -161,6 +166,7 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
         "month": month,
         "day": day,
         "hour": hour,
+        "hour_high": hour_high,
         "Kill_ID": kill_id,
         "lion_plot_path": lion_plot_path,
         "csv_path": csv_path,
@@ -220,7 +226,11 @@ def identify_kills():
             tab_skipped = False
             for sheet in cfg_sheets:
                 dump_tab(path, sheet)
-                df = f.parse(sheet)
+                try:
+                    df = f.parse(sheet)
+                except:
+                    print(f"WARNING: no tab found for {sheet}, skpping kills")
+                    continue
                 cols = spreadsheets[spreadsheet]['data_cols']
                 if not all(column in df.columns for column in cols):
                     print(f"WARNING: Missing columns in tab {sheet}, no data read from there.")
@@ -301,7 +311,9 @@ def get_plot_info_entries():
         month = row['Start Date'].month
         day = row['Start Date'].day
         hour = row['Start time'].hour
+        hour_high = row['End time'].hour
         window_low_min = row['Start time'].minute
+        window_high_hour = row['End time'].hour
         window_high_min = row['End time'].minute
         window_high_min = max(window_low_min + 1, window_high_min)      # ensure the window is at least 1 minute
 
@@ -326,25 +338,23 @@ def get_plot_info_entries():
             marker_2_hour = marker_2_min = marker_2_sec = 0
             marker_2_label = "Unused"
 
-        plot_label = row['PlotLabel']
-        plot_label = plot_label.replace(' ', '_')
-
+        
 
         plot_date = datetime(year=year, month=month, day=day, hour=hour, minute=window_low_min)
 
         kill_id = row['Kill_ID']
-        # if kill_id != 940:          # TODO Debug get rid of
-        #     continue
-        # if math.isnan(kill_id):
-        #     kill_id = no_id_kill_index
-        #     no_id_kill_index += 1
-        # else:
-        #     kill_id = int(kill_id)
-
+        
         lion_id = f"{row['Sex']}{int(row['AnimalID'])}"
+        if lion_id not in spreadsheets[spreadsheet]["tabs"]:
+            print(f"Lion {lion_id} in info sheet but not in config, skipping")
+            continue
         lion_plot_root = get_lion_plot_window_dir(lion_id, main=True)        
-        plot_name = plot_date.strftime(f"{lion_id}_%Y-%m-%d__%H_%M__{kill_id}__{plot_label}")  # the R script will append config type/kill id and .png
-        lion_plot_path = os.path.join(lion_plot_root, plot_name)
+        plot_label = f"{lion_id} - {row['Kill_ID']} - {row['PlotLabel']}"        
+        plot_name = plot_date.strftime(f"%Y-%m-%d__%H_%M__{plot_label}")  # the R script will append config type/kill id and .png
+        plot_name = plot_name.replace(' ', '_')
+        lion_plot_path = os.path.join(lion_plot_root, f"{plot_name}.png")
+        
+        
 
         csv_folder = plot_date.strftime("%Y/%m %b/%d/")
         csv_name = plot_date.strftime("%Y-%m-%d.csv")
@@ -355,7 +365,7 @@ def get_plot_info_entries():
             missing_csvs.add(csv_path)
             continue
 
-        expected_plots.add(plot_name)
+        expected_plots.add(lion_plot_path)
 
         plot_counts[lion_id] += 1
         data = {
@@ -402,6 +412,7 @@ def get_plot_info_entries():
             "month": month,
             "day": day,
             "hour": hour,
+            "hour_high": hour_high,
             "Kill_ID": kill_id,
             "lion_plot_path": lion_plot_path,
             "csv_path": csv_path,
@@ -428,7 +439,7 @@ def get_plot_info_entries():
 
         # for config in configs:
         #     # for key, value in view_configs.items():
-            data["plot_type"] = f"{lion_id} {plot_label}"
+            data["plot_type"] = f"{plot_label}"
             data["window_pre_mins"] = 0# value["window_pre_mins"]
             data["window_post_mins"] = 0# value["window_post_mins"]
             data["minor_tick_interval"] = 10 # TODO value["minor_tick_interval"]
@@ -441,7 +452,7 @@ def get_plot_info_entries():
             if verbose:
                 print(f"Generated {out_fname}")
             generated_files.append(out_fname)
-
+            
     print(f"\nGenerated {len(generated_files)} commands")
 
     
@@ -530,27 +541,32 @@ def generate_scripts(configs, expected_plots):
     generated_files = []
     for config in configs:
         for key, value in view_configs.items():
-            config["plot_type"] = key
-            config["window_pre_mins"] = value["window_pre_mins"]
-            config["window_post_mins"] = value["window_post_mins"]
-            config["minor_tick_interval"] = value["minor_tick_interval"]
-            config["is_sixhour"] = str(key == "sixhour").upper()
-            filled_template = template_content.format(**config)
+            # lazy setup above, need to create copy of config for PLOTTYPE overwrite to work properly
+            copied_cfg = copy.deepcopy(config)
+            copied_cfg["plot_type"] = key
+            copied_cfg["lion_plot_path"] = copied_cfg["lion_plot_path"].replace("PLOTTYPE", key)
+            copied_cfg["window_pre_mins"] = value["window_pre_mins"]
+            copied_cfg["window_post_mins"] = value["window_post_mins"]
+            copied_cfg["minor_tick_interval"] = value["minor_tick_interval"]
+            copied_cfg["is_sixhour"] = str(key == "sixhour").upper()
+            filled_template = template_content.format(**copied_cfg)
             filled_template = filled_template.replace("\\", "/")
 
-            out_fname = os.path.join(output_path, f"script_{config['lion_name']}_{config['plot_type']}_{config['Kill_ID']}.r")
+            out_fname = os.path.join(output_path, f"script_{copied_cfg['lion_name']}_{copied_cfg['plot_type']}_{copied_cfg['Kill_ID']}.r")
             with open(out_fname, "w") as output_file:
                 output_file.write(filled_template)
             if verbose:
                 print(f"Generated {out_fname}")
             generated_files.append(out_fname)
 
+            all_expected_plots.add(copied_cfg["lion_plot_path"])
+
     print(f"\nGenerated {len(generated_files)} commands")
 
     
     for expected_plot in expected_plots:
         for key in view_configs.keys():
-            all_expected_plots.add(f"{expected_plot}_{key}")
+            all_expected_plots.add(f"{expected_plot}")
 
     return generated_files, all_expected_plots
 
@@ -663,15 +679,15 @@ def create_csv_per_window(configs):
 
 
         # each lion is given two ids
-        # alternate_ids[lion_id] = not alternate_ids[lion_id]
-        # if alternate_ids[lion_id]:
-        #     lion_id += "0"
-        # else:
-        #     lion_id += "1"
+        alternate_ids[lion_id] = not alternate_ids[lion_id]
+        if alternate_ids[lion_id]:
+            lion_id += "0"
+        else:
+            lion_id += "1"
 
         # each lion is given a uniuqe id
-        lion_id += str(alt_ids_idx)
-        alt_ids_idx += 1
+        # lion_id += str(alt_ids_idx)
+        # alt_ids_idx += 1
 
 
 
@@ -731,8 +747,8 @@ def main():
     configs, expected_plots = identify_kills()
     if create_csvs:
         create_csv_per_window(configs)
-        print("STOPPING at labeled files generation for now")
-        return
+        # print("STOPPING at labeled files generation for now")
+        # return
     generated_scripts, expected_plots = generate_scripts(configs, expected_plots)
     
     info_scripts, info_expected_plots = get_plot_info_entries()
@@ -770,8 +786,10 @@ def main():
                     print(f"Error occurred: {e}")
 
         runtime = time.time() - start
-        print(f"Runtime: {runtime:3.0f} seconds")
-        print(f"Average time per run: {runtime/len(expected_plots):2.2f} seconds")
+        if len(expected_plots):
+            print(f"Runtime: {runtime:3.0f} seconds")
+        
+            print(f"Average time per run: {runtime/len(expected_plots):2.2f} seconds")
 
         make_mega_plots(data_paths["plot_root"], expected_plots)
 

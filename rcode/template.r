@@ -20,14 +20,14 @@ day = {day}
 day_low = day
 day_high = day
 hour = {hour}
-hour_high = hour
+hour_high = {hour_high}
 plot_title = toTitleCase("{plot_type}")
 minor_tick_interval = {minor_tick_interval}
 
 window_pre_mins = {window_pre_mins}         # number of minutes to plot prior to window start
 window_post_mins = {window_post_mins}       # number of minutes to plot after window ends
 
-plot_name <- "{lion_plot_path}_{plot_type}_{Kill_ID}.png"             # path to save output plot image
+plot_name <- "{lion_plot_path}"#_{plot_type}_{Kill_ID}.png"             # path to save output plot image
 
 
 # vertical line to show time(s) of interest
@@ -370,7 +370,7 @@ if (is_sixhour) {{
       size = 6
     ) +
     scale_shape_manual(name = "Surge Windows", values = c("Kill Start" = 4))
-}}  else{{
+}}  else if (marker_1_label != 'Unused'){{  # only include  labels if the first label is used
   {marker_info}
 }}
 

@@ -103,7 +103,7 @@ def process_cougars_spreadsheet(file_path, show_plots=False, quiet=False):
         if show_plots:
              plt.show()
         else:
-            plot_fname = os.path.join(data_paths['plot_root'], cougar_name, "time_summary.png")
+            plot_fname = os.path.join(data_paths['plot_root'], cougar_name, f"{cougar_name}_time_summary.png")
             plt.savefig(plot_fname)
             print(f"Plot saved to {os.path.abspath(plot_fname)}")
 
