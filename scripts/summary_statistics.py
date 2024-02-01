@@ -20,6 +20,7 @@ You can have these stats displayed by adding '--show-plots' to your command line
 
 Add '--quiet' to the command line to skip printing summary stats (mean, std, etc)
 """
+labels = ['StalkTime (s)', 'KillTime (s)', 'WaitFeed (s)', 'FeedTime (s)']
 
 # get the project root as the parent of the parent directory of this file
 ROOT_DIR = str(Path(__file__).parent.parent.absolute())
@@ -69,13 +70,13 @@ def process_cougars_spreadsheet(file_path, show_plots=False, quiet=False):
             cougar_df[col] = pd.to_datetime(cougar_df[col], format='%H:%M:%S').dt.time
 
         # Calculate StalkTime, KillTime, WaitFeed, FeedTime
-        cougar_df['StalkTime'] = (pd.to_datetime(cougar_df['StartKill'], format='%H:%M:%S') -
+        cougar_df[labels[0]] = (pd.to_datetime(cougar_df['StartKill'], format='%H:%M:%S') -
                                 pd.to_datetime(cougar_df['StartStalk'], format='%H:%M:%S')).dt.total_seconds()
-        cougar_df['KillTime'] = (pd.to_datetime(cougar_df['EndCons'], format='%H:%M:%S') -
+        cougar_df[labels[1]] = (pd.to_datetime(cougar_df['EndCons'], format='%H:%M:%S') -
                                 pd.to_datetime(cougar_df['StartKill'], format='%H:%M:%S')).dt.total_seconds()
-        cougar_df['WaitFeed'] = (pd.to_datetime(cougar_df['FeedStart'], format='%H:%M:%S') -
+        cougar_df[labels[2]] = (pd.to_datetime(cougar_df['FeedStart'], format='%H:%M:%S') -
                                 pd.to_datetime(cougar_df['EndCons'], format='%H:%M:%S')).dt.total_seconds()
-        cougar_df['FeedTime'] = (pd.to_datetime(cougar_df['FeedStop'], format='%H:%M:%S') -
+        cougar_df[labels[3]] = (pd.to_datetime(cougar_df['FeedStop'], format='%H:%M:%S') -
                                 pd.to_datetime(cougar_df['FeedStart'], format='%H:%M:%S')).dt.total_seconds()
 
         # Replace infinite values with NaN
@@ -85,12 +86,12 @@ def process_cougars_spreadsheet(file_path, show_plots=False, quiet=False):
         # Display summary statistics for each cougar
         if not quiet:
             print(f"\nSummary Statistics for {cougar_name}:")
-            summary_stats = cougar_df[['StalkTime', 'KillTime', 'WaitFeed', 'FeedTime']].describe()
+            summary_stats = cougar_df[labels].describe().round(1)
             print(summary_stats)
 
         # Plot histograms for each time category
         plt.figure(figsize=(12, 8))
-        for i, col in enumerate(['StalkTime', 'KillTime', 'WaitFeed', 'FeedTime']):
+        for i, col in enumerate(labels):
             plt.subplot(2, 2, i + 1)
             with warnings.catch_warnings():
                     warnings.filterwarnings('ignore', message='use_inf_as_na option is deprecated', category=FutureWarning)
@@ -116,12 +117,12 @@ def process_cougars_spreadsheet(file_path, show_plots=False, quiet=False):
     # Display summary statistics for all cougars combined
     if not quiet:
         print("\nSummary Statistics for All Cougars Combined:")
-        all_summary_stats = all_cougars_df[['StalkTime', 'KillTime', 'WaitFeed', 'FeedTime']].describe()
+        all_summary_stats = all_cougars_df[labels].describe().round(0)
         print(all_summary_stats)
 
     # Plot histograms for each time category for all cougars combined
     plt.figure(figsize=(12, 8))
-    for i, col in enumerate(['StalkTime', 'KillTime', 'WaitFeed', 'FeedTime']):
+    for i, col in enumerate([labels]):
         plt.subplot(2, 2, i + 1)
         with warnings.catch_warnings():
                 warnings.filterwarnings('ignore', message='use_inf_as_na option is deprecated', category=FutureWarning)
