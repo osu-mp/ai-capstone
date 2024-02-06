@@ -80,7 +80,7 @@ import scipy.signal as signal
 if not os.path.exists(formatted_data_dir):
     os.makedirs(formatted_data_dir)
     
-acc_fps = glob.glob(raw_data_dir + '/RawData/acc*.txt')
+acc_fps = glob.glob(raw_data_dir + '/RawData/acc*.csv')
 
 clip_data_dir = os.path.join(formatted_data_dir, 'clip_data')
 if not os.path.exists(clip_data_dir):
@@ -230,14 +230,15 @@ header_names = ["Acc X [g]", "Acc Y [g]", "Acc Z [g]", "Category"]
 
 for clip_id in clip_ids:
     # load features
-    acc_fp = os.path.join(raw_data_dir, 'RawData', 'acc_' + clip_id + '.txt')
+    acc_fp = os.path.join(raw_data_dir, 'RawData', 'acc_' + clip_id + '.csv')
     
     acc_data = pd.read_csv(acc_fp, delimiter = ',', header = 1)
     
     clip_dur_samples = len(acc_data)
     total_dur_samples += clip_dur_samples
         
-    exp_id = int(clip_id[3:5])
+    exp_id = int(clip_id.split("_")[0][3:])
+    # exp_id = int(clip_id[3:5])
     # annotations_sub = annotations[annotations['exp_id'] == exp_id]
     
     # reformat annotations

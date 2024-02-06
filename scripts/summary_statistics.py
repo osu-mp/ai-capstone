@@ -122,7 +122,7 @@ def process_cougars_spreadsheet(file_path, show_plots=False, quiet=False):
 
     # Plot histograms for each time category for all cougars combined
     plt.figure(figsize=(12, 8))
-    for i, col in enumerate([labels]):
+    for i, col in enumerate(labels):
         plt.subplot(2, 2, i + 1)
         with warnings.catch_warnings():
                 warnings.filterwarnings('ignore', message='use_inf_as_na option is deprecated', category=FutureWarning)

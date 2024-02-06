@@ -27,9 +27,8 @@ launch = True
 verbose = False
 clear_plot_dir = True
 create_csvs = True
+clear_csv_dir = True
 PRE_POST_WINDOW_HOURS = 1
-PRE_KILL_WINDOW_MINS = 15
-POST_KILL_WINDOW_MINS = 15
 
 def dump_tab(xls_path, sheet_name):
     # Get the current date
@@ -105,12 +104,9 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
 
     plot_date = datetime(year=year, month=month, day=day, hour=hour, minute=window_low_min)
 
-    # csv related
-    # TODO: stalk window, kill start, phase1, phase2  
-
     kill_id = row['Kill_ID']
-    # if kill_id != 940:          # TODO Debug get rid of
-    #     continue
+    # if kill_id not in [940]:            # use this when generating a specfic subset
+    #     return 
     if math.isnan(kill_id):
         kill_id = no_id_kill_index
         no_id_kill_index += 1
@@ -130,7 +126,7 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
         missing_csvs.add(csv_path)
         return None
 
-    expected_plots.add(lion_plot_path)
+    # expected_plots.add(lion_plot_path)
 
     plot_counts[lion_id] += 1
     data = {
@@ -652,12 +648,17 @@ def categorize(row, config):
         elif config["df_feed_start"] <= row['UTC DateTime'] < config["df_feed_stop"]:
             return "FEED"
         else:
-            return "NON_KILL"
+            if constants["USE_NON_KILL"]:
+                return "NON_KILL"
+            else:
+                return "unknown"
     except Exception as e:
         print(f"Error at time {row['UTC DateTime']=}")
         raise e
     
 def create_csv_per_window(configs):
+    # if True:
+    #     return
     raw_data_root = data_paths["raw_data_root"]
     alternate_ids = defaultdict(bool)               # hack to "create" more users by splitting each user in half
     alt_ids_idx = 0
@@ -668,6 +669,21 @@ def create_csv_per_window(configs):
         samples_to_aggregate = input_sr // output_sr
         print(f"Aggregating {samples_to_aggregate} into 1 (reducing sample rate from {input_sr} Hz to {output_sr} Hz)")
 
+    window_pre_mins = constants["PRE_KILL_WINDOW_MINS"]
+    window_pst_mins = constants["PST_KILL_WINDOW_MINS"]
+    print(f"Including {window_pre_mins} minutes before kill and {window_pst_mins} minutes after")
+
+    if clear_csv_dir:
+        print(f"Clearing CSV files from plot dir: {raw_data_root}")
+        file_pattern = os.path.join(raw_data_root, '*.csv')  # remove all mega png files
+        files_to_remove = glob.glob(file_pattern)
+        for file_path in files_to_remove:
+            try:
+                os.remove(file_path)
+            except OSError as e:
+                print(f"Error removing file {file_path}: {e}")
+
+    generated_files = []
     for config in configs:
         # for field in config:
         #     print(f"{field=}, {config[field]}")
@@ -679,15 +695,15 @@ def create_csv_per_window(configs):
 
 
         # each lion is given two ids
-        alternate_ids[lion_id] = not alternate_ids[lion_id]
-        if alternate_ids[lion_id]:
-            lion_id += "0"
-        else:
-            lion_id += "1"
+        # alternate_ids[lion_id] = not alternate_ids[lion_id]
+        # if alternate_ids[lion_id]:
+        #     lion_id += "0"
+        # else:
+        #     lion_id += "1"
 
         # each lion is given a uniuqe id
-        # lion_id += str(alt_ids_idx)
-        # alt_ids_idx += 1
+        lion_id += str(alt_ids_idx)
+        alt_ids_idx += 1
 
 
 
@@ -700,8 +716,9 @@ def create_csv_per_window(configs):
         df['UTC DateTime'] = df['UTC DateTime'].astype(str)
         df['UTC DateTime'] = pd.to_datetime(specific_day + ' ' + df['UTC DateTime'])#, format='%H:%M:%S')        
 
-        start_timestamp = (config["ts_kill_start"] - timedelta(minutes=PRE_KILL_WINDOW_MINS))
-        end_timestamp = (config["ts_kill_start"] + timedelta(minutes=POST_KILL_WINDOW_MINS))
+        
+        start_timestamp = (config["ts_kill_start"] - timedelta(minutes=window_pre_mins))
+        end_timestamp = (config["ts_kill_start"] + timedelta(minutes=window_pst_mins))
 
         # TODO: this code cuts off the end of the window at midnight
         # this is because the accel csv files are of single days
@@ -736,10 +753,12 @@ def create_csv_per_window(configs):
         # Save the DataFrame to a CSV file
         # only use the lion number (remove the sex)
         # output_csv = os.path.join(raw_data_root, f"acc_exp{config['Kill_ID']}{PRE_POST_WINDOW_HOURS}_user{lion_id}.txt",)# '/home/matthew/AI_Capstone/ai-capstone/data/labeled_windows/F202_kill.csv'
-        output_csv = os.path.join(raw_data_root, f"acc_exp{config['Kill_ID']}_user{lion_id}.txt",)# '/home/matthew/AI_Capstone/ai-capstone/data/labeled_windows/F202_kill.csv'
+        output_csv = os.path.join(raw_data_root, f"acc_exp{config['Kill_ID']}_user{lion_id}.csv",)
         # df.to_csv(output_csv, index=False)  # Set index=False to avoid saving row numbers as a column
         df.to_csv(output_csv, index=False, columns=export_cols)  # Set index=False to avoid saving row numbers as a column
-        print(f"Generated RAW file: {output_csv}")
+        generated_files.append(output_csv)
+    
+    print(f"Generated {len(generated_files)} csvs in {raw_data_root}")
 
 
 def main():
@@ -751,23 +770,25 @@ def main():
         # return
     generated_scripts, expected_plots = generate_scripts(configs, expected_plots)
     
-    info_scripts, info_expected_plots = get_plot_info_entries()
-    generated_scripts.extend(info_scripts)
-    for plot in info_expected_plots:
-        expected_plots.add(plot)
+    # info_scripts, info_expected_plots = get_plot_info_entries()
+    # generated_scripts.extend(info_scripts)
+    # for plot in info_expected_plots:
+    #     expected_plots.add(plot)
     
     if launch:
         if clear_plot_dir:
             plot_root = data_paths["plot_root"]
             print(f"Clearing PNG files from plot dir: {plot_root}")
-            file_pattern = os.path.join(plot_root, '*/*.png')  # remove all mega png files
-            files_to_remove = glob.glob(file_pattern)
-            for file_path in files_to_remove:
-                try:
-                    os.remove(file_path)
-                    # print(f"Removed file: {file_path}")
-                except OSError as e:
-                    print(f"Error removing file {file_path}: {e}")
+            # remove all mega png files AND individual window plots
+            for pattern in ['*/*.png', '*/windows/*.png']:
+                file_pattern = os.path.join(plot_root, pattern)  
+                files_to_remove = glob.glob(file_pattern)
+                for file_path in files_to_remove:
+                    try:
+                        os.remove(file_path)
+                        # print(f"Removed file: {file_path}")
+                    except OSError as e:
+                        print(f"Error removing file {file_path}: {e}")
 
         start = time.time()
         

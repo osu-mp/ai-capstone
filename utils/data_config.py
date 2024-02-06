@@ -12,7 +12,7 @@ if is_unix:
     csv_root = "/home/matthew/AI_Capstone/accel_data/cougars"
 
 
-experiment_name = "cougar_all_1hr_1hz"
+experiment_name = "F202_15sample_8hz_2hr_new"
 
 """
 Various disk paths for where to read and write data
@@ -24,8 +24,8 @@ data_paths = {
     "output_path": f"{ROOT_DIR}/rcode/jobs/",
     "r_path": "C:\\Program Files\\R\\R-4.3.1\\bin\\Rscript.exe",
     "plot_root": f"{ROOT_DIR}/plots/",
-    "raw_data_root": f"{ROOT_DIR}/BEBE-datasets/raw_{experiment_name}/RawData/",   # dir where spreadsheet script writes files for BEBE formatter
-    "formatted_data_root": f"{ROOT_DIR}/BEBE-datasets/format_{experiment_name}/",   # dir where BEBE formatted datasets live
+    "raw_data_root": f"{ROOT_DIR}/BEBE-datasets/{experiment_name}/RawData/",   # dir where spreadsheet script writes files for BEBE formatter
+    "formatted_data_root": f"{ROOT_DIR}/BEBE-datasets/{experiment_name}/FormatData",   # dir where BEBE formatted datasets live
 }
 
 if is_unix:
@@ -41,16 +41,16 @@ Each root key represents a spreadsheet file (relative to spreadsheet_root)
 spreadsheets = {
     "Cougars_ODBA_Kills_Setup.xlsx": {
         "tabs": {
-            "M201": f"{csv_root}/M201_20170_020116_120116/MotionData_0/",
+            # "M201": f"{csv_root}/M201_20170_020116_120116/MotionData_0/",
             "F202": f"{csv_root}/F202_27905_010518_072219/MotionData_27905",
-            "F207": f"{csv_root}/F207_22263_030117_012919/MotionData_0",
-            "F209": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
+            # "F207": f"{csv_root}/F207_22263_030117_012919/MotionData_0",
+            # "F209": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
 
             # some data, but all unlabeled at this point (info plots only)
-            "F210": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
-            "F212": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
-            "F222": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
-            "F222": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
+            # "F210": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
+            # "F212": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
+            # "F222": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
+            # "F222": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
         },
         "data_cols": ["AnimalID", "Sex", "Period", "Kill_ID", "Start Date", "Start time", "End Time", "StartStalk", "StartKill", "EndCons", "EndLib", "FeedStart", "FeedStop"],
 
@@ -61,7 +61,10 @@ spreadsheets = {
 
 constants = {
     "INPUT_SAMPLE_RATE": 16,      # input from cougar collars is 16Hz
-    "OUTPUT_SAMPLE_RATE": 1,     # desired output (Hz) to feed into BEBE models (unused yet)
+    "OUTPUT_SAMPLE_RATE": 8,     # desired output (Hz) to feed into BEBE models (unused yet)
+    "PRE_KILL_WINDOW_MINS": 60,   # number of minutes to include in front of kill start
+    "PST_KILL_WINDOW_MINS": 60,   # number of minutes to include after kill start
+    "USE_NON_KILL": False,        # if True label everything that is not Stalk/Kill/Feed as NON_KILL; else label as unkown
 }
 
 
