@@ -186,6 +186,7 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
         "df_stalk_end": pd.Timestamp(pd.Timestamp(year, month, day, cons_window_low_hour, cons_window_low_min, cons_window_low_sec)),
         "df_kill_start": pd.Timestamp(pd.Timestamp(year, month, day, cons_window_low_hour, cons_window_low_min, cons_window_low_sec)),
         "df_kill_end": pd.Timestamp(pd.Timestamp(year, month, day, cons_window_high_hour, cons_window_high_min, cons_window_high_sec)),
+        "df_kill_phase2_end": pd.Timestamp(pd.Timestamp(year, month, day, lib_window_high_hour, lib_window_high_min, lib_window_high_sec)),
         "df_feed_start": pd.Timestamp(pd.Timestamp(year, month, day, feed_start_hour, feed_start_min, feed_start_sec)),
         "df_feed_stop": pd.Timestamp(pd.Timestamp(year, month, day, feed_stop_hour, feed_stop_min, feed_stop_sec)),
     }
@@ -645,6 +646,10 @@ def categorize(row, config):
             return "STALK"
         elif config["df_kill_start"] <= row['UTC DateTime'] < config["df_kill_end"]:
             return "KILL"
+        elif config["df_kill_end"] <= row['UTC DateTime'] < config["df_kill_phase2_end"]:
+            return "KILL_PHASE2"
+        # elif config["df_kill_phase2_end"] <= row['UTC DateTime'] < config["df_feed_start"]:
+        #     return "NON_KILL"
         elif config["df_feed_start"] <= row['UTC DateTime'] < config["df_feed_stop"]:
             return "FEED"
         else:
@@ -766,8 +771,8 @@ def main():
     configs, expected_plots = identify_kills()
     if create_csvs:
         create_csv_per_window(configs)
-        # print("STOPPING at labeled files generation for now")
-        # return
+        print("STOPPING at labeled files generation for now")
+        return
     generated_scripts, expected_plots = generate_scripts(configs, expected_plots)
     
     # info_scripts, info_expected_plots = get_plot_info_entries()

@@ -167,8 +167,9 @@ dataset_metadata['clip_ids_per_fold'] = clip_ids_per_fold
 beh_names = ['unknown', 
              'STALK',
              'KILL',
+             'KILL_PHASE2',
              'FEED',
-            'NON_KILL',
+             'NON_KILL',
             ]
 
 dataset_metadata['label_names'] = beh_names

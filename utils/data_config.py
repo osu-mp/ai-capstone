@@ -12,7 +12,7 @@ if is_unix:
     csv_root = "/home/matthew/AI_Capstone/accel_data/cougars"
 
 
-experiment_name = "F202_15sample_8hz_2hr_new"
+experiment_name = "F202_15sample_4hz_1hr"
 
 """
 Various disk paths for where to read and write data
@@ -24,8 +24,8 @@ data_paths = {
     "output_path": f"{ROOT_DIR}/rcode/jobs/",
     "r_path": "C:\\Program Files\\R\\R-4.3.1\\bin\\Rscript.exe",
     "plot_root": f"{ROOT_DIR}/plots/",
-    "raw_data_root": f"{ROOT_DIR}/BEBE-datasets/{experiment_name}/RawData/",   # dir where spreadsheet script writes files for BEBE formatter
-    "formatted_data_root": f"{ROOT_DIR}/BEBE-datasets/{experiment_name}/FormatData",   # dir where BEBE formatted datasets live
+    "raw_data_root": f"{ROOT_DIR}/BEBE-datasets-phase2/{experiment_name}/RawData/",   # dir where spreadsheet script writes files for BEBE formatter
+    "formatted_data_root": f"{ROOT_DIR}/BEBE-datasets-phase2/{experiment_name}/FormatData",   # dir where BEBE formatted datasets live
 }
 
 if is_unix:
@@ -61,12 +61,19 @@ spreadsheets = {
 
 constants = {
     "INPUT_SAMPLE_RATE": 16,      # input from cougar collars is 16Hz
-    "OUTPUT_SAMPLE_RATE": 8,     # desired output (Hz) to feed into BEBE models (unused yet)
-    "PRE_KILL_WINDOW_MINS": 60,   # number of minutes to include in front of kill start
-    "PST_KILL_WINDOW_MINS": 60,   # number of minutes to include after kill start
+    "OUTPUT_SAMPLE_RATE": 4,     # desired output (Hz) to feed into BEBE models (unused yet)
+    "PRE_KILL_WINDOW_MINS": 30,   # number of minutes to include in front of kill start
+    "PST_KILL_WINDOW_MINS": 30,   # number of minutes to include after kill start
     "USE_NON_KILL": False,        # if True label everything that is not Stalk/Kill/Feed as NON_KILL; else label as unkown
 }
 
+beh_names = ['unknown', 
+             'STALK',
+             'KILL',
+             'KILL_PHASE2',
+             'FEED',
+             'NON_KILL',
+            ]
 
 """
 Configs for different data windows we may care about.
