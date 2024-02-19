@@ -45,11 +45,13 @@ Outputs -
 
 # Constants
 SAMPLING_RATE = 16  # Sampling rate in Hz
-MIN_STALK_DELAY = 2 * SAMPLING_RATE  # Minimum delay between stalk end and kill start in samples (2 seconds at 16Hz)
-MIN_STALK_TIME = 4 * SAMPLING_RATE  # Minimum stalking time in samples (4 seconds at 16Hz)
-MIN_KILL_TIME = 2 * SAMPLING_RATE  # Minimum kill time in samples (2 seconds at 16Hz)
-MAX_KILL_TIME = 15 * 60 * SAMPLING_RATE  # Maximum kill time in samples (15 minutes)
-MIN_FEED_DELTA = 15 * 60 * SAMPLING_RATE  # Minimum delay between kill and feed in samples (15 minutes)
+MIN_STALK_DELAY = 3 * SAMPLING_RATE  # Minimum delay between stalk end and kill start in samples (2 seconds at 16Hz) (allows for human labelling error)
+MIN_STALK_TIME = 5 * SAMPLING_RATE  # Minimum stalking time in samples (4 seconds at 16Hz)
+MIN_KILL_TIME = 3 * SAMPLING_RATE  # Minimum kill time in samples (2 seconds at 16Hz) (phase 1) (TODO maybe 3?)
+MIN_PHASE_2_TIME = 3 * SAMPLING_RATE
+# NOT NEEDED MAX_KILL_TIME = 15 * 60 * SAMPLING_RATE  # Maximum kill time in samples (15 minutes)
+# MIN_FEED_DELTA = 15 * 60 * SAMPLING_RATE  # Minimum delay between kill and feed in samples (15 minutes) (delay between end of PHASE 2 and start of FEED)
+MAX_FEED_DELTA = 15 * 60 * SAMPLING_RATE # max amount of time between end of PHASE 2 and start of Feeding
 MIN_FEED_DURATION = 2 * 60 * SAMPLING_RATE  # Minimum feeding duration in samples (2 minutes)
 
 def filter_model_predictions(prediction_csv, filtered_csv):
