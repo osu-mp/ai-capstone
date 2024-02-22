@@ -111,8 +111,6 @@ if (hour_high >= 24){{
     #hour_high -= 24
     #day_high = day_high + 1
 }}
-# added to file name
-file_desc = "_{plot_type}_{Kill_ID}"
 
 
 accel <- read.csv(csv_path, skip=1) # directory where daily accel files are stored
@@ -196,32 +194,6 @@ df <- data.frame(UTC, Xg, Yg, Zg) %>%
   filter(UTC >= time_low & UTC <= time_high)
 
 
-# time.text <- paste(lion.name, as.character(format(time_low, format = "%Y-%m-%d"), sep = " "))
-# fname_time <- paste(lion.name, as.character(format(time_low, format = "%Y-%m-%d__%H_%M_%S"), sep = " "))
-
-
-
-# p <- ggplot(data = df, aes(x = UTC)) +
-#   geom_line(aes(y = Yg, color = "Y axis")) +
-#   geom_line(aes(y = Xg, color = "X axis")) +
-#   geom_line(aes(y = Zg, color = "Z axis")) +
-#   geom_vline(xintercept=window_low, color="yellow", linewidth=1) +
-#   geom_vline(xintercept=window_high, color="yellow", linewidth=1) +
-#   labs(x = time.text, y = "Acceleration (g's)") +
-#   ylim(-0.3, 0.3) +
-#   scale_color_manual(values = c("Y axis" = "black", "X axis" = "red", "Z axis" = "blue")) +
-#   theme(axis.title.y = element_text(size = 18, color="black"),
-#         axis.title.x = element_text(size = 18, color="black"),
-#         axis.text.x = element_text(size = 12),  # Adjust x-axis text size
-#         panel.grid.major = element_line(color = "darkgray", size = 0.2),
-#         panel.grid.minor = element_line(color = "lightgray", size = 0.1),  # minor grid lines
-#         plot.background = element_rect(fill = "transparent", color = NA)
-#   ) +
-#   guides(color = guide_legend(title = "Axis"))
-
-
-# interval <- as.difftime(10, units = "secs")
-
 # START subplots
 
 df_long <- tidyr::gather(df, variable, value, -UTC)
@@ -286,10 +258,6 @@ p <- ggplot(data = df_long, aes(x = UTC, y = value, color = variable)) +
   guides(color = guide_legend(title = "Axis")) +
   facet_wrap(~ variable, scales = "free_y", ncol = 1)
 
-#p <- p +
-#  geom_vline(data = data.frame(xpos = c(window_high, window_low)),
-#             aes(xintercept = as.numeric(xpos)), color = "yellow", linetype = "dashed")
-
 # Plotting
 p <- ggplot(data = df_long, aes(x = UTC, y = value, color = variable)) +
   geom_line() +
@@ -307,56 +275,6 @@ p <- ggplot(data = df_long, aes(x = UTC, y = value, color = variable)) +
   guides(color = guide_legend(title = "Axis")) +
   facet_wrap(~variable, scales = "free_y", ncol = 1)
 
-
-
-# normal plots
-
-# Adding vertical lines and mapping them to linetype with a manual scale for legend
-# p <- p +
-#   geom_vline(
-#     data = data.frame(xpos = c(window_high, window_low), label = c("Original", "Low")),
-#     aes(xintercept = as.numeric(xpos), linetype = "Original"),
-#     color = "orange", alpha = 0.3
-#   ) +
-#   geom_vline(
-#     data = data.frame(xpos = c(cons_window_low), label = c("KillStart")),
-#     aes(xintercept = as.numeric(xpos), linetype = "KillStart"),
-#     color = "darkred", alpha = 0.8
-#   ) +
-#   geom_vline(
-#     data = data.frame(xpos = c(cons_window_high), label = c("Conservative")),
-#     aes(xintercept = as.numeric(xpos), linetype = "Conservative"),
-#     color = "green", alpha = 0.9
-#   ) +
-#   geom_vline(
-#     data = data.frame(xpos = c(lib_window_high), label = c("Liberal")),
-#     aes(xintercept = as.numeric(xpos), linetype = "Liberal"),
-#     color = "darkblue", alpha = 0.9
-#   ) +
-#   geom_vline(
-#     data = data.frame(xpos = c(stalk_window_start), label = c("StalkStart")),
-#     aes(xintercept = as.numeric(xpos), linetype = "StalkStart"),
-#     color = "yellow", alpha = 0.75
-#   ) +
-#   geom_vline(
-#     data = data.frame(xpos = c(marker_1), label = c("{marker_1_label}")),
-#     aes(xintercept = as.numeric(xpos), linetype = "{marker_1_label}"),
-#     color = "green", alpha = 0.75
-#   ) +
-#   scale_linetype_manual(
-#     name = "Surge Windows",
-#     values = c("Original" = "solid",
-#                 "KillStart" = "solid",
-#                 "Conservative" = "dashed", "Liberal" = "dashed", "StalkStart" = "solid",
-#                 "{marker_1_label}" = "solid"),
-#     labels = c("KillOrig", "KillStart", "KillEndPhase1", "KillEndPhase2", "StalkStart", "{marker_1_label}"),
-#     guide = guide_legend(
-#       override.aes = list(
-#         linetype = c("solid", "solid", "dashed", "dashed", "solid", "solid"),  # Assigning linetypes to Colby and Conservative
-#         color = c("orange", "darkred", "green", "darkblue", "yellow", "green")  # Assigning colors to Colby and Conservative in the legend
-#       )
-#     )
-#   )
 
 
 # Adding a separate legend for green triangles
@@ -416,6 +334,6 @@ p <- p +
     minor_breaks = minor_breaks
   )
 
-p
+#p
 ggsave(plot_name, plot=p)
 
