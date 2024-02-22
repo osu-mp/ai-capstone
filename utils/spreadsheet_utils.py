@@ -17,7 +17,7 @@ import time
 # get the project root as the parent of the parent directory of this file
 ROOT_DIR = str(Path(__file__).parent.parent.absolute())
 sys.path.append(ROOT_DIR)
-from utils.data_config import data_paths, spreadsheets, validate_config, view_configs, is_unix, plot_lines, constants
+from utils.data_config import data_paths, spreadsheets, validate_config, view_configs, is_unix, plot_lines, constants, beh_names
 
 # TODO: use logger
 # TODO: make command line args
@@ -26,9 +26,12 @@ from utils.data_config import data_paths, spreadsheets, validate_config, view_co
 launch = True
 verbose = False
 clear_plot_dir = True
-create_csvs = True
+create_csvs = False
 clear_csv_dir = True
 PRE_POST_WINDOW_HOURS = 1
+
+generate_kill_plots = False
+generate_info_plots = True
 
 def dump_tab(xls_path, sheet_name):
     # Get the current date
@@ -264,6 +267,17 @@ def identify_kills():
         print(f"\t{key}: {value * len(view_configs)}")
     return configs, expected_plots
 
+def parse_date(date_str):
+    try:
+        return pd.to_datetime(date_str, format='%Y-%m-%d %H:%M:%S')
+    except ValueError:
+        return pd.to_datetime(date_str, format='%m/%d/%Y')
+
+def parse_time(time_str):
+    try:
+        return datetime.strptime(time_str, '%H:%M:%S')
+    except:
+        return time_str # TODO
     
 def get_plot_info_entries():
     """
@@ -302,17 +316,25 @@ def get_plot_info_entries():
             # df["data_root"] = spreadsheets[spreadsheet]["tabs"][sheet]
             df_all = pd.concat([df_all, df], ignore_index=True)
 
-
+    df_all['Start Date'] = df_all['Start Date'].apply(parse_date)
+    for col in ['Start time', 'End time', 'MarkerTime1', 'MarkerLabel1', 'MarkerTime2']:
+        df_all[col] = df_all[col].apply(parse_time)
+    
     for index, row in df_all.iterrows():
+        generate = str(row['Generate'])
+        if generate.lower() != 'x':
+            continue
+
+        
         year = row['Start Date'].year
         month = row['Start Date'].month
         day = row['Start Date'].day
         hour = row['Start time'].hour
-        hour_high = row['End time'].hour
         window_low_min = row['Start time'].minute
+        hour_high = row['End time'].hour
         window_high_hour = row['End time'].hour
         window_high_min = row['End time'].minute
-        window_high_min = max(window_low_min + 1, window_high_min)      # ensure the window is at least 1 minute
+        # window_high_min = max(window_low_min + 1, window_high_min)      # ensure the window is at least 1 minute
 
         # if 'StartKill' not in row or pd.isnull(row['StartKill']):
         #     continue
@@ -345,13 +367,23 @@ def get_plot_info_entries():
         if lion_id not in spreadsheets[spreadsheet]["tabs"]:
             print(f"Lion {lion_id} in info sheet but not in config, skipping")
             continue
+
         lion_plot_root = get_lion_plot_window_dir(lion_id, main=True)        
         plot_label = f"{lion_id} - {row['Kill_ID']} - {row['PlotLabel']}"        
         plot_name = plot_date.strftime(f"%Y-%m-%d__%H_%M__{plot_label}")  # the R script will append config type/kill id and .png
         plot_name = plot_name.replace(' ', '_')
+
+        # if this row is labeled with a specific behavior, put its plot in a different dir
+        if not pd.isna(row['Labeled Behavior']):
+            # check the behavior is valid first
+            beh = row['Labeled Behavior']
+            if beh not in beh_names:
+                print(f"Invalid behavior {beh} for {kill_id=}")
+                continue
+            lion_plot_root = os.path.join(lion_plot_root, beh)
+            os.makedirs(lion_plot_root, exist_ok=True)
+
         lion_plot_path = os.path.join(lion_plot_root, f"{plot_name}.png")
-        
-        
 
         csv_folder = plot_date.strftime("%Y/%m %b/%d/")
         csv_name = plot_date.strftime("%Y-%m-%d.csv")
@@ -416,14 +448,15 @@ def get_plot_info_entries():
 
             "marker_info": get_marker_info(info_plot=True, marker_1_label=marker_1_label, marker_2_label=marker_2_label),
             "is_sixhour": "FALSE",
+            "plot_type": plot_label
         }
-        # configs.append(data)
+        configs.append(data)
         # expected_plots.add(data["lion_plot_path"])
 
-    # if missing_csvs:
-    #     print(f"WARNING: The following {len(missing_csvs)} CSVs were missing, will not be processed:")
-    #     for csv in missing_csvs:
-    #         print(f"\t{csv}")
+    if missing_csvs:
+        print(f"WARNING: The following {len(missing_csvs)} CSVs were missing, will not be processed:")
+        for csv in missing_csvs:
+            print(f"\t{csv}")
 
     # print("\nWe plan on generating this many plots per cat:")
     # for key, value in plot_counts.items():
@@ -431,12 +464,13 @@ def get_plot_info_entries():
     
     
         
+        
+    for data in configs:
         with open(template_path, "r") as template_file:
             template_content = template_file.read()
 
-        # for config in configs:
         #     # for key, value in view_configs.items():
-            data["plot_type"] = f"{plot_label}"
+        #     data["plot_type"] = f"{plot_label}"
             data["window_pre_mins"] = 0# value["window_pre_mins"]
             data["window_post_mins"] = 0# value["window_post_mins"]
             data["minor_tick_interval"] = 10 # TODO value["minor_tick_interval"]
@@ -444,12 +478,13 @@ def get_plot_info_entries():
             filled_template = filled_template.replace("\\", "/")
 
             out_fname = os.path.join(output_path, f"script_{data['lion_name']}_{data['plot_type']}_{data['Kill_ID']}_{plot_label}.r")
+            out_fname = out_fname.replace(" ", "_")
             with open(out_fname, "w") as output_file:
                 output_file.write(filled_template)
             if verbose:
                 print(f"Generated {out_fname}")
             generated_files.append(out_fname)
-            
+                
     print(f"\nGenerated {len(generated_files)} commands")
 
     
@@ -773,12 +808,18 @@ def main():
         create_csv_per_window(configs)
         print("STOPPING at labeled files generation for now")
         return
-    generated_scripts, expected_plots = generate_scripts(configs, expected_plots)
     
-    # info_scripts, info_expected_plots = get_plot_info_entries()
-    # generated_scripts.extend(info_scripts)
-    # for plot in info_expected_plots:
-    #     expected_plots.add(plot)
+    generated_scripts = []
+    expected_plots = set()
+
+    if generate_kill_plots:
+        generated_scripts, expected_plots = generate_scripts(configs, expected_plots)
+
+    if generate_info_plots:    
+        info_scripts, info_expected_plots = get_plot_info_entries()
+        generated_scripts.extend(info_scripts)
+        for plot in info_expected_plots:
+            expected_plots.add(plot)
     
     if launch:
         if clear_plot_dir:
@@ -821,6 +862,7 @@ def main():
 
         # check expected plots
         generated_plots = glob.glob(os.path.join(data_paths["plot_root"], "*/*/*.png"))
+        generated_plots += glob.glob(os.path.join(data_paths["plot_root"], "*/*.png"))
         for plot in list(expected_plots):
             for generated_plot in generated_plots:
                 if plot in generated_plot:

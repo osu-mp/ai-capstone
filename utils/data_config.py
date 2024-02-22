@@ -41,21 +41,23 @@ Each root key represents a spreadsheet file (relative to spreadsheet_root)
 spreadsheets = {
     "Cougars_ODBA_Kills_Setup.xlsx": {
         "tabs": {
-            # "M201": f"{csv_root}/M201_20170_020116_120116/MotionData_0/",
+            "M201": f"{csv_root}/M201_20170_020116_120116/MotionData_0/",
             "F202": f"{csv_root}/F202_27905_010518_072219/MotionData_27905",
-            # "F207": f"{csv_root}/F207_22263_030117_012919/MotionData_0",
-            # "F209": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
+            "F207": f"{csv_root}/F207_22263_030117_012919/MotionData_0",
+            "F209": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
 
             # some data, but all unlabeled at this point (info plots only)
             # "F210": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
             # "F212": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
-            # "F222": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
-            # "F222": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
+            "M211": f"{csv_root}/M211_combined_csvs/MotionData_40112/",
+            "M220": f"{csv_root}/F222_32664_/MotionData_32664/",
+            "F222": f"{csv_root}/F222_32664_/MotionData_32664/",
+            "F223": f"{csv_root}/F223_32665_012320_030122/MotionData_32665/",
         },
         "data_cols": ["AnimalID", "Sex", "Period", "Kill_ID", "Start Date", "Start time", "End Time", "StartStalk", "StartKill", "EndCons", "EndLib", "FeedStart", "FeedStop"],
 
-        "data_cols_info": ["AnimalID", "Sex", "Kill_ID", "Start Date", "Start time", "End time", 
-                           "MarkerTime1", "MarkerLabel1", "MarkerTime2",  "MarkerLabel2","PlotLabel"]
+        "data_cols_info": ["Generate", "AnimalID", "Sex", "Kill_ID", "Start Date", "Start time", "End time", 
+                           "MarkerTime1", "MarkerLabel1", "MarkerTime2",  "MarkerLabel2","PlotLabel", "Labeled Behavior"]
     }
 }
 
@@ -73,6 +75,7 @@ beh_names = ['unknown',
              'KILL_PHASE2',
              'FEED',
              'NON_KILL',
+             'WALK',
             ]
 
 """
