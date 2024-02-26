@@ -877,6 +877,102 @@ def main():
             print("SUCCESS: All expected plots appear to be generated!")
 
 
+def get_motion_data(data_root, start_date, start_time, end_time=None, duration=None, start_offset=None, sample_rate=16,
+                    out_fp=None):
+    """
+    Helper function to extract motion data from root directory
+    :param data_root: Path to cat's data root (contents should have <year>/<month>/<day>/<day>.csv)
+    Data will be returned in a pandas dataframe format
+    :param start_date: Starting day to collect data
+    :param start_time: Time to start collection data
+    :param end_time: Optional end time (must specify duration if no end_time)
+    :param duration: Optional duration (minutes) of window
+    :param start_offset: Optional number of minutes to extend window earlier
+    :param sample_rate: Number of samples per second to return data in
+    :param out_fp: Optional path to csv file where to write data
+    :return:
+    """
+    # Convert start_date and start_time to datetime object
+    start_datetime = datetime.combine(start_date, start_time)
+
+    # Calculate end_datetime based on duration or end_time
+    if duration is not None:
+        end_datetime = start_datetime + timedelta(minutes=duration)
+        end_time = end_datetime.time()
+    elif end_time is not None:
+        end_datetime = datetime.combine(start_date, end_time)
+    else:
+        raise ValueError("Either end_time or duration must be provided")
+
+    # Apply start_offset if provided (do this after figuring out end time)
+    if start_offset is not None:
+        start_datetime -= timedelta(minutes=start_offset)
+        start_time = start_datetime.time()
+
+    # Handle case when start_datetime moves to previous day
+    if start_datetime < datetime.combine(start_date, datetime.min.time()):
+        start_date -= timedelta(days=1)
+
+    # Construct path to CSV file
+    csv_path = os.path.join(data_root, str(start_date.year), start_date.strftime('%m %b'), str(start_date.day).zfill(2),
+                            start_date.strftime('%Y-%m-%d.csv'))
+
+    # Read CSV file
+    df = pd.read_csv(csv_path, skiprows=1)
+
+    # Convert 'UTC DateTime' column to datetime
+    # Assuming df['UTC DateTime'] contains the datetime strings
+    df['datetime'] = pd.to_datetime(df['UTC DateTime'], format='%H:%M:%S')
+
+    # Filter data based on start and end time
+    # if end_datetime >= start_datetime:  # Same day filtering
+    #     df = df[(df['datetime'].dt.time >= start_time) & (df['datetime'].dt.time <= end_time)]
+    # else:  # Cross-day filtering
+    #     df = df[((df['datetime'].dt.time >= start_time) | (df['datetime'].dt.date > start_date)) | (
+    #                 df['datetime'].dt.time <= end_time)]
+
+    # Create synthetic date by combining today's date with the time from 'UTC DateTime'
+    df['UTC DateTime'] = pd.to_datetime(datetime.now().strftime('%Y-%m-%d') + ' ' + df['UTC DateTime'])
+    # Convert 'UTC DateTime' column to datetime with milliseconds
+    # df['UTC DateTime'] = pd.to_datetime(df['UTC DateTime'], format='%H:%M:%S')
+
+    # Filter data based on start and end time
+    # df = df[(df['UTC DateTime'] >= start_datetime) & (df['UTC DateTime'] <= end_datetime)]
+
+    # # Filter data based on start and end time
+    # df['UTC DateTime'] = pd.to_datetime(df['UTC DateTime'])
+    # df = df[(df['UTC DateTime'] >= start_datetime) & (df['UTC DateTime'] <= end_datetime)]
+
+    # specific_day = f"{config['year']:04d}-{config['month']:02d}-{config['day']:02d}"
+    # # Convert 'timestamp' column from string to datetime format
+    # df['UTC DateTime'] = df['UTC DateTime'].astype(str)
+    # df['UTC DateTime'] = pd.to_datetime(specific_day + ' ' + df['UTC DateTime'])  # , format='%H:%M:%S')
+
+    # Write data to output CSV file if out_fp is provided
+    if out_fp is not None:
+        df.to_csv(out_fp, index=False)
+
+    # Print debug information
+    print("Start Date:", start_date)
+    print("Start Time:", start_time)
+    print("End Time:", end_time)
+    print("Start Datetime:", start_datetime)
+    print("End Datetime:", end_datetime)
+    print("Data Start Datetime:", df['UTC DateTime'].min())
+    print("Data End Datetime:", df['UTC DateTime'].max())
+
+    # Filter data based on start and end time
+    if end_datetime >= start_datetime:  # Same day filtering
+        df = df[(df['datetime'].dt.time >= start_time) & (df['datetime'].dt.time <= end_time)]
+    else:  # Cross-day filtering
+        df = df[((df['datetime'].dt.time >= start_time) | (df['datetime'].dt.date > start_date)) | (
+                    df['datetime'].dt.time <= end_time)]
+
+    print("Filtered Data Start Datetime:", df['datetime'].min())
+    print("Filtered Data End Datetime:", df['datetime'].max())
+
+    return df
+
 
 if __name__ == '__main__':
     main()
