@@ -12,7 +12,7 @@ if is_unix:
     csv_root = "/home/matthew/AI_Capstone/accel_data/cougars"
 
 
-experiment_name = "F202_15sample_4hz_1hr"
+experiment_name = "F202_15sample_8hz_1hr_WALK"
 
 """
 Various disk paths for where to read and write data
@@ -63,7 +63,7 @@ spreadsheets = {
 
 constants = {
     "INPUT_SAMPLE_RATE": 16,      # input from cougar collars is 16Hz
-    "OUTPUT_SAMPLE_RATE": 4,     # desired output (Hz) to feed into BEBE models (unused yet)
+    "OUTPUT_SAMPLE_RATE": 8,     # desired output (Hz) to feed into BEBE models (unused yet)
     "PRE_KILL_WINDOW_MINS": 30,   # number of minutes to include in front of kill start
     "PST_KILL_WINDOW_MINS": 30,   # number of minutes to include after kill start
     "USE_NON_KILL": False,        # if True label everything that is not Stalk/Kill/Feed as NON_KILL; else label as unkown

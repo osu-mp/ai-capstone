@@ -26,7 +26,7 @@ from utils.data_config import data_paths, spreadsheets, validate_config, view_co
 launch = True
 verbose = False
 clear_plot_dir = True
-create_csvs = False
+create_csvs = True
 clear_csv_dir = True
 PRE_POST_WINDOW_HOURS = 1
 
@@ -293,6 +293,7 @@ def get_plot_info_entries():
     generated_files = []
     template_path = os.path.abspath(data_paths["template_path"])
     output_path = os.path.abspath(data_paths["output_path"])
+    beh_configs = defaultdict(list)
 
     for spreadsheet in spreadsheets:
         path = os.path.join(spreadsheet_root, spreadsheet)
@@ -374,6 +375,8 @@ def get_plot_info_entries():
         plot_name = plot_name.replace(' ', '_')
 
         # if this row is labeled with a specific behavior, put its plot in a different dir
+        add_to_beh_configs = False
+        beh = "unknown"
         if not pd.isna(row['Labeled Behavior']):
             # check the behavior is valid first
             beh = row['Labeled Behavior']
@@ -382,6 +385,7 @@ def get_plot_info_entries():
                 continue
             lion_plot_root = os.path.join(lion_plot_root, beh)
             os.makedirs(lion_plot_root, exist_ok=True)
+            add_to_beh_configs = True
 
         lion_plot_path = os.path.join(lion_plot_root, f"{plot_name}.png")
 
@@ -399,6 +403,7 @@ def get_plot_info_entries():
         plot_counts[lion_id] += 1
         data = {
             "lion_name": f"{lion_id}",
+            "lion_id": lion_id,
             "window_low_min": window_low_min,
             "window_high_min": window_high_min,
             "info_view": True,
@@ -446,11 +451,18 @@ def get_plot_info_entries():
             "lion_plot_path": lion_plot_path,
             "csv_path": csv_path,
 
+            "beh_start": datetime(year, month, day, marker_1_hour, marker_1_min, marker_1_sec),
+            "beh_end": datetime(year, month, day, marker_2_hour, marker_2_min, marker_2_sec),
+
             "marker_info": get_marker_info(info_plot=True, marker_1_label=marker_1_label, marker_2_label=marker_2_label),
             "is_sixhour": "FALSE",
-            "plot_type": plot_label
+            "plot_type": plot_label,
+            "behavior": beh,
         }
         configs.append(data)
+
+        if add_to_beh_configs:
+            beh_configs[beh].append(data)
         # expected_plots.add(data["lion_plot_path"])
 
     if missing_csvs:
@@ -492,7 +504,7 @@ def get_plot_info_entries():
     #     for key in view_configs.keys():
     #         all_expected_plots.add(f"{expected_plot}_{key}")
 
-    return generated_files, expected_plots
+    return generated_files, expected_plots, beh_configs
 
 
 def get_vline_info(key_name, legend_title):
@@ -695,6 +707,23 @@ def categorize(row, config):
     except Exception as e:
         print(f"Error at time {row['UTC DateTime']=}")
         raise e
+
+def categorize_beh(row, config, beh):
+    """
+    Label the behavior in the row using the start/end windows set in the ODBA spreadsheet.
+    This particular routine is used for single behaviors (from InfoPlots tab)
+    """
+    try:
+        if config["beh_start"] <= row['UTC DateTime'] < config["beh_end"]:
+            return beh
+        else:
+            if constants["USE_NON_KILL"]:
+                return "NON_KILL"
+            else:
+                return "unknown"
+    except Exception as e:
+        print(f"Error at time {row['UTC DateTime']=}")
+        raise e
     
 def create_csv_per_window(configs):
     # if True:
@@ -801,13 +830,108 @@ def create_csv_per_window(configs):
     print(f"Generated {len(generated_files)} csvs in {raw_data_root}")
 
 
+def create_behavior_csvs(beh_configs):
+    """
+    Use entries from the InfoPlots tabs to label windows of single behaviors
+    E.g. WALK behavior as identified by trailcams
+    :param beh_configs:
+    :return:
+    """
+    raw_data_root = data_paths["raw_data_root"]
+    alternate_ids = defaultdict(bool)  # hack to "create" more users by splitting each user in half
+    alt_ids_idx = 0
+
+    input_sr = constants['INPUT_SAMPLE_RATE']
+    output_sr = constants['OUTPUT_SAMPLE_RATE']
+    if input_sr != output_sr:
+        samples_to_aggregate = input_sr // output_sr
+        print(f"Aggregating {samples_to_aggregate} into 1 (reducing sample rate from {input_sr} Hz to {output_sr} Hz)")
+
+    # TODO: we should be able to reuse this for WALK, right?
+    window_pre_mins = constants["PRE_KILL_WINDOW_MINS"]
+    window_pst_mins = constants["PST_KILL_WINDOW_MINS"]
+
+    generated_files = []
+    for beh in beh_configs:
+        for config in beh_configs[beh]:
+            # for field in config:
+            #     print(f"{field=}, {config[field]}")
+
+            # for each lion, we will add a 0 or 1 to its id (alternating each kill)
+            # this will create the illusion of more lions (so that we will have enough to do 5-fold validation)
+            # i.e. F207 becomes 2070 and 2071 (need to drop the M/F so that BEBE can process as int)
+            lion_id = config['lion_id'][1:]
+
+            # each lion is given two ids
+            # alternate_ids[lion_id] = not alternate_ids[lion_id]
+            # if alternate_ids[lion_id]:
+            #     lion_id += "0"
+            # else:
+            #     lion_id += "1"
+
+            # each lion is given a uniuqe id
+            lion_id += str(alt_ids_idx)
+            alt_ids_idx += 1
+
+            input_csv = config['csv_path']
+            df = pd.read_csv(input_csv, skiprows=1)
+
+            specific_day = f"{config['year']:04d}-{config['month']:02d}-{config['day']:02d}"
+            # Convert 'timestamp' column from string to datetime format
+            df['UTC DateTime'] = df['UTC DateTime'].astype(str)
+            df['UTC DateTime'] = pd.to_datetime(specific_day + ' ' + df['UTC DateTime'])  # , format='%H:%M:%S')
+
+            start_timestamp = (config["beh_start"] - timedelta(minutes=window_pre_mins))
+            end_timestamp = (config["beh_end"] + timedelta(minutes=window_pst_mins))
+
+            # TODO: this code cuts off the end of the window at midnight
+            # this is because the accel csv files are of single days
+            # a future improvement will be to combine the two csvs into one frame
+
+            # the data_config allows users to downsample the data
+            if input_sr != output_sr:
+                samples_to_aggregate = input_sr // output_sr
+                df = df.groupby(df.index // samples_to_aggregate).mean()
+
+            # Get the end of the current day (midnight of the next day)
+            end_of_day = datetime(start_timestamp.year, start_timestamp.month, start_timestamp.day) + timedelta(days=1)
+
+            # Compare and choose the earlier timestamp
+            final_end_timestamp = min(end_timestamp, end_of_day)
+
+            # Format the timestamp
+            # end_timestamp = final_end_timestamp.strftime("%I:%M:%S %p")
+
+            # Filter DataFrame based on the timestamp range
+            if PRE_POST_WINDOW_HOURS != 24:
+                df = df[(df['UTC DateTime'] >= start_timestamp) & (df['UTC DateTime'] <= end_timestamp)]
+
+            # add the behavior label using the windows set in ODBA spreadsheet
+            df['Category'] = df.apply(lambda row: categorize_beh(row, config, beh), axis=1)
+
+            # export only the accel data and label (leave out timestamp)
+            export_cols = ['Acc X [g]', 'Acc Y [g]', 'Acc Z [g]', 'Category']
+
+            # Save the DataFrame to a CSV file
+            # only use the lion number (remove the sex)
+            # output_csv = os.path.join(raw_data_root, f"acc_exp{config['Kill_ID']}{PRE_POST_WINDOW_HOURS}_user{lion_id}.txt",)# '/home/matthew/AI_Capstone/ai-capstone/data/labeled_windows/F202_kill.csv'
+            output_csv = os.path.join(raw_data_root, f"acc_exp{int(config['Kill_ID'])}_user{lion_id}.csv", )
+            # df.to_csv(output_csv, index=False)  # Set index=False to avoid saving row numbers as a column
+            df.to_csv(output_csv, index=False,
+                      columns=export_cols)  # Set index=False to avoid saving row numbers as a column
+            generated_files.append(output_csv)
+
+    print(f"Generated {len(generated_files)} csvs in {raw_data_root}")
+
+
+
 def main():
     validate_config()
     configs, expected_plots = identify_kills()
     if create_csvs:
         create_csv_per_window(configs)
-        print("STOPPING at labeled files generation for now")
-        return
+        # print("STOPPING at labeled files generation for now")
+        # return
     
     generated_scripts = []
     expected_plots = set()
@@ -816,11 +940,14 @@ def main():
         generated_scripts, expected_plots = generate_scripts(configs, expected_plots)
 
     if generate_info_plots:    
-        info_scripts, info_expected_plots = get_plot_info_entries()
+        info_scripts, info_expected_plots, beh_configs = get_plot_info_entries()
         generated_scripts.extend(info_scripts)
         for plot in info_expected_plots:
             expected_plots.add(plot)
-    
+
+        if create_csvs:
+            create_behavior_csvs(beh_configs)
+
     if launch:
         if clear_plot_dir:
             plot_root = data_paths["plot_root"]

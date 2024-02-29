@@ -14,12 +14,11 @@ import sys
 # get the project root as the parent of the parent directory of this file
 ROOT_DIR = str(Path(__file__).parent.parent.absolute())
 sys.path.append(ROOT_DIR)
-from utils.data_config import data_paths, constants
+from utils.data_config import data_paths, constants, beh_names
 
 raw_data_root = Path(data_paths["raw_data_root"])
 raw_data_dir = str(raw_data_root.parent)
 formatted_data_dir = data_paths["formatted_data_root"]
-
 
 # %% [markdown]
 # ## Outputs:
@@ -164,13 +163,6 @@ dataset_metadata['clip_ids_per_fold'] = clip_ids_per_fold
 ## Integer codes for specific behaviors
 
 # list of behaviors, see activity_labels.txt
-beh_names = ['unknown', 
-             'STALK',
-             'KILL',
-             'KILL_PHASE2',
-             'FEED',
-             'NON_KILL',
-            ]
 
 dataset_metadata['label_names'] = beh_names
 

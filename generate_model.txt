@@ -1,0 +1,9 @@
+# general steps to train a model
+conda activate ai_capstone
+python spreadsheet_utils.py
+conda activate BEBE_GPU
+python utils/BEBE_format_cougar.py
+
+export MODEL=CRNN
+export EXP=F202_15sample_8hz_1hr_WALK
+python cross_val_experiment.py --experiment-dir-parent=/home/matthew/AI_Capstone/ai-capstone/BEBE_results-phase2/$MODEL/$EXP --experiment-name=${EXP}_${MODEL} --dataset-dir=/home/matthew/AI_Capstone/ai-capstone/BEBE-datasets-phase2/$EXP/FormatData --model $MODEL
