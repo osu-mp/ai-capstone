@@ -18,7 +18,7 @@ import time
 ROOT_DIR = str(Path(__file__).parent.parent.absolute())
 sys.path.append(ROOT_DIR)
 from utils.data_config import data_paths, spreadsheets, validate_config, view_configs, is_unix, plot_lines, constants, beh_names
-
+from utils.visualization import plot_data
 # TODO: use logger
 # TODO: make command line args
 
@@ -30,7 +30,7 @@ create_csvs = True
 clear_csv_dir = True
 PRE_POST_WINDOW_HOURS = 1
 
-generate_kill_plots = False
+generate_kill_plots = True
 generate_info_plots = True
 
 def dump_tab(xls_path, sheet_name):
@@ -103,7 +103,6 @@ def create_data_from_row(row, missing_csvs, expected_plots, plot_counts):
     feed_stop_hour = row['FeedStop'].hour
     feed_stop_min = row['FeedStop'].minute
     feed_stop_sec = row['FeedStop'].second
-    
 
     plot_date = datetime(year=year, month=month, day=day, hour=hour, minute=window_low_min)
 
@@ -565,7 +564,41 @@ def run_r_script(script_name):
     r_path = os.path.abspath(data_paths["r_path"])
     with open(output_file, 'w') as f:
         subprocess.run([r_path, script_name], stdout=f, stderr=subprocess.STDOUT, check=True)
-    
+
+def generate_plot_configs(configs, expected_plots):
+    """
+    Generate a list of configs that will be passed into plot_data. Each config represents a different
+    view type (stalk, kill, feed) for a given time window (from the ODBA spreadsheet).
+    The plotting takes a little time, so just build the config here and call the plotting elsewhere in parallel.
+    Build a dict of each ODBA entry to combine images from each kill into a single combined plot.
+
+    :param configs: list of entries from ODBA spreadsheet
+    :param expected_plots: set of expected PNG file paths (we will add expected images to this)
+    :return: List of plot configs to pass into plot_data and groups of images
+    """
+    plot_configs = []
+    combined_img_groups = []
+
+    for config in configs:
+        combined_imgs = {}
+        for key, value in view_configs.items():
+            # lazy setup above, need to create copy of config for PLOTTYPE overwrite to work properly
+            copied_cfg = copy.deepcopy(config)
+            copied_cfg["plot_type"] = key
+            copied_cfg["lion_plot_path"] = copied_cfg["lion_plot_path"].replace("PLOTTYPE", key)
+            copied_cfg["window_pre_mins"] = value["window_pre_mins"]
+            copied_cfg["window_post_mins"] = value["window_post_mins"]
+            copied_cfg["minor_tick_interval"] = value["minor_tick_interval"]
+            copied_cfg["is_sixhour"] = str(key == "sixhour").upper()
+
+            # add the config to the running list (along with expected filename)
+            plot_configs.append(copied_cfg)
+            expected_plots.add(copied_cfg["lion_plot_path"])
+            combined_imgs[key] = copied_cfg["lion_plot_path"]
+
+        combined_img_groups.append(combined_imgs)
+
+    return plot_configs, combined_img_groups
 
 def generate_scripts(configs, expected_plots):
     """
@@ -644,6 +677,29 @@ def combine_images(paths, new_name):
 
     # Save the combined image
     combined_image.save(new_name)
+
+def make_combined_imgs(img_groups):
+    """
+    For each kill, make a combined image of the various time windows into a single image
+    Create this combined image in the parent directory
+    :param img_groups:
+    :return:
+    """
+    for group in img_groups:
+        path0 = group['stalking']
+        path1 = group['killing']
+        path2 = group['feeding']
+        new_name = path1.replace('killing', 'combined')
+        image_paths = [path0, path1, path2]
+        combine_images(image_paths, new_name)
+        if os.path.isfile(new_name):
+            # move mega plots up one dr
+            directory_containing_file = os.path.dirname(new_name)
+            parent_directory = os.path.dirname(directory_containing_file)
+            new_file_path = os.path.join(parent_directory, os.path.basename(new_name))
+
+            # Move the file to the parent dir
+            shutil.move(new_name, new_file_path)
 
 def make_mega_plots(root, expected_plots):
     """
@@ -924,6 +980,22 @@ def create_behavior_csvs(beh_configs):
     print(f"Generated {len(generated_files)} csvs in {raw_data_root}")
 
 
+def plot_data_parallel(configs):
+    """
+    For each plot_data config, run in a separate process and plot the data (can be parallelized)
+    :param configs:
+    :return:
+    """
+    # Create a multiprocessing pool
+    pool = multiprocessing.Pool()
+
+    # Map the plot_data function to each config in parallel
+    pool.map(plot_data, configs)
+
+    # Close the pool to free up resources
+    pool.close()
+    pool.join()
+
 
 def main():
     validate_config()
@@ -937,7 +1009,8 @@ def main():
     expected_plots = set()
 
     if generate_kill_plots:
-        generated_scripts, expected_plots = generate_scripts(configs, expected_plots)
+        # generated_scripts, expected_plots = generate_scripts(configs, expected_plots)
+        plot_configs, combined_img_groups = generate_plot_configs(configs, expected_plots)
 
     if generate_info_plots:    
         info_scripts, info_expected_plots, beh_configs = get_plot_info_entries()
@@ -965,19 +1038,20 @@ def main():
 
         start = time.time()
         
-        max_processes = get_optimal_processes()  # Adjust this based on your system's capacity
-        # Using ThreadPoolExecutor to run the scripts in parallel
-        with concurrent.futures.ThreadPoolExecutor(max_workers=max_processes) as executor:
-            # Submit each script to the executor
-            # TODO: use generated scripts instead of updated scripts
-            futures = [executor.submit(run_r_script, script) for script in generated_scripts]
-
-            # Wait for all scripts to complete
-            for future in concurrent.futures.as_completed(futures):
-                try:
-                    future.result()
-                except Exception as e:
-                    print(f"Error occurred: {e}")
+        # max_processes = get_optimal_processes()  # Adjust this based on your system's capacity
+        # # Using ThreadPoolExecutor to run the scripts in parallel
+        # with concurrent.futures.ThreadPoolExecutor(max_workers=max_processes) as executor:
+        #     # Submit each script to the executor
+        #     # TODO: use generated scripts instead of updated scripts
+        #     futures = [executor.submit(run_r_script, script) for script in generated_scripts]
+        #
+        #     # Wait for all scripts to complete
+        #     for future in concurrent.futures.as_completed(futures):
+        #         try:
+        #             future.result()
+        #         except Exception as e:
+        #             print(f"Error occurred: {e}")
+        plot_data_parallel(plot_configs)
 
         runtime = time.time() - start
         if len(expected_plots):
@@ -985,7 +1059,8 @@ def main():
         
             print(f"Average time per run: {runtime/len(expected_plots):2.2f} seconds")
 
-        make_mega_plots(data_paths["plot_root"], expected_plots)
+        # make_mega_plots(data_paths["plot_root"], expected_plots)
+        make_combined_imgs(combined_img_groups)
 
         # check expected plots
         generated_plots = glob.glob(os.path.join(data_paths["plot_root"], "*/*/*.png"))
