@@ -33,6 +33,10 @@ PRE_POST_WINDOW_HOURS = 1
 generate_kill_plots = True
 generate_info_plots = True
 
+# if True then feeding behavior from the kill entries (where we see STALK,KILL,FEED)
+# if False, this data will not be used (we will only use FEED beh from info tab)
+include_feed_beh_from_windows = False
+
 def dump_tab(xls_path, sheet_name):
     # Get the current date
     current_date = datetime.now()
@@ -739,7 +743,7 @@ def get_optimal_processes():
     return optimal_processes
 
 # Define a function that categorizes each row
-def categorize(row, config):    
+def categorize(row, config):
     """
     Label the behavior in the row using the start/end windows set in the ODBA spreadsheet.
     """
@@ -754,7 +758,13 @@ def categorize(row, config):
         # elif config["df_kill_phase2_end"] <= row['UTC DateTime'] < config["df_feed_start"]:
         #     return "NON_KILL"
         elif config["df_feed_start"] <= row['UTC DateTime'] < config["df_feed_stop"]:
-            return "FEED"
+            # originally we labeled FEED behavior from identified kills, but this was quite speculative
+            # we later got trail cam footage of cats feeding on kill and have used this (in info tab)
+            # we will use only the trail cam labels unless include_feed_beh_from_windows is True
+            if include_feed_beh_from_windows:
+                return "FEED"
+            else:
+                return "unkown"
         else:
             if constants["USE_NON_KILL"]:
                 return "NON_KILL"

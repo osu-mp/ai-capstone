@@ -71,7 +71,7 @@ def plot_data(config):
         (pd.to_datetime(accel['UTC DateTime']) >= time_low) & (pd.to_datetime(accel['UTC DateTime']) <= time_high)]
 
     # Convert infinite values to NaN
-    df.replace([np.inf, -np.inf], np.nan, inplace=True)
+    df = df.replace([np.inf, -np.inf], np.nan)
 
     # Plot
     sns.set_style("whitegrid")

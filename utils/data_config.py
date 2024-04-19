@@ -4,6 +4,8 @@ import platform
 
 # get the project root as the parent of the parent directory of this file
 ROOT_DIR = Path(__file__).parent.parent.absolute()
+ROOT_PARENT = Path(ROOT_DIR).parent
+OUTPUT_DIR = os.path.join(ROOT_PARENT, "output")
 
 is_unix = 'Linux' in platform.system()
 
@@ -11,8 +13,15 @@ csv_root = "C:/accel_data/cougars"
 if is_unix:
     csv_root = "/home/matthew/AI_Capstone/accel_data/cougars"
 
+constants = {
+    "INPUT_SAMPLE_RATE": 16,      # input from cougar collars is 16Hz
+    "OUTPUT_SAMPLE_RATE": 8,     # desired output (Hz) to feed into BEBE models (unused yet)
+    "PRE_KILL_WINDOW_MINS": 30,   # number of minutes to include in front of kill start
+    "PST_KILL_WINDOW_MINS": 30,   # number of minutes to include after kill start
+    "USE_NON_KILL": False,        # if True label everything that is not Stalk/Kill/Feed as NON_KILL; else label as unkown
+}
 
-experiment_name = "F202_15sample_8hz_1hr_WALK"
+experiment_name = f"cam_feeding_{constants['OUTPUT_SAMPLE_RATE']}_hz"
 
 """
 Various disk paths for where to read and write data
@@ -23,9 +32,9 @@ data_paths = {
     "template_path": f"{ROOT_DIR}/rcode/template.r",
     "output_path": f"{ROOT_DIR}/rcode/jobs/",
     "r_path": "C:\\Program Files\\R\\R-4.3.1\\bin\\Rscript.exe",
-    "plot_root": f"{ROOT_DIR}/plots/",
-    "raw_data_root": f"{ROOT_DIR}/BEBE-datasets-phase2/{experiment_name}/RawData/",   # dir where spreadsheet script writes files for BEBE formatter
-    "formatted_data_root": f"{ROOT_DIR}/BEBE-datasets-phase2/{experiment_name}/FormatData",   # dir where BEBE formatted datasets live
+    "plot_root": f"{OUTPUT_DIR}/plots/",
+    "raw_data_root": f"{OUTPUT_DIR}/BEBE-datasets/{experiment_name}/RawData/",   # dir where spreadsheet script writes files for BEBE formatter
+    "formatted_data_root": f"{ROOT_DIR}/BEBE-datasets-walk/{experiment_name}/FormatData",   # dir where BEBE formatted datasets live
 }
 
 if is_unix:
@@ -45,7 +54,7 @@ spreadsheets = {
             "F202": f"{csv_root}/F202_27905_010518_072219/MotionData_27905",
             "F207": f"{csv_root}/F207_22263_030117_012919/MotionData_0",
             "F209": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
-
+            "F210": f"{csv_root}/F210_22265_011418_121819/MotionData_22265/",
             # some data, but all unlabeled at this point (info plots only)
             # "F210": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
             # "F212": f"{csv_root}/F209_22262_030717_032819/MotionData_22262/",
@@ -61,21 +70,15 @@ spreadsheets = {
     }
 }
 
-constants = {
-    "INPUT_SAMPLE_RATE": 16,      # input from cougar collars is 16Hz
-    "OUTPUT_SAMPLE_RATE": 8,     # desired output (Hz) to feed into BEBE models (unused yet)
-    "PRE_KILL_WINDOW_MINS": 30,   # number of minutes to include in front of kill start
-    "PST_KILL_WINDOW_MINS": 30,   # number of minutes to include after kill start
-    "USE_NON_KILL": False,        # if True label everything that is not Stalk/Kill/Feed as NON_KILL; else label as unkown
-}
+
 
 beh_names = ['unknown', 
              'STALK',
              'KILL',
              'KILL_PHASE2',
              'FEED',
-             'NON_KILL',
              'WALK',
+             #'NON_KILL',
             ]
 
 """
@@ -104,17 +107,17 @@ view_configs = {
     },
     
     # day: several hours before and after (will not cross days yet)
-    "day": {
-        "window_pre_mins": 24*60,
-        "window_post_mins": 24*60,
-        "minor_tick_interval": 60 * 60,     # every hour
-    },
+    # "day": {
+    #     "window_pre_mins": 24*60,
+    #     "window_post_mins": 24*60,
+    #     "minor_tick_interval": 60 * 60,     # every hour
+    # },
     # sixhour: shorter than day window, still wide window
-    "sixhour": {
-        "window_pre_mins": 6 * 60,
-        "window_post_mins": 6 * 60,
-        "minor_tick_interval": 60 * 60,     # every hour
-    }
+    # "sixhour": {
+    #     "window_pre_mins": 6 * 60,
+    #     "window_post_mins": 6 * 60,
+    #     "minor_tick_interval": 60 * 60,     # every hour
+    # }
 }
 
 plot_lines = {
@@ -149,6 +152,9 @@ def validate_config():
     os.makedirs(data_paths["output_path"], exist_ok=True)
     assert(os.access(data_paths["output_path"], os.W_OK)), f"Unable to write to output dir: {data_paths['output_path']}"
     assert(os.access(data_paths["r_path"], os.X_OK)), "Unable to find/execute R"
+
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    assert(os.access(OUTPUT_DIR, os.W_OK)), "Unable to write to output dir"
 
     os.makedirs(data_paths["plot_root"], exist_ok=True) # "Unable to make plot root dir"
     assert(os.access(data_paths["plot_root"], os.W_OK)), "Unable to write to plot dir"
