@@ -111,6 +111,8 @@ def process_csv_files(root_dir, output_csv_path, info_csv_path, pre_window_minut
             'End time': stop_time,
             'MarkerTime1': start_time,
             'MarkerLabel1': 'Trailcam Start',
+            'MarkerTime2': stop_time,
+            'MarkerLabel2': f'Window Stop ({post_window_minutes} mins)',
             'PlotLabel': f'Feeding for {kill_id=}',
             'Labeled Behavior': f'FEED',
         },
@@ -129,5 +131,5 @@ if __name__ == "__main__":
     info_csv_path = os.path.join(root_directory, "info_plots.csv")
 
     pre_window_minutes = 0
-    post_window_minutes = 5
+    post_window_minutes = 20
     process_csv_files(data_dir, output_csv_path, info_csv_path, pre_window_minutes, post_window_minutes)
