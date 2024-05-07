@@ -22,7 +22,6 @@ from utils.visualization import plot_data
 # TODO: use logger
 # TODO: make command line args
 
-# TODO: make yellow transpare
 launch = True
 verbose = False
 clear_plot_dir = True
@@ -294,7 +293,6 @@ def get_plot_info_entries(plot_configs):
     missing_csvs = set()
     plot_counts = defaultdict(int)
     generated_files = []
-    output_path = os.path.abspath(data_paths["output_path"])
     beh_configs = defaultdict(list)
 
     for spreadsheet in spreadsheets:
@@ -409,40 +407,8 @@ def get_plot_info_entries(plot_configs):
             "window_low_min": window_low_min,
             "window_high_min": window_high_min,
             "info_view": True,
-            # TODO : can this be simplified?
-            "cons_window_low_hour": 0, #cons_window_low_hour,
-            "cons_window_low_min": 0, #cons_window_low_min,
-            "cons_window_low_sec": 0, #cons_window_low_sec,
-            "cons_window_high_hour": 0, #cons_window_high_hour,
-            "cons_window_high_min": 0, #cons_window_high_min,
-            "cons_window_high_sec": 0, #cons_window_high_sec,
-            # TODO
-            "lib_window_low_hour": 0, #lib_window_low_hour,
-            "lib_window_low_min": 0, #lib_window_low_min,
-            "lib_window_low_sec": 0, #lib_window_low_sec,
-            "lib_window_high_hour":0, # lib_window_high_hour,
-            "lib_window_high_min": 0, #lib_window_high_min,
-            "lib_window_high_sec": 0, #lib_window_high_sec,
-            # TODO
-            "stalk_start_hour": 0, #stalk_start_hour,
-            "stalk_start_min": 0, #stalk_start_min,
-            "stalk_start_sec": 0, #stalk_start_sec,
-            "feed_start_hour": 0,
-            "feed_start_min": 0,
-            "feed_start_sec": 0,
-            "feed_stop_hour": 0,
-            "feed_stop_min": 0,
-            "feed_stop_sec": 0,
-            # TODO
-            "marker_1_hour": marker_1_hour,
-            "marker_1_min": marker_1_min,
-            "marker_1_sec": marker_1_sec,
-            "marker_1_label": marker_1_label,   
-            # TODO
-            "marker_2_hour": marker_2_hour,
-            "marker_2_min": marker_2_min,
-            "marker_2_sec": marker_2_sec,
-            "marker_2_label": marker_2_label,           
+            "marker_1_label": marker_1_label,
+            "marker_2_label": marker_2_label,
 
             "year": year,
             "month": month,
@@ -452,12 +418,9 @@ def get_plot_info_entries(plot_configs):
             "Kill_ID": kill_id,
             "lion_plot_path": lion_plot_path,
             "csv_path": csv_path,
-
             "beh_start": datetime(year, month, day, marker_1_hour, marker_1_min, marker_1_sec),
             "beh_end": datetime(year, month, day, marker_2_hour, marker_2_min, marker_2_sec),
-
             "marker_info": get_marker_info(info_plot=True, marker_1_label=marker_1_label, marker_2_label=marker_2_label),
-            "is_sixhour": "FALSE",
             "plot_type": plot_label,
             "behavior": beh,
         }
@@ -472,9 +435,6 @@ def get_plot_info_entries(plot_configs):
         for csv in missing_csvs:
             print(f"\t{csv}")
 
-    # print("\nWe plan on generating this many plots per cat:")
-    # for key, value in plot_counts.items():
-    #     print(f"\t{key}: {value * len(view_configs)}")
 
     for config in configs:
         copied_cfg = copy.deepcopy(config)
@@ -488,12 +448,8 @@ def get_plot_info_entries(plot_configs):
         expected_plots.add(copied_cfg["lion_plot_path"])
 
                 
-    print(f"\nGenerated {len(generated_files)} commands")
+    print(f"\nGenerated {len(generated_files)} info commands")
 
-    
-    # for expected_plot in expected_plots:
-    #     for key in view_configs.keys():
-    #         all_expected_plots.add(f"{expected_plot}_{key}")
 
     return generated_files, expected_plots, beh_configs
 
@@ -547,15 +503,6 @@ def get_marker_info(info_plot=False, marker_1_label="Marker1", marker_2_label="M
         return get_vline_info("default", "Surge Windows")
 
 
-
-def run_r_script(script_name):
-    """
-    Launch R script, save output to name of script + .log
-    """
-    output_file = f"{script_name}.log"
-    r_path = os.path.abspath(data_paths["r_path"])
-    with open(output_file, 'w') as f:
-        subprocess.run([r_path, script_name], stdout=f, stderr=subprocess.STDOUT, check=True)
 
 def generate_plot_configs(configs, expected_plots):
     """
@@ -991,19 +938,6 @@ def main():
 
         start = time.time()
         
-        # max_processes = get_optimal_processes()  # Adjust this based on your system's capacity
-        # # Using ThreadPoolExecutor to run the scripts in parallel
-        # with concurrent.futures.ThreadPoolExecutor(max_workers=max_processes) as executor:
-        #     # Submit each script to the executor
-        #     # TODO: use generated scripts instead of updated scripts
-        #     futures = [executor.submit(run_r_script, script) for script in generated_scripts]
-        #
-        #     # Wait for all scripts to complete
-        #     for future in concurrent.futures.as_completed(futures):
-        #         try:
-        #             future.result()
-        #         except Exception as e:
-        #             print(f"Error occurred: {e}")
         plot_data_parallel(plot_configs)
 
         runtime = time.time() - start

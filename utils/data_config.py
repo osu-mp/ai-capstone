@@ -29,15 +29,15 @@ Various disk paths for where to read and write data
 data_paths = {
     "spreadsheet_root": f"{ROOT_DIR}/data",
     "csv_backup": f"{ROOT_DIR}/data/csv_backup",
-    "r_path": "C:\\Program Files\\R\\R-4.3.1\\bin\\Rscript.exe",
     "plot_root": f"{OUTPUT_DIR}/plots/",
     "raw_data_root": f"{OUTPUT_DIR}/BEBE-datasets/{experiment_name}/RawData/",   # dir where spreadsheet script writes files for BEBE formatter
     "formatted_data_root": f"{OUTPUT_DIR}/BEBE-datasets/{experiment_name}/FormatData",   # dir where BEBE formatted datasets live
 }
 
 if is_unix:
-    data_paths['r_path'] = "/usr/bin/Rscript"
+    pass
     # data_paths['plot_root'] = "/home/matthew/AI_Capstone/plots"
+
 
 """
 Spreadsheets to pull target times from
@@ -146,9 +146,6 @@ def validate_config():
     print("Checking config")
     spreadsheet_root = data_paths["spreadsheet_root"]
     assert(os.path.isdir(spreadsheet_root)), f"Unable to find input data dir: {spreadsheet_root}"
-    os.makedirs(data_paths["output_path"], exist_ok=True)
-    assert(os.access(data_paths["output_path"], os.W_OK)), f"Unable to write to output dir: {data_paths['output_path']}"
-    assert(os.access(data_paths["r_path"], os.X_OK)), "Unable to find/execute R"
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     assert(os.access(OUTPUT_DIR, os.W_OK)), "Unable to write to output dir"
