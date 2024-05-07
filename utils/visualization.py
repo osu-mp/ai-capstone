@@ -20,6 +20,8 @@ marker_lines = {
     'df_kill_phase2_end': {'color': 'blue', 'linestyle': '--', 'label': 'Kill End Phase 2'},
     "df_feed_start": {'color': 'magenta', 'linestyle': '-', 'label': 'Start Feed'},
     "df_feed_stop": {'color': 'purple', 'linestyle': '-', 'label': 'Stop Feed'},
+    "beh_start": {'color': 'green', 'linestyle': '-', 'label': 'Beh Start'},
+    "beh_end": {'color': 'red', 'linestyle': '-', 'label': 'Beh End'},
 }
 
 
@@ -89,9 +91,17 @@ def plot_data(config):
 
     # add any vertical markers that fall into the time window
     for marker in marker_lines:
+        if marker not in config:
+            continue
         marker_time = config[marker]
+        label = marker_lines[marker]['label']
+        if marker == "beh_start":
+            label = config['marker_1_label']
+        elif marker == "beh_end":
+            label = config['marker_2_label']
+
         if marker_time >= time_low and marker_time <= time_high:
-            plt.axvline(x=marker_time, color=marker_lines[marker]['color'], linestyle=marker_lines[marker]['linestyle'], label=marker_lines[marker]['label']),
+            plt.axvline(x=marker_time, color=marker_lines[marker]['color'], linestyle=marker_lines[marker]['linestyle'], label=label),
 
     # Add legend
     plt.legend()

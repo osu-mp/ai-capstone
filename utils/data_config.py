@@ -21,7 +21,7 @@ constants = {
     "USE_NON_KILL": False,        # if True label everything that is not Stalk/Kill/Feed as NON_KILL; else label as unkown
 }
 
-experiment_name = f"cam_feeding_{constants['OUTPUT_SAMPLE_RATE']}_hz"
+experiment_name = f"both_feeding_{constants['OUTPUT_SAMPLE_RATE']}_hz"
 
 """
 Various disk paths for where to read and write data
@@ -29,12 +29,10 @@ Various disk paths for where to read and write data
 data_paths = {
     "spreadsheet_root": f"{ROOT_DIR}/data",
     "csv_backup": f"{ROOT_DIR}/data/csv_backup",
-    "template_path": f"{ROOT_DIR}/rcode/template.r",
-    "output_path": f"{ROOT_DIR}/rcode/jobs/",
     "r_path": "C:\\Program Files\\R\\R-4.3.1\\bin\\Rscript.exe",
     "plot_root": f"{OUTPUT_DIR}/plots/",
     "raw_data_root": f"{OUTPUT_DIR}/BEBE-datasets/{experiment_name}/RawData/",   # dir where spreadsheet script writes files for BEBE formatter
-    "formatted_data_root": f"{ROOT_DIR}/BEBE-datasets-walk/{experiment_name}/FormatData",   # dir where BEBE formatted datasets live
+    "formatted_data_root": f"{OUTPUT_DIR}/BEBE-datasets/{experiment_name}/FormatData",   # dir where BEBE formatted datasets live
 }
 
 if is_unix:
@@ -148,7 +146,6 @@ def validate_config():
     print("Checking config")
     spreadsheet_root = data_paths["spreadsheet_root"]
     assert(os.path.isdir(spreadsheet_root)), f"Unable to find input data dir: {spreadsheet_root}"
-    assert(os.access(data_paths["template_path"], os.R_OK)), f"Unable tp read template file: {data_paths['template_path']}"
     os.makedirs(data_paths["output_path"], exist_ok=True)
     assert(os.access(data_paths["output_path"], os.W_OK)), f"Unable to write to output dir: {data_paths['output_path']}"
     assert(os.access(data_paths["r_path"], os.X_OK)), "Unable to find/execute R"

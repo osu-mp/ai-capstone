@@ -282,7 +282,7 @@ def parse_time(time_str):
     except:
         return time_str # TODO
     
-def get_plot_info_entries():
+def get_plot_info_entries(plot_configs):
     """
     Iterate over all entries in the info tab
     for each data window of interest.
@@ -294,7 +294,6 @@ def get_plot_info_entries():
     missing_csvs = set()
     plot_counts = defaultdict(int)
     generated_files = []
-    template_path = os.path.abspath(data_paths["template_path"])
     output_path = os.path.abspath(data_paths["output_path"])
     beh_configs = defaultdict(list)
 
@@ -476,29 +475,18 @@ def get_plot_info_entries():
     # print("\nWe plan on generating this many plots per cat:")
     # for key, value in plot_counts.items():
     #     print(f"\t{key}: {value * len(view_configs)}")
-    
-    
-        
-        
-    for data in configs:
-        with open(template_path, "r") as template_file:
-            template_content = template_file.read()
 
-        #     # for key, value in view_configs.items():
-        #     data["plot_type"] = f"{plot_label}"
-            data["window_pre_mins"] = 0# value["window_pre_mins"]
-            data["window_post_mins"] = 0# value["window_post_mins"]
-            data["minor_tick_interval"] = 10 # TODO value["minor_tick_interval"]
-            filled_template = template_content.format(**data)
-            filled_template = filled_template.replace("\\", "/")
+    for config in configs:
+        copied_cfg = copy.deepcopy(config)
+        copied_cfg["window_pre_mins"] = 0
+        copied_cfg["window_post_mins"] = 0
+        copied_cfg["minor_tick_interval"] = 10
+        copied_cfg["is_sixhour"] = False
 
-            out_fname = os.path.join(output_path, f"script_{data['lion_name']}_{data['plot_type']}_{data['Kill_ID']}_{plot_label}.r")
-            out_fname = out_fname.replace(" ", "_")
-            with open(out_fname, "w") as output_file:
-                output_file.write(filled_template)
-            if verbose:
-                print(f"Generated {out_fname}")
-            generated_files.append(out_fname)
+        # add the config to the running list (along with expected filename)
+        plot_configs.append(copied_cfg)
+        expected_plots.add(copied_cfg["lion_plot_path"])
+
                 
     print(f"\nGenerated {len(generated_files)} commands")
 
@@ -603,53 +591,6 @@ def generate_plot_configs(configs, expected_plots):
         combined_img_groups.append(combined_imgs)
 
     return plot_configs, combined_img_groups
-
-def generate_scripts(configs, expected_plots):
-    """
-    For each config generated from the spreadhsheet data, generate
-    an R script to extract the data.
-    Generate a batch file that will run contain all generated scripts.
-    :param configs:
-    :return:
-    """
-    template_path = os.path.abspath(data_paths["template_path"])
-    output_path = os.path.abspath(data_paths["output_path"])
-    all_expected_plots = set()
-
-    with open(template_path, "r") as template_file:
-        template_content = template_file.read()
-
-    generated_files = []
-    for config in configs:
-        for key, value in view_configs.items():
-            # lazy setup above, need to create copy of config for PLOTTYPE overwrite to work properly
-            copied_cfg = copy.deepcopy(config)
-            copied_cfg["plot_type"] = key
-            copied_cfg["lion_plot_path"] = copied_cfg["lion_plot_path"].replace("PLOTTYPE", key)
-            copied_cfg["window_pre_mins"] = value["window_pre_mins"]
-            copied_cfg["window_post_mins"] = value["window_post_mins"]
-            copied_cfg["minor_tick_interval"] = value["minor_tick_interval"]
-            copied_cfg["is_sixhour"] = str(key == "sixhour").upper()
-            filled_template = template_content.format(**copied_cfg)
-            filled_template = filled_template.replace("\\", "/")
-
-            out_fname = os.path.join(output_path, f"script_{copied_cfg['lion_name']}_{copied_cfg['plot_type']}_{copied_cfg['Kill_ID']}.r")
-            with open(out_fname, "w") as output_file:
-                output_file.write(filled_template)
-            if verbose:
-                print(f"Generated {out_fname}")
-            generated_files.append(out_fname)
-
-            all_expected_plots.add(copied_cfg["lion_plot_path"])
-
-    print(f"\nGenerated {len(generated_files)} commands")
-
-    
-    for expected_plot in expected_plots:
-        for key in view_configs.keys():
-            all_expected_plots.add(f"{expected_plot}")
-
-    return generated_files, all_expected_plots
 
 def get_all_view_options():
      # return a list of all valid views, used by command line parser
@@ -1017,13 +958,15 @@ def main():
     
     generated_scripts = []
     expected_plots = set()
+    plot_configs = []
+    combined_img_groups = []
 
     if generate_kill_plots:
         # generated_scripts, expected_plots = generate_scripts(configs, expected_plots)
         plot_configs, combined_img_groups = generate_plot_configs(configs, expected_plots)
 
     if generate_info_plots:    
-        info_scripts, info_expected_plots, beh_configs = get_plot_info_entries()
+        info_scripts, info_expected_plots, beh_configs = get_plot_info_entries(plot_configs)
         generated_scripts.extend(info_scripts)
         for plot in info_expected_plots:
             expected_plots.add(plot)
