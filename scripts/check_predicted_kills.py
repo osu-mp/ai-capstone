@@ -16,6 +16,8 @@ sys.path.append(bebe_dir)
 
 from BEBE.visualization.time_series import plot_track
 
+from utils.data_config import beh_names, beh_dict
+
 # $ python scripts/check_predicted_kills.py --prediction_dir=/home/matthew/AI_Capstone/ai-capstone/BEBE_results_phase2/harnet/F202_15sample_16hz_2hr_harnet/F202_15sample_16hz_2hr_harnet/fold_1/ --output_dir=/home/matthew/AI_Capstone/ai-capstone/BEBE_results_phase2/post_process/ --config_dir=/home/matthew/AI_Capstone/ai-capstone/BEBE-datasets-phase2/F202_15sample_16hz_2hr/FormatData/
 
 summary = """
@@ -27,9 +29,9 @@ Outputs -
         -There is no stalking within MIN_STALK_DELAY of the kill
         -The stalking before the kill is less than MIN_STALK_TIME
         -The kill is shorter than MIN_KILL_TIME
-        -The kill is longer than MAX_KILL_TIME
-        -There is no feeding within MIN_FEED_DELTA
-        -The feeding is shorter than MIN_FEED_DURATION
+        -(NOT IMPLEMENTED, is this needed?) The kill is longer than MAX_KILL_TIME
+        -There is no feeding within MAX_FEED_DELTA
+        -The feeding is shorter than MIN_FEED_TIME
     Plot:
         x, y, z, accel data
         input data (each time segment has a behavior assigned)
@@ -47,25 +49,109 @@ Outputs -
 SAMPLING_RATE = 16  # Sampling rate in Hz
 MIN_STALK_DELAY = 3 * SAMPLING_RATE  # Minimum delay between stalk end and kill start in samples (2 seconds at 16Hz) (allows for human labelling error)
 MIN_STALK_TIME = 5 * SAMPLING_RATE  # Minimum stalking time in samples (4 seconds at 16Hz)
-MIN_KILL_TIME = 3 * SAMPLING_RATE  # Minimum kill time in samples (2 seconds at 16Hz) (phase 1) (TODO maybe 3?)
+MIN_KILL_TIME = 3 * SAMPLING_RATE  # Minimum kill time in samples (2 seconds at 16Hz) (phase 1)
+MAX_KILL_TIME = 15 * 60 * SAMPLING_RATE  # Maximum kill time in samples (15 minutes)
+
 MIN_PHASE_2_TIME = 3 * SAMPLING_RATE
 # NOT NEEDED MAX_KILL_TIME = 15 * 60 * SAMPLING_RATE  # Maximum kill time in samples (15 minutes)
-# MIN_FEED_DELTA = 15 * 60 * SAMPLING_RATE  # Minimum delay between kill and feed in samples (15 minutes) (delay between end of PHASE 2 and start of FEED)
-MAX_FEED_DELTA = 15 * 60 * SAMPLING_RATE # max amount of time between end of PHASE 2 and start of Feeding
-MIN_FEED_DURATION = 2 * 60 * SAMPLING_RATE  # Minimum feeding duration in samples (2 minutes)
+MIN_FEED_DELTA = 15 * 60 * SAMPLING_RATE  # Minimum delay between end of kill and feed START in samples (15 minutes) (delay between end of PHASE 2 and start of FEED)
+MAX_FEED_DELTA = 15 * 60 * SAMPLING_RATE # max amount of time between to look for FEED behavior after end of KILL
+MIN_FEED_TIME = 2 * 60 * SAMPLING_RATE  # Minimum feeding duration in samples (2 minutes)
+
+
+def check_kill_status(df, start_time, min_stalk_time=MIN_STALK_TIME, min_stalk_delay=MIN_STALK_DELAY,
+                      min_kill_time=MIN_KILL_TIME, min_feed_delta=MIN_FEED_DELTA, max_feed_delta=MAX_FEED_DELTA,
+                      min_feed_time=MIN_FEED_TIME):
+    """
+    Check if a kill behavior is valid based on the criteria at the top of the file
+
+    :param df:
+    :param start_time:
+    :param min_duration:
+    :return: True if all criteria are met, else False
+    """
+
+    # Check if start_time is within the index range of the DataFrame
+    if start_time < 0 or start_time >= len(df):
+        return False
+
+    # Check if the behavior at start_time is 'KILL'
+    if df.at[start_time, 'behavior'] != beh_dict['KILL']:
+        return False
+
+    # Check if there is enough STALK behavior before the kill start
+    stalk_count = 0
+    for i in range(start_time - 1, -1, -1):
+        if df.at[i, 'behavior'] == beh_dict['STALK']:
+            stalk_count += 1
+        elif min_stalk_time <= stalk_count <= min_stalk_time + min_stalk_delay:
+            break
+        else:
+            stalk_count = 0
+
+    # either not enough stalk time OR the stalking occurred outside of the MIN_STALK_DELAY window
+    if stalk_count <= min_stalk_time or stalk_count < min_stalk_time + min_stalk_delay:
+        return False
+
+    # Check if the kill behavior lasts for at least min_duration time steps
+    end_time = start_time + min_kill_time - 1
+    if end_time >= len(df):
+        return False
+
+    # ensure the kill is long enough
+    for i in range(start_time + 1, end_time + 1):
+        if df.at[i, 'behavior'] != beh_dict['KILL']:
+            return False
+
+    # find the actual end time of the kill
+    actual_kill_end_time = start_time
+    for i in range(start_time, len(df)):
+        if df.at[i, 'behavior'] != beh_dict['KILL']:
+            actual_kill_end_time = i - 1
+            break
+
+    # Check if there is FEED behavior within min_feed_delta of the end of the KILL behavior
+    feed_time_check_end = min(actual_kill_end_time + max_feed_delta + 1, len(df))
+    feed_start_min = actual_kill_end_time + min_feed_delta
+    feed_count = 0
+    for i in range(actual_kill_end_time, feed_time_check_end):
+        if df.at[i, 'behavior'] == beh_dict['FEED']:
+            feed_count += 1
+        elif feed_count == 0 and i >= feed_start_min:
+            # feeding has started early enough
+            return False
+
+    # check for enough feed time
+    if feed_count <= min_feed_time:
+        return False
+
+    # All criteria met, return True
+    return True
 
 def filter_model_predictions(prediction_csv, filtered_csv):
     # Load the CSV file into a DataFrame
     df = pd.read_csv(prediction_csv, header=None, names=['behavior'])
 
-    # Define the behavior labels
-    beh_names = ['unknown', 'STALK', 'KILL', 'KILL_PHASE2', 'FEED', 'NON_KILL']
+    # TODO: get rid of (WIP now)
+    df[['behavior']].to_csv(filtered_csv, header=False, index=False)
 
-    # Map behavior labels to their corresponding names
-    df['behavior_name'] = df['behavior'].map(lambda x: beh_names[x])
+    # Find the indices where 'kill' behavior starts
+    kill_starts = df[df['behavior'] == beh_dict['KILL']].index
 
-    # Identify sections where the behavior is 'KILL'
+    # Find the indices where the behavior changes from any other behavior to 'kill'
+    start_of_kill_sequences = [index for index in kill_starts if
+                               index == 0 or df.at[index - 1, 'behavior'] != beh_dict['KILL']]
+
+    print("Start of kill sequences:", start_of_kill_sequences)
+    for start in start_of_kill_sequences:
+        valid_kill = check_kill_status(df, start)
+        print(f"CHECK {start=}, {valid_kill=}")
+    return
+
     kill_sections = df[df['behavior_name'] == 'KILL']
+    for section in kill_sections:
+        print(f"{section=}")
+
 
     # Filter kills based on conditions
     filtered_kills = []
@@ -128,15 +214,6 @@ def create_spreadsheet(prediction_csv, filtered_csv, output_dir):
     # MAX_KILL_TIME = 64    # Maximum time for KILL behavior
     # MIN_FEED_DELTA = 32   # Minimum time between KILL and FEED behavior
     # MIN_FEED_DURATION = 32  # Minimum duration of FEED behavior
-
-    # Constants
-    SAMPLING_RATE = 16  # Sampling rate in Hz
-    MIN_STALK_DELAY = 2 * SAMPLING_RATE  # Minimum delay between stalk end and kill start in samples (2 seconds at 16Hz)
-    MIN_STALK_TIME = 4 * SAMPLING_RATE  # Minimum stalking time in samples (4 seconds at 16Hz)
-    MIN_KILL_TIME = 2 * SAMPLING_RATE  # Minimum kill time in samples (2 seconds at 16Hz)
-    MAX_KILL_TIME = 15 * 60 * SAMPLING_RATE  # Maximum kill time in samples (15 minutes)
-    MIN_FEED_DELTA = 15 * 60 * SAMPLING_RATE  # Minimum delay between kill and feed in samples (15 minutes)
-    MIN_FEED_DURATION = 2 * 60 * SAMPLING_RATE  # Minimum feeding duration in samples (2 minutes)
 
 
     # Create an Excel workbook and sheet
@@ -285,7 +362,11 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
     # check_dir(directory_path, output_dir, config_dir)
 
-    plot_updated(prediction_dir, config_dir, output_dir)
+    # plot_updated(prediction_dir, config_dir, output_dir)
+
+    input_csv = '/home/matthew/AI_Capstone/output/BEBE-results/CRNN/both_feeding_8_hz/both_feeding_8_hz_CRNN/fold_1/predictions/exp999_user2024.csv'
+    filtered_csv = '/home/matthew/AI_Capstone/output/BEBE-results/CRNN/both_feeding_8_hz/both_feeding_8_hz_CRNN/fold_1/predictions/exp999_user2024_filtered.csv'
+    filter_model_predictions(input_csv, filtered_csv)
 
     print("DONE")
 

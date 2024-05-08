@@ -78,6 +78,8 @@ beh_names = ['unknown',
              'WALK',
              #'NON_KILL',
             ]
+# Dictionary mapping behavior names to their numeric values
+beh_dict = {'unknown': 0, 'STALK': 1, 'KILL': 2, 'KILL_PHASE2': 3, 'FEED': 4, 'WALK': 5}
 
 """
 Configs for different data windows we may care about.
