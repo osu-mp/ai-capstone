@@ -398,7 +398,7 @@ def get_plot_info_entries(plot_configs):
             missing_csvs.add(csv_path)
             continue
 
-        expected_plots.add(lion_plot_path)
+        # expected_plots.add(lion_plot_path)
 
         plot_counts[lion_id] += 1
         data = {
@@ -448,7 +448,7 @@ def get_plot_info_entries(plot_configs):
         expected_plots.add(copied_cfg["lion_plot_path"])
 
                 
-    print(f"\nGenerated {len(generated_files)} info commands")
+    print(f"\nGenerated {len(expected_plots)} info commands")
 
 
     return generated_files, expected_plots, beh_configs
@@ -543,14 +543,20 @@ def get_all_view_options():
      # return a list of all valid views, used by command line parser
     return list(view_configs.keys())
 
+
 def combine_images(paths, new_name):
+    """
+    Given a list of images, combine them into a single PNG image (new_name)
+    :param paths: List of images to combine
+    :param new_name: Full path of file to generate
+    :return: True if operation succeeded, else False
+    """
     images = []
     for path in paths:
         if not os.path.isfile(path):
             print(f"Unable to combine images due to missing {path}")
-            return
+            return False
         images.append(Image.open(path))
-
 
     # Assuming all images have the same height, adjust if not
     total_height = images[0].height
@@ -569,6 +575,7 @@ def combine_images(paths, new_name):
 
     # Save the combined image
     combined_image.save(new_name)
+    return True
 
 def make_combined_imgs(img_groups):
     """
@@ -926,7 +933,7 @@ def main():
             plot_root = data_paths["plot_root"]
             print(f"Clearing PNG files from plot dir: {plot_root}")
             # remove all mega png files AND individual window plots
-            for pattern in ['*/*.png', '*/windows/*.png']:
+            for pattern in ['*/*.png', '*/*/*.png']:
                 file_pattern = os.path.join(plot_root, pattern)  
                 files_to_remove = glob.glob(file_pattern)
                 for file_path in files_to_remove:
