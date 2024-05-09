@@ -96,30 +96,36 @@ class TestFilterModelPredictions(unittest.TestCase):
             ]})
 
             # Test valid kill scenario
-            self.assertTrue(check_kill_status(df, 8, min_stalk_time=2, min_stalk_delay=3, min_kill_time=2,
-                                              min_feed_delta=4, max_feed_delta=6, min_feed_time=1))
+            status, msg = check_kill_status(df, 8, min_stalk_time=2, min_stalk_delay=3, min_kill_time=2,
+                                              min_feed_delta=4, max_feed_delta=6, min_feed_time=1)
+            self.assertTrue(status)
 
             # Test invalid kill scenario - not enough STALK behavior before the kill start
-            self.assertFalse(check_kill_status(df, 8, min_stalk_time=8, min_stalk_delay=3, min_kill_time=2,
-                                              min_feed_delta=4, max_feed_delta=6, min_feed_time=1))
+            status, msg = check_kill_status(df, 8, min_stalk_time=8, min_stalk_delay=3, min_kill_time=2,
+                                              min_feed_delta=4, max_feed_delta=6, min_feed_time=1)
+            self.assertFalse(status)
 
             # Test invalid kill scenario - STALK behavior is too far from the kill start
-            self.assertFalse(check_kill_status(df, 8, min_stalk_time=5, min_stalk_delay=2, min_kill_time=2,
-                                              min_feed_delta=4, max_feed_delta=6, min_feed_time=1))
+            status, msg = check_kill_status(df, 8, min_stalk_time=5, min_stalk_delay=1, min_kill_time=2,
+                                              min_feed_delta=4, max_feed_delta=6, min_feed_time=1)
+            self.assertFalse(status)
 
             # Test invalid kill scenario - KILL is too short
-            self.assertFalse(check_kill_status(df, 8, min_stalk_time=2, min_stalk_delay=3, min_kill_time=6,
-                                              min_feed_delta=4, max_feed_delta=6, min_feed_time=1))
+            status, msg = check_kill_status(df, 8, min_stalk_time=2, min_stalk_delay=3, min_kill_time=6,
+                                              min_feed_delta=4, max_feed_delta=6, min_feed_time=1)
+            self.assertFalse(status)
 
             # Test valid: FEED behavior occurs within min_feed_delta of the end of KILL behavior
-            self.assertTrue(check_kill_status(df, 8, min_stalk_time=4, min_stalk_delay=2,
+            status, msg = check_kill_status(df, 8, min_stalk_time=4, min_stalk_delay=2,
                                               min_kill_time=3, min_feed_delta=4, max_feed_delta=6,
-                                              min_feed_time=1))
+                                              min_feed_time=1)
+            self.assertTrue(status)
 
             # Test case: Not enough instances of FEED behavior within min_feed_time
-            self.assertFalse(check_kill_status(df, 8, min_stalk_time=4, min_stalk_delay=2,
+            status, msg = check_kill_status(df, 8, min_stalk_time=4, min_stalk_delay=2,
                                                min_kill_time=3, min_feed_delta=4, max_feed_delta=6,
-                                               min_feed_time=2))
+                                               min_feed_time=2)
+            self.assertFalse(status)
 
     def tearDown(self):
         # Remove the temporary directory and its contents

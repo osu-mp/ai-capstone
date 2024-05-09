@@ -8,6 +8,8 @@ import warnings
 # Suppress FutureWarning messages
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
+from utils.data_config import beh_names, beh_dict
+
 """
 Configuration of vertical lines added to the plots
 key = name of var in input config, value = details about displaying the line (color, style, label)
@@ -110,3 +112,64 @@ def plot_data(config):
     plt.savefig(config['lion_plot_path'])
     # print(f"Generated {config['lion_plot_path']}!")
     plt.close()
+
+
+def plot_kill_predictions(df, kill_statuses, fname):
+    """
+    Plot behavior data with status indicators for start of kill behaviors.
+
+    Args:
+    df (pd.DataFrame): DataFrame containing behavior data. Assumes a single column named 'behavior'.
+    start_times (list): List of start times for kill behaviors.
+
+    Returns:
+    None
+    """
+
+    # Plotting
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    # Sample data
+    time_periods = range(len(df))
+    behavior_data = df['behavior'].tolist()
+
+    # find the location of the kill behavior and put markers above it
+    kill_marker_index = beh_dict['KILL'] + 0.5
+
+    # Plot behavior data
+    for beh_name, beh_value in beh_dict.items():
+        y_data = [beh_value if b == beh_value else None for b in behavior_data]
+        ax.plot(time_periods, y_data, linewidth=4)
+
+    # # Plot status indicators for start of kill behaviors
+    for time, status in kill_statuses.items():
+        marker = 'x' if not status else 'P'
+        color = 'red' if not status else 'green'
+        ax.scatter(time, kill_marker_index, marker=marker, color=color, s=100)
+
+    # Adjusting line height
+    num_behaviors = len(beh_dict) / 2.5
+    line_height = num_behaviors  # Adjust this value to control the line height
+    ax.set_ylim(-line_height, num_behaviors * (line_height))
+
+
+    # Set y-axis labels
+    ax.set_yticks(range(len(beh_names)))
+    ax.set_yticklabels(beh_names)
+
+    # Set plot title and labels
+    ax.set_title('Behavior Sequence with Kill Status Indicators')
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Behavior')
+
+    # Create custom legend for '+' and 'X' markers
+    ax.scatter([], [], marker='P', color='green', s=100, label='Kill Succeeded')  # Green Plus
+    ax.scatter([], [], marker='x', color='red', s=100, label='Kill Failed')  # Red X
+    ax.legend()
+
+    # Show plot
+    # plt.grid(True)
+    plt.tight_layout()  # Adjust layout to remove whitespace
+
+    plt.savefig(fname)
+
