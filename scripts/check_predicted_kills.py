@@ -59,6 +59,7 @@ MIN_FEED_DELTA = 60 * 60 * SAMPLING_RATE  # Minimum delay between end of kill an
 MAX_FEED_DELTA = 3 * 60 * 60 * SAMPLING_RATE # max amount of time between to look for FEED behavior after end of KILL
 MIN_FEED_TIME = 5 * 60 * SAMPLING_RATE  # Minimum feeding duration in samples (2 minutes)
 
+DEBUG = False
 
 def check_kill_status(df, start_time, min_stalk_time=MIN_STALK_TIME, min_stalk_delay=MIN_STALK_DELAY,
                       min_kill_time=MIN_KILL_TIME, min_feed_delta=MIN_FEED_DELTA, max_feed_delta=MAX_FEED_DELTA,
@@ -135,7 +136,7 @@ def check_kill_status(df, start_time, min_stalk_time=MIN_STALK_TIME, min_stalk_d
     # All criteria met, return True
     return True, "All criteria met successfully"
 
-def filter_model_predictions(prediction_csv, filtered_csv):
+def filter_model_predictions(prediction_csv, filtered_csv, plot_fname):
     # Load the CSV file into a DataFrame
     df = pd.read_csv(prediction_csv, header=None, names=['behavior'])
 
@@ -150,21 +151,30 @@ def filter_model_predictions(prediction_csv, filtered_csv):
                                index == 0 or df.at[index - 1, 'behavior'] != beh_dict['KILL']]
 
     kill_statuses = {}
-    print("Start of kill sequences:", start_of_kill_sequences)
+    if DEBUG:
+        print("Start of kill sequences:", start_of_kill_sequences)
+
+    valid, invalid = 0, 0
     for start in start_of_kill_sequences:
         valid_kill, message = check_kill_status(df, start)
         kill_statuses[start] = valid_kill
-        print(f"CHECK {start=}, {valid_kill=}, {message=}")
+        if DEBUG:
+            print(f"    {start=}, {valid_kill=}, {message=}")
+        if valid_kill:
+            valid += 1
+        else:
+            invalid += 1
 
 
     # TODO: do we need to change kill labels?
-    fname = "blah.png"
-    plot_kill_predictions(df, kill_statuses, fname)
-    print("DONE")
-    
+    plot_kill_predictions(df, kill_statuses, plot_fname)
+
     # Save the updated DataFrame to a new CSV file
     # df.to_csv(filtered_csv, header=False, index=False)
     df[['behavior']].to_csv(filtered_csv, header=False, index=False)
+
+
+    print(f"{valid=}, {invalid=}, {prediction_csv=}, ")
 
     return prediction_csv, kill_statuses
 
@@ -344,6 +354,29 @@ def print_info():
     print(f"Max. feed delta: {MAX_FEED_DELTA / SAMPLING_RATE / 60} min.")
     print(f"Min. feed time: {MIN_FEED_TIME / SAMPLING_RATE / 60} min.")
 
+def plot_dir(INPUT_DIR, OUTPUT_DIR, PLOT_DIR):
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    os.makedirs(PLOT_DIR, exist_ok=True)
+
+    print(f"{INPUT_DIR=}")
+    # Loop through all files in INPUT_DIR
+    for filename in os.listdir(INPUT_DIR):
+        if filename.endswith(".csv"):
+            if DEBUG:
+                print(f"Working on {filename=}")
+            # Create paths for input and output files
+            prediction_csv = os.path.join(INPUT_DIR, filename)
+            filtered_csv = os.path.join(OUTPUT_DIR, filename)
+
+            # Generate plot_fname
+            plot_basename = os.path.splitext(filename)[0] + ".png"
+            plot_fname = os.path.join(PLOT_DIR, plot_basename)
+
+            # Call the function with the generated parameters
+            filter_model_predictions(prediction_csv, filtered_csv, plot_fname)
+            if DEBUG:
+                print(f"Generated {plot_fname=}")
+
 def main():
     print_info()
     parser = argparse.ArgumentParser(description=summary, formatter_class=argparse.RawTextHelpFormatter)
@@ -364,9 +397,15 @@ def main():
 
     # plot_updated(prediction_dir, config_dir, output_dir)
 
-    input_csv = '/home/matthew/AI_Capstone/output/BEBE-results/CRNN/both_feeding_8_hz/both_feeding_8_hz_CRNN/fold_1/predictions/exp999_user2024.csv'
-    filtered_csv = '/home/matthew/AI_Capstone/output/BEBE-results/CRNN/both_feeding_8_hz/both_feeding_8_hz_CRNN/fold_1/predictions/exp999_user2024_filtered.csv'
-    filter_model_predictions(input_csv, filtered_csv)
+    # input_csv = '/home/matthew/AI_Capstone/output/BEBE-results/CRNN/both_feeding_8_hz/both_feeding_8_hz_CRNN/fold_1/predictions/exp999_user2024.csv'
+    # filtered_csv = '/home/matthew/AI_Capstone/output/BEBE-results/CRNN/both_feeding_8_hz/both_feeding_8_hz_CRNN/fold_1/predictions/exp999_user2024_filtered.csv'
+    # filter_model_predictions(input_csv, filtered_csv)
+
+    INPUT_DIR = "/home/matthew/AI_Capstone/output/BEBE-results/CRNN/both_feeding_8_hz/both_feeding_8_hz_CRNN/fold_1/predictions"
+    OUTPUT_DIR = "/home/matthew/AI_Capstone/output/BEBE-results/CRNN/both_feeding_8_hz/both_feeding_8_hz_CRNN/fold_1/filtered_predictions"
+    PLOT_DIR = "/home/matthew/AI_Capstone/output/BEBE-results/CRNN/both_feeding_8_hz/both_feeding_8_hz_CRNN/fold_1/prediction_plots"
+
+    plot_dir(INPUT_DIR, OUTPUT_DIR, PLOT_DIR)
 
     print("DONE")
 
