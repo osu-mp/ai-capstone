@@ -8,7 +8,7 @@ import sys
 ROOT_DIR = str(Path(__file__).parent.parent.absolute())
 sys.path.append(ROOT_DIR)
 
-from utils.general import  *
+from utils.general import *
 
 class TestMstToUtcWithDst(unittest.TestCase):
     def test_standard_time(self):

@@ -20,6 +20,9 @@ raw_data_root = Path(data_paths["raw_data_root"])
 raw_data_dir = str(raw_data_root.parent)
 formatted_data_dir = data_paths["formatted_data_root"]
 
+print(f"Reading raw data from: {raw_data_dir}")
+print(f"Writing formmated data to: {formatted_data_dir}")
+
 # %% [markdown]
 # ## Outputs:
 # - dataset_metadata (yaml)
@@ -33,11 +36,10 @@ formatted_data_dir = data_paths["formatted_data_root"]
 import os
 import numpy as np
 import pandas as pd
-import h5py
 from matplotlib import pyplot as plt
 import glob
 import yaml
-import scipy.signal as signal
+
 
 # %% [markdown]
 # We first set up directories where datafiles and metadata will be stored
@@ -437,15 +439,15 @@ def create_list_of_durations(x, infill_max_dur_sec, samplerate, unknown_value = 
             
     list_of_durs.append(current_dur)
     list_of_labels.append(current_value)
-            
+
     # repeatedly merge similar labels if they are seperated by unknowns of short duration
     # This is mainly to deal with duty cycling of observations
     infill_max_dur_samples = int(infill_max_dur_sec * samplerate)
-    
+
     if list_of_labels[0] == unknown_value:
         del list_of_labels[0]
         del list_of_durs[0]
-        
+
     if list_of_labels[-1] == unknown_value:
         del list_of_labels[-1]
         del list_of_durs[-1]
@@ -475,7 +477,11 @@ for fp in tqdm.tqdm(clip_fps):
     clip_id = fp.stem
     individual_id = metadata['clip_id_to_individual_id'][clip_id]
     clip_annotations = list(pd.read_csv(fp, header = None).values[:, -1])
-    l, d = create_list_of_durations(clip_annotations, infill_max_dur_sec, metadata['sr'])
+    try:
+        l, d = create_list_of_durations(clip_annotations, infill_max_dur_sec, metadata['sr'])
+    except Exception as e:
+        print(f"Failed: {fp=}")
+        print(e)
     durs_sec_by_individual[individual_id].extend(d)
     overall_durs_sec.extend(d)
     
