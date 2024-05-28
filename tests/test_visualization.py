@@ -39,8 +39,8 @@ class TestPlotKillPredictions(unittest.TestCase):
         generated_fname = os.path.join(self.test_dir, 'test_plot_kill_predictions.png')
         reference_plot = os.path.join(TEST_DATA_ROOT, 'reference_plot.png')
         dummy_csv = os.path.join(self.test_dir, 'exp999_user2024.csv')
-        dummy_csv, kill_statuses = filter_model_predictions(test_csv, dummy_csv)
-        plot_kill_predictions(df, kill_statuses, generated_fname)
+        dummy_csv, kill_statuses = filter_model_predictions(test_csv, dummy_csv, generated_fname)
+        # plot_kill_predictions(df, kill_statuses, generated_fname)
         self.assertTrue(filecmp.cmp(generated_fname, reference_plot))
 
 if __name__ == '__main__':

@@ -136,7 +136,7 @@ def check_kill_status(df, start_time, min_stalk_time=MIN_STALK_TIME, min_stalk_d
     # All criteria met, return True
     return True, "All criteria met successfully"
 
-def filter_model_predictions(prediction_csv, filtered_csv, plot_fname):
+def filter_model_predictions(prediction_csv, filtered_csv, plot_fname=None):
     # Load the CSV file into a DataFrame
     df = pd.read_csv(prediction_csv, header=None, names=['behavior'])
 
@@ -167,7 +167,8 @@ def filter_model_predictions(prediction_csv, filtered_csv, plot_fname):
 
 
     # TODO: do we need to change kill labels?
-    plot_kill_predictions(df, kill_statuses, plot_fname)
+    if plot_fname:
+        plot_kill_predictions(df, kill_statuses, plot_fname)
 
     # Save the updated DataFrame to a new CSV file
     # df.to_csv(filtered_csv, header=False, index=False)
