@@ -172,4 +172,4 @@ def plot_kill_predictions(df, kill_statuses, fname):
     plt.tight_layout()  # Adjust layout to remove whitespace
 
     plt.savefig(fname)
-
+    plt.close()
