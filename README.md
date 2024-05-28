@@ -10,10 +10,10 @@ To run BEBE model
 > conda activate BEBE_GPU
 
 # Testing
-To run all tests, run the 'run_all_tests.py' script. This will report a status for every test in the tests subdir. If you would like more info about an individual test, run the test_<file>.py directly.
+To run all tests, run the 'run_all_tests.py' script. This will report a status for every test in the tests subdir. If you would like more info about an individual test, run that particular test file directly.
 
 Source the BEBE_GPU env and execute run_all_tests.py from the root dir, e.g.:
-> conda activate BEBE_GPU
+> conda activate BEBE_GPU ;
 > python tests/run_all_tests.py
 
 # General scripts
