@@ -1,6 +1,7 @@
 # ai-capstone
-AI Capstone Project - Linking Fine-Scale Behaviors to Spatial Interactions Between Apex Predators
-TODO: Link to final report (currently WIP)
+AI Capstone Project - Modeling Cougar Predation Patterns: Leveraging
+Accelerometer Data for Enhanced Behavioral Insights
+Project report and summary: https://github.com/osu-mp/ai-capstone/blob/main/ProjectSummary.pdf
 
 # Environment
 To run most scripts (everything but model)
